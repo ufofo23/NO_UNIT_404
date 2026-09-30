@@ -1,0 +1,27 @@
+{
+    "name": "NO404.Tests.PlayMode",
+    "rootNamespace": "NO404.Tests",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "NO404.Runtime",
+        "Unity.Netcode.Runtime",
+        "Unity.Collections",
+        "Unity.Services.Multiplayer",
+        "Unity.Services.Core",
+        "Unity.Netcode.Components"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

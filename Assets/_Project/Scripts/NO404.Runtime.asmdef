@@ -1,0 +1,23 @@
+{
+    "name": "NO404.Runtime",
+    "rootNamespace": "NO404",
+    "references": [
+        "Unity.InputSystem",
+        "UnityEngine.UI",
+        "Unity.Netcode.Runtime",
+        "Unity.Collections",
+        "Unity.Networking.Transport",
+        "Unity.Services.Multiplayer",
+        "Unity.Services.Core",
+        "Unity.Services.Authentication"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
