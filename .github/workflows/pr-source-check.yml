@@ -1,0 +1,19 @@
+# main 브랜치로의 PR은 dev 브랜치에서만 허용
+name: PR Source Branch Check
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  check-source-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify PR comes from dev
+        run: |
+          if [ "${{ github.head_ref }}" != "dev" ]; then
+            echo "::error::main 브랜치로의 PR은 dev 브랜치에서만 가능합니다. (현재: ${{ github.head_ref }})"
+            exit 1
+          fi
+          echo "OK: dev -> main"
