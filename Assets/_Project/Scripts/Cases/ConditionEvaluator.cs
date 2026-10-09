@@ -119,10 +119,59 @@ namespace NO404.Cases
                     reason = "night " + state.NightIndex + " < " + condition.valueA;
                     return false;
                 }
+
+                case ConditionType.VisitorAccessRank:
+                {
+                    // Pending ranks below Reject, so a caller nobody has judged matches nothing.
+                    int furthest = -1;
+                    foreach (var visitorId in VisitorIds(condition.keyA))
+                    {
+                        int rank = Visitors.VisitorAccess.RiskRank(ServiceHub.Interphone.DecisionFor(visitorId));
+                        if (rank > furthest) furthest = rank;
+                    }
+
+                    if (furthest >= condition.valueA && furthest <= condition.valueB) return true;
+                    reason = "access rank for " + condition.keyA + " is " + furthest +
+                             ", need " + condition.valueA + ".." + condition.valueB;
+                    return false;
+                }
+
+                case ConditionType.VisitorWasHeld:
+                {
+                    bool held = false;
+                    foreach (var visitorId in VisitorIds(condition.keyA))
+                        if (state.GetFlag(Visitors.InterphoneService.HeldFlag(visitorId))) held = true;
+
+                    if (held == condition.boolValue) return true;
+                    reason = condition.keyA + " held=" + held;
+                    return false;
+                }
+
+                case ConditionType.EvidenceTagCount:
+                {
+                    int count = 0;
+                    foreach (var pair in ServiceHub.Evidence.Owned)
+                    {
+                        var definition = pair.Value.Definition;
+                        if (definition == null || definition.tags == null) continue;
+                        if (!string.IsNullOrEmpty(condition.keyB) && definition.ownerCaseId != condition.keyB) continue;
+                        if (System.Array.IndexOf(definition.tags, condition.keyA) >= 0) count++;
+                    }
+
+                    if ((count >= condition.valueA) == condition.boolValue) return true;
+                    reason = count + " evidence tagged " + condition.keyA + ", wanted " +
+                             (condition.boolValue ? ">= " : "< ") + condition.valueA;
+                    return false;
+                }
             }
 
             reason = "unhandled condition type " + condition.type;
             return false;
+        }
+
+        static string[] VisitorIds(string joined)
+        {
+            return string.IsNullOrEmpty(joined) ? new string[0] : joined.Split('|');
         }
 
         public static bool EvaluateAll(ConditionDefinition[] conditions, out string failReason)

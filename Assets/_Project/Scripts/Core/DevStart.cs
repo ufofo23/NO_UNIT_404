@@ -105,9 +105,18 @@ namespace NO404.Core
                 var c = consequences[i];
                 if (c == null || c.nextNight) continue;
 
-                if (c.type == ConsequenceType.SetFlag || c.type == ConsequenceType.SetChoice ||
-                    c.type == ConsequenceType.StatDelta)
-                    kept.Add(c);
+                if (c.type != ConsequenceType.SetFlag && c.type != ConsequenceType.SetChoice &&
+                    c.type != ConsequenceType.StatDelta)
+                    continue;
+
+                // Without its conditions. "Handled well" means the night went as well as that
+                // decision allows, and the things a condition would look for - what was in the
+                // tray, who was let through the door - are exactly what this start skipped.
+                kept.Add(new ConsequenceDefinition
+                {
+                    type = c.type, targetId = c.targetId, amount = c.amount, boolValue = c.boolValue,
+                    stringValue = c.stringValue, reasonKey = c.reasonKey
+                });
             }
 
             return kept.ToArray();

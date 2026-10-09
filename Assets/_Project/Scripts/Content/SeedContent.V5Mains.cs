@@ -1,6 +1,7 @@
 using NO404.Cases;
 using NO404.Core;
 using NO404.Evidence;
+using NO404.Visitors;
 
 namespace NO404.ContentData
 {
@@ -206,45 +207,75 @@ namespace NO404.ContentData
                 "E06_CCTV_WEATHER_MISMATCH", "EV_WAYBILL_ORDER", "EV_LOBBY_CLOCK", "EV_LOBBY_FOOTPRINTS"
             };
 
+            // v5.1 11: SAN -5 the first time the same man is seen in two places. It is charged
+            // on seeing it, not on the report, so it lands whatever is decided afterwards.
+            var seeTheDouble = Objective("obj_watch_cam02", "case.n2m01.objective.watch_cam02",
+                                         ObjectiveType.ViewCctvChannel, "CAM-02");
+            seeTheDouble.onComplete = new[]
+            {
+                ConsequenceDefinition.Sanity(-5, "reason.saw_the_same_man_twice")
+            };
+
+            // He rings twice, and both calls are the same decision about the same man.
             c.objectives = new[]
             {
-                Objective("obj_watch_cam02", "case.n2m01.objective.watch_cam02",
-                          ObjectiveType.ViewCctvChannel, "CAM-02"),
+                seeTheDouble,
                 Objective("obj_check_lobby", "case.n2m01.objective.check_lobby",
                           ObjectiveType.EnterZone, ZoneIds.Lobby),
                 Objective("obj_judge_junho", "case.n2m01.objective.judge",
-                          ObjectiveType.JudgeVisitor, "vis_junho_real")
+                          ObjectiveType.JudgeVisitor, "vis_junho_real"),
+                Objective("obj_judge_junho_again", "case.n2m01.objective.judge_again",
+                          ObjectiveType.JudgeVisitor, "vis_junho_second")
             };
+
+            // The report is the log entry for what was done at the door, not a second chance
+            // to decide it. Each option is only on the form when the door log agrees with it,
+            // so exactly one of the four is ever offered: the furthest either call was let in
+            // decides which, and "kept him outside" needs him to have actually been held.
+            const string Junho = "vis_junho_real|vis_junho_second";
+
+            var toTheLobby = ConditionDefinition.VisitorAccess(Junho, VisitorAccessLevel.Vestibule,
+                                                               VisitorAccessLevel.Escorted);
+            var pastTheLobby = ConditionDefinition.VisitorAccess(Junho, VisitorAccessLevel.FloorPass,
+                                                                 VisitorAccessLevel.FullTemporary);
+            var turnedAway = ConditionDefinition.VisitorAccess(Junho, VisitorAccessLevel.Reject,
+                                                               VisitorAccessLevel.Reject);
+
+            // v5.1 11: "ECHO_RULE_CONFIRMED = TRUE if 2 or more invariants". Applies to either
+            // safe answer - what confirms the rule is how it was checked, not how long he
+            // stood in the rain.
+            var twoInvariants = ConditionDefinition.EvidenceTagged(EvidenceTags.Invariant, c.caseId, 2);
 
             c.decisions = new[]
             {
                 Decision("dec_verified_lobby_only", "case.n2m01.decision.lobby_only",
                     "case.n2m01.result.lobby_only", DecisionQuality.Correct,
-                    null, null,
-                    ConsequenceDefinition.Flag(FlagIds.EchoRuleConfirmed, true),
+                    null, new[] { toTheLobby, ConditionDefinition.VisitorHeld(Junho, false) },
                     ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "TRUSTED"),
-                    ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, 5, "reason.correct_report"),
-                    ConsequenceDefinition.Sanity(-5, "reason.saw_the_same_man_twice"),
-                    ConsequenceDefinition.Sanity(3, "reason.read_correctly")),
+                    VerifiedEchoRule(twoInvariants),
+                    VerifiedCalm(twoInvariants),
+                    WaybillKept()),
 
                 Decision("dec_wait_outside", "case.n2m01.decision.wait_outside",
                     "case.n2m01.result.wait_outside", DecisionQuality.Partial,
-                    null, null,
+                    null, new[] { toTheLobby, ConditionDefinition.VisitorHeld(Junho) },
                     ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "NEUTRAL"),
                     ConsequenceDefinition.Stat(StatIds.CommunityTrust, -3, "reason.delivery_delayed"),
-                    ConsequenceDefinition.Sanity(-5, "reason.saw_the_same_man_twice")),
+                    VerifiedEchoRule(twoInvariants),
+                    VerifiedCalm(twoInvariants),
+                    WaybillKept()),
 
-                // v5.0 11: an unverified full pass is the access debt this campaign bills for.
+                // v5.1 11: a pass past the lobby is the access debt this campaign bills for.
+                // What following him upstairs costs is charged where it happens, not here.
                 Decision("dec_full_pass", "case.n2m01.decision.full_pass",
                     "case.n2m01.result.full_pass", DecisionQuality.Wrong,
-                    null, null,
+                    null, new[] { pastTheLobby },
                     ConsequenceDefinition.Debt(DebtIds.Access, 1, "reason.unverified_pass"),
-                    ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "NEUTRAL"),
-                    ConsequenceDefinition.Sanity(-8, "reason.followed_the_wrong_one")),
+                    ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "NEUTRAL")),
 
                 Decision("dec_reject", "case.n2m01.decision.reject",
                     "case.n2m01.result.reject", DecisionQuality.Wrong,
-                    null, null,
+                    null, new[] { turnedAway },
                     ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "REJECTED"),
                     ConsequenceDefinition.Debt(DebtIds.Trust, 1, "reason.turned_away_a_real_caller"),
                     ConsequenceDefinition.Stat(StatIds.CommunityTrust, -5, "reason.wrong_report"))
@@ -253,6 +284,30 @@ namespace NO404.ContentData
             c.failSafe = FailSafe(T0300, null, "case.n2m01.failsafe.notify");
             c.analyticsName = "n2_main_two_junho";
             return c;
+        }
+
+        static ConsequenceDefinition VerifiedEchoRule(ConditionDefinition twoInvariants)
+        {
+            return ConsequenceDefinition.Flag(FlagIds.EchoRuleConfirmed, true).When(twoInvariants);
+        }
+
+        /// <summary>v5.1 11: SAN +3 for a physical check that came out right.</summary>
+        static ConsequenceDefinition VerifiedCalm(ConditionDefinition twoInvariants)
+        {
+            return ConsequenceDefinition.Sanity(3, "reason.read_correctly").When(twoInvariants);
+        }
+
+        /// <summary>
+        /// v5.1 11: ArchiveIntegrity +5 "if the 2009 box / waybill is preserved".
+        ///
+        /// ASSUMPTION: read as the waybill numbers having been written down tonight. The 2009
+        /// box itself belongs to N2-R05, which is not built yet, and v5.1 does not say which
+        /// of the two the main is meant to check.
+        /// </summary>
+        static ConsequenceDefinition WaybillKept()
+        {
+            return ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, 5, "reason.correct_report")
+                                        .When(ConditionDefinition.Evidence("EV_WAYBILL_ORDER"));
         }
 
         // =================================================================

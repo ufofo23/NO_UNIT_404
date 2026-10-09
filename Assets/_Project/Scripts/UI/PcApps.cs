@@ -2069,11 +2069,17 @@ namespace NO404.UI
                 Loc.T("ui.report.submit_for", Loc.T(tracked.Definition.titleKey)), 13, TextAnchor.UpperLeft);
             UiFactory.SetHeight(header.gameObject, 22f);
 
+            // Only what can actually be filed. A decision whose conditions are not met is not
+            // a choice the caretaker has, and listing it only to refuse it when pressed is the
+            // dead button this project keeps removing (v5.1 19.1 Availability).
             var decisions = tracked.Definition.decisions;
             for (int i = 0; i < decisions.Length; i++)
             {
                 var decision = decisions[i];
                 var caseId = tracked.CaseId;
+
+                string unmet;
+                if (!ConditionEvaluator.EvaluateAll(decision.availability, out unmet)) continue;
 
                 var button = UiFactory.CreateButton("Decision_" + decision.decisionId, _reportRoot,
                     Loc.T(decision.labelKey), 13, () => Submit(caseId, decision.decisionId));

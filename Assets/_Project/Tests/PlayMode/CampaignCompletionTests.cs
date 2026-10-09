@@ -70,6 +70,25 @@ namespace NO404.Tests
         }
 
         /// <summary>
+        /// Answers the door when no report can be filed without it.
+        ///
+        /// A report row can depend on what was done at the door (v5.1 19.1 Availability). If
+        /// none of a case's rows is on offer, the walk answers every caller the plainest way
+        /// there is - as far as the lobby - so that one of them is.
+        /// </summary>
+        static void AnswerTheDoorIfNothingIsOnOffer(CaseDefinition definition)
+        {
+            foreach (var decision in definition.decisions)
+            {
+                string unmet;
+                if (ConditionEvaluator.EvaluateAll(decision.availability, out unmet)) return;
+            }
+
+            for (int guard = 0; guard < 16 && ServiceHub.Interphone.Active != null; guard++)
+                ServiceHub.Interphone.Grant(Visitors.VisitorAccessLevel.LobbyOnly);
+        }
+
+        /// <summary>
         /// Closes every case the night drew, by picking the first decision the night allows.
         ///
         /// Deliberately the first rather than the best: a campaign that can only be completed
@@ -112,6 +131,8 @@ namespace NO404.Tests
 
                 if (SubquestRules.ReportBlockedKey(definition.caseId) != null)
                     SubquestRules.Act(definition.caseId == "N3-R08" ? "n3r08_marker" : "n5r10_marker");
+
+                AnswerTheDoorIfNothingIsOnOffer(definition);
 
                 var result = DecisionResult.Rejected("no decisions");
                 for (int d = 0; d < definition.decisions.Length && !result.Accepted; d++)

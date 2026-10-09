@@ -144,6 +144,15 @@ namespace NO404.Visitors
             get { return _consultedSources.Count + Read.EstablishedFactCount; }
         }
 
+        /// <summary>
+        /// The flag that remembers a caller was left waiting outside.
+        ///
+        /// The final decision overwrites the hold in the decision table, and a report that
+        /// says "kept him outside while I checked" needs to know it happened. A flag, because
+        /// flags are already saved and already readable by a condition.
+        /// </summary>
+        public static string HeldFlag(string visitorId) { return visitorId + ".held"; }
+
         public VisitorAccessLevel DecisionFor(string visitorId)
         {
             VisitorAccessLevel level;
@@ -196,6 +205,7 @@ namespace NO404.Visitors
                 // Holding costs time and keeps them standing there (GDD 13.3). It is not a
                 // resolution: the caller stays at the panel and the queue does not move.
                 ServiceHub.Cases.ApplyConsequences(visitor.onHold);
+                ServiceHub.State.SetFlag(HeldFlag(visitor.visitorId), true);
                 ServiceHub.Clock.AdvanceSeconds(120);
                 Log.Info("Interphone", visitor.visitorId + " held outside");
 

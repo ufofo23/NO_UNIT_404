@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using NO404.Cases;
 using NO404.Core;
+using NO404.Evidence;
+using NO404.Save;
+using NO404.Visitors;
 
 namespace NO404.Tests
 {
@@ -173,6 +176,195 @@ namespace NO404.Tests
         {
             CollectionAssert.Contains(GrantedByTalkingTo("D_N2_JUNHO_ENTRY"), "EV_WAYBILL_ORDER");
             CollectionAssert.Contains(GrantedByTalkingTo("D_N2_JUNHO_SECOND"), "EV_WAYBILL_ORDER");
+        }
+
+        // ---- the door and the report (GDD v5.1 11) ------------------------------
+
+        const string Real = "vis_junho_real";
+        const string Again = "vis_junho_second";
+
+        static readonly string[] Invariants =
+        {
+            "E06_CCTV_WEATHER_MISMATCH", "EV_WAYBILL_ORDER", "EV_LOBBY_CLOCK", "EV_LOBBY_FOOTPRINTS"
+        };
+
+        /// <summary>Night 2 with its main quest running and nobody judged yet.</summary>
+        static void OpenTheQuest()
+        {
+            ServiceHub.ResetPlaythrough();
+            if (ServiceHub.NightPool.CampaignSeed == 0) ServiceHub.NightPool.BeginCampaign(1);
+
+            ServiceHub.State.BeginNight(2);
+            ServiceHub.Cases.BeginNight(2);
+
+            var runtime = ServiceHub.Cases.Find(CaseId);
+            Assert.IsNotNull(runtime, CaseId + " was not dealt on night 2");
+            if (runtime.State == CaseState.Dormant)
+                Assert.IsTrue(ServiceHub.Cases.TryStartCase(CaseId), CaseId + " would not start");
+        }
+
+        /// <summary>Leaves the door log as though both calls had been answered this way.</summary>
+        static void TheDoorGave(VisitorAccessLevel first, VisitorAccessLevel again, bool heldFirst = false)
+        {
+            ServiceHub.Interphone.LoadFrom(new[]
+            {
+                new VisitorSaveEntry { visitorId = Real, decision = (int)first },
+                new VisitorSaveEntry { visitorId = Again, decision = (int)again }
+            });
+
+            if (heldFirst) ServiceHub.State.SetFlag(InterphoneService.HeldFlag(Real), true);
+        }
+
+        static void Find(int invariants)
+        {
+            for (int i = 0; i < invariants; i++)
+                ServiceHub.Evidence.Acquire(Invariants[i], EvidenceSource.WorldPickup);
+        }
+
+        static List<string> OnTheReportForm()
+        {
+            var offered = new List<string>();
+            foreach (var decision in ServiceHub.Content.FindCase(CaseId).decisions)
+            {
+                string unmet;
+                if (ConditionEvaluator.EvaluateAll(decision.availability, out unmet))
+                    offered.Add(decision.decisionId);
+            }
+            return offered;
+        }
+
+        static DecisionResult File(string decisionId)
+        {
+            var attached = new List<string>();
+            foreach (var pair in ServiceHub.Evidence.Owned) attached.Add(pair.Key);
+            return ServiceHub.Cases.SubmitDecision(CaseId, decisionId, attached);
+        }
+
+        /// <summary>
+        /// The report is the log entry for what the door did. Whatever was done, the form
+        /// offers the one option that says so - never none, never a choice between two.
+        /// </summary>
+        [TestCase(VisitorAccessLevel.LobbyOnly, VisitorAccessLevel.LobbyOnly, false, "dec_verified_lobby_only")]
+        [TestCase(VisitorAccessLevel.Vestibule, VisitorAccessLevel.Reject, false, "dec_verified_lobby_only")]
+        [TestCase(VisitorAccessLevel.Escorted, VisitorAccessLevel.LobbyOnly, false, "dec_verified_lobby_only")]
+        [TestCase(VisitorAccessLevel.LobbyOnly, VisitorAccessLevel.LobbyOnly, true, "dec_wait_outside")]
+        [TestCase(VisitorAccessLevel.LobbyOnly, VisitorAccessLevel.FloorPass, false, "dec_full_pass")]
+        [TestCase(VisitorAccessLevel.Reject, VisitorAccessLevel.FullTemporary, true, "dec_full_pass")]
+        [TestCase(VisitorAccessLevel.Reject, VisitorAccessLevel.Reject, false, "dec_reject")]
+        [TestCase(VisitorAccessLevel.Reject, VisitorAccessLevel.Reject, true, "dec_reject")]
+        public void TheFormOffersExactlyTheReportThatMatchesTheDoor(
+            VisitorAccessLevel first, VisitorAccessLevel again, bool held, string expected)
+        {
+            OpenTheQuest();
+            TheDoorGave(first, again, held);
+
+            CollectionAssert.AreEqual(new[] { expected }, OnTheReportForm());
+        }
+
+        [Test]
+        public void NothingCanBeFiledBeforeAnybodyIsJudged()
+        {
+            OpenTheQuest();
+
+            CollectionAssert.IsEmpty(OnTheReportForm());
+            Assert.IsFalse(File("dec_verified_lobby_only").Accepted,
+                           "a report about the door was accepted before the door was answered");
+        }
+
+        /// <summary>
+        /// v5.1 11: ECHO_RULE_CONFIRMED needs two invariants. The same answer reached on one
+        /// is still the right answer - it just was not checked, and the campaign remembers
+        /// the difference.
+        /// </summary>
+        [TestCase(0, false)]
+        [TestCase(1, false)]
+        [TestCase(2, true)]
+        [TestCase(4, true)]
+        public void TheEchoRuleIsConfirmedOnlyOnTwoInvariants(int found, bool confirmed)
+        {
+            OpenTheQuest();
+            TheDoorGave(VisitorAccessLevel.LobbyOnly, VisitorAccessLevel.LobbyOnly);
+            Find(found);
+
+            // He has been seen twice by now, and that has already cost five: a caretaker at
+            // full nerve has nothing for the +3 to give back.
+            ServiceHub.Cases.TryAdvanceObjective(CaseId, "obj_watch_cam02");
+
+            int before = ServiceHub.Vitals.San;
+            Assert.IsTrue(File("dec_verified_lobby_only").Accepted);
+
+            Assert.AreEqual(confirmed, ServiceHub.State.GetFlag(FlagIds.EchoRuleConfirmed));
+            Assert.AreEqual(confirmed ? 3 : 0, ServiceHub.Vitals.San - before,
+                            "SAN +3 is for a check that came out right, and only for that");
+            Assert.AreEqual("TRUSTED", ServiceHub.State.GetChoice(ChoiceIds.JunhoStatus));
+        }
+
+        [Test]
+        public void KeepingHimOutsideCanConfirmTheRuleTooAndCostsTheDelay()
+        {
+            OpenTheQuest();
+            TheDoorGave(VisitorAccessLevel.LobbyOnly, VisitorAccessLevel.LobbyOnly, true);
+            Find(2);
+
+            int trust = ServiceHub.State.GetStat(StatIds.CommunityTrust);
+            Assert.IsTrue(File("dec_wait_outside").Accepted);
+
+            Assert.IsTrue(ServiceHub.State.GetFlag(FlagIds.EchoRuleConfirmed));
+            Assert.AreEqual("NEUTRAL", ServiceHub.State.GetChoice(ChoiceIds.JunhoStatus));
+            Assert.AreEqual(-3, ServiceHub.State.GetStat(StatIds.CommunityTrust) - trust);
+        }
+
+        /// <summary>
+        /// A pass past the lobby is an access debt however well it was checked: he is the
+        /// real courier and the lobby is as far as a courier goes.
+        /// </summary>
+        [Test]
+        public void APassPastTheLobbyLeavesADebtAndConfirmsNothing()
+        {
+            OpenTheQuest();
+            TheDoorGave(VisitorAccessLevel.LobbyOnly, VisitorAccessLevel.FloorPass);
+            Find(4);
+
+            int before = ServiceHub.Vitals.San;
+            Assert.IsTrue(File("dec_full_pass").Accepted);
+
+            Assert.AreEqual(1, ServiceHub.State.GetStat(DebtIds.Access));
+            Assert.IsFalse(ServiceHub.State.GetFlag(FlagIds.EchoRuleConfirmed));
+            Assert.AreEqual(0, ServiceHub.Vitals.San - before,
+                            "what following him upstairs costs is charged upstairs, not on the form");
+        }
+
+        [Test]
+        public void TurningHimAwayIsRememberedAgainstTheCaretaker()
+        {
+            OpenTheQuest();
+            TheDoorGave(VisitorAccessLevel.Reject, VisitorAccessLevel.Reject);
+
+            Assert.IsTrue(File("dec_reject").Accepted);
+
+            Assert.AreEqual("REJECTED", ServiceHub.State.GetChoice(ChoiceIds.JunhoStatus));
+            Assert.AreEqual(1, ServiceHub.State.GetStat(DebtIds.Trust));
+        }
+
+        /// <summary>
+        /// v5.1 11: SAN -5 on first seeing it. Charged on the step, once, and not again by
+        /// whichever report is filed afterwards.
+        /// </summary>
+        [Test]
+        public void SeeingHimTwiceCostsNerveOnceAndBeforeAnythingIsDecided()
+        {
+            OpenTheQuest();
+            int before = ServiceHub.Vitals.San;
+
+            Assert.IsTrue(ServiceHub.Cases.TryAdvanceObjective(CaseId, "obj_watch_cam02"));
+            Assert.AreEqual(-5, ServiceHub.Vitals.San - before);
+
+            Assert.IsFalse(ServiceHub.Cases.TryAdvanceObjective(CaseId, "obj_watch_cam02"));
+            Assert.AreEqual(-5, ServiceHub.Vitals.San - before, "the same sighting was charged twice");
+
+            TheDoorGave(VisitorAccessLevel.Reject, VisitorAccessLevel.Reject);
+            Assert.IsTrue(File("dec_reject").Accepted);
+            Assert.AreEqual(-5, ServiceHub.Vitals.San - before, "the report charged for the sighting again");
         }
 
         static void AddReasons(ConsequenceDefinition[] consequences, List<string> keys)

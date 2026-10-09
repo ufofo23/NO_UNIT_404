@@ -3351,3 +3351,4 @@ evidence.ev_lobby_clock.name,로비 벽시계,Lobby wall clock
 evidence.ev_lobby_clock.desc,로비 벽시계는 관리실 시계와 같은 시각을 가리킨다. CAM-02 화면 속 같은 시계는 다른 시각에 있다.,The lobby wall clock agrees with the office clock. On CAM-02 the same clock reads a different time.
 evidence.ev_lobby_footprints.name,현관 안쪽 바닥,Floor inside the entrance
 evidence.ev_lobby_footprints.desc,밖은 비가 오는데 문 안쪽 바닥은 말라 있다. 로비로 들어온 젖은 발자국이 없다.,It is raining outside and the floor inside the door is dry. No wet footprints lead into the lobby.
+case.n2m01.objective.judge_again,다시 호출한 서준호에게 줄 출입 권한을 정하십시오,Decide what access the Seo Jun-ho who rang again gets
