@@ -54,7 +54,9 @@ namespace NO404.ContentData
             // Night 2
             var oldLabel = Evidence_("E04_OLD_DELIVERY_LABEL", EvidenceType.PhysicalObject, "C03", true);
             var fireTape = Evidence_("E05_FIRE_CALL_TAPE_A", EvidenceType.AudioRecording, "C04", true);
-            var weather = Evidence_("E06_CCTV_WEATHER_MISMATCH", EvidenceType.CctvSnapshot, "C03", false);
+            // Owned by N2-M01 now that C03 is gone, and one of that quest's four invariants.
+            var weather = Evidence_("E06_CCTV_WEATHER_MISMATCH", EvidenceType.CctvSnapshot, "N2-M01", false);
+            weather.tags = new[] { EvidenceTags.Invariant };
 
             // Night 3
             var floorLog = Evidence_("E07_HIDDEN_MAINTENANCE_FLOOR_LOG", EvidenceType.Document, "C05", true);
@@ -295,7 +297,10 @@ namespace NO404.ContentData
                         Choice("check_invoice", "dlg.n2.junho.choice.invoice", "invoice"),
                         Choice("check_company", "dlg.n2.junho.choice.company", "company"),
                         Choice("ask_units", "dlg.n2.junho.choice.units", "units"))),
-                Node("invoice", "speaker.junho", "dlg.n2.junho.invoice", "await"),
+                // Asking to see the waybills is how their numbers get written down: three in
+                // a run, dated tonight, for boxes that are not on the lobby shelf yet.
+                Node("invoice", "speaker.junho", "dlg.n2.junho.invoice", "await",
+                    null, ConsequenceDefinition.Evidence("EV_WAYBILL_ORDER")),
                 Node("company", "speaker.junho", "dlg.n2.junho.company", "await"),
                 Node("units", "speaker.junho", "dlg.n2.junho.units", "await"),
                 Node("await", "speaker.junho", "dlg.n2.junho.await", null));
@@ -311,7 +316,8 @@ namespace NO404.ContentData
                         Choice("ask_weather", "dlg.n2.junho2.choice.weather", "weather"))),
                 Node("denies", "speaker.junho", "dlg.n2.junho2.denies", "await"),
                 Node("number", "speaker.junho", "dlg.n2.junho2.number", "await",
-                    null, ConsequenceDefinition.Stat(StatIds.HarinResonance, 1, "reason.noticed_contradiction")),
+                    null, ConsequenceDefinition.Stat(StatIds.HarinResonance, 1, "reason.noticed_contradiction"),
+                    ConsequenceDefinition.Evidence("EV_WAYBILL_ORDER")),
                 Node("weather", "speaker.junho", "dlg.n2.junho2.weather", "await"),
                 Node("await", "speaker.junho", "dlg.n2.junho2.await", null));
         }

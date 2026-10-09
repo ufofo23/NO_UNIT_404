@@ -153,6 +153,18 @@ namespace NO404.Core
         };
     }
 
+    /// <summary>Tags an evidence definition can carry (EvidenceDefinition.tags).</summary>
+    public static class EvidenceTags
+    {
+        /// <summary>
+        /// Invariant evidence (GDD v5.1 19.2): a physical or recorded fact an ECHO cannot
+        /// restage - the weather, a wall clock, the order of a run of waybills, a dry floor.
+        /// A judgement only counts as verified when it rests on two of these, and low SAN
+        /// may blur how they are shown but never changes what they say.
+        /// </summary>
+        public const string Invariant = "invariant";
+    }
+
     public static class FlagIds
     {
         // ---- v5.0 5.4: the yes/no half of the world state ----------------------

@@ -513,6 +513,24 @@ namespace NO404.Gameplay
             return go;
         }
 
+        /// <summary>
+        /// A fixture that is looked at rather than taken: a wall clock, a patch of floor.
+        ///
+        /// It stays where it is after it has been read - the building does not lose its clock
+        /// because the caretaker checked the time - and it only means something on the one
+        /// night the story is about it, so outside that night it is furniture.
+        /// </summary>
+        GameObject Observation(Transform parent, string name, Vector3 position, Vector3 size, Color color,
+                               string evidenceId, string labelKey, int night)
+        {
+            var go = Box(parent, name, position, size, color);
+            var pickup = go.AddComponent<EvidencePickup>();
+            pickup.Setup(evidenceId, labelKey, false);
+            pickup.Configure(labelKey, ReachFor(position.y + size.y * 0.5f), false);
+            pickup.SetAvailability(null, night, night);
+            return go;
+        }
+
         /// <summary>Reach needed to aim at something whose top is at <paramref name="topY"/>.</summary>
         public static float ReachFor(float topY)
         {
@@ -660,6 +678,20 @@ namespace NO404.Gameplay
             Pickup(root, "OldDeliveryBox", new Vector3(half.x - 1.2f, 0.3f, -0.5f),
                    new Vector3(0.5f, 0.5f, 0.5f), new Color(0.55f, 0.48f, 0.38f),
                    "E04_OLD_DELIVERY_LABEL", "ui.prompt.inspect_box", null, 2);
+
+            // Night 2, N2-M01 (GDD v5.1 11): the two invariants that are only in the room.
+            // CAM-02 shows a man sorting boxes in here; these are what the room itself says.
+            //
+            // The clock hangs over the parcel shelf, where the feed shows him working, so
+            // the thing to compare is in the same part of the picture. The mat is on the
+            // lobby side of the inner doorway: anybody who came in out of the rain crossed it.
+            Observation(root, "LobbyWallClock", new Vector3(half.x - 0.08f, 2.0f, 1f),
+                        new Vector3(0.05f, 0.36f, 0.36f), new Color(0.80f, 0.78f, 0.70f),
+                        "EV_LOBBY_CLOCK", "ui.prompt.inspect_clock", 2);
+
+            Observation(root, "EntranceMat", new Vector3(-3.65f, 0.012f, 1.8f),
+                        new Vector3(1.4f, 0.02f, 0.8f), new Color(0.20f, 0.19f, 0.18f),
+                        "EV_LOBBY_FOOTPRINTS", "ui.prompt.inspect_floor", 2);
 
             BuildLobbyEntrance(root, half);
         }

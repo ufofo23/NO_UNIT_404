@@ -41,9 +41,13 @@ namespace NO404.ContentData
                 Evidence_("EV_404_BILL", EvidenceType.Document, "N1-M01", false),
                 Evidence_("EV_404_BILL_PHOTO", EvidenceType.Photo, "N1-M01", false),
 
-                // N2: two channels that disagree about one man.
+                // N2: the sighting itself, then the invariants it has to be checked against.
+                // The fourth invariant, the weather on the lobby feed, is the older
+                // E06_CCTV_WEATHER_MISMATCH (BuildLateEvidence) rather than a second copy.
                 Evidence_("EV_CAM02_DOUBLE", EvidenceType.CctvSnapshot, "N2-M01", false),
-                Evidence_("EV_WAYBILL_ORDER", EvidenceType.Document, "N2-M01", false),
+                Invariant(Evidence_("EV_WAYBILL_ORDER", EvidenceType.Document, "N2-M01", false)),
+                Invariant(Evidence_("EV_LOBBY_CLOCK", EvidenceType.Photo, "N2-M01", false)),
+                Invariant(Evidence_("EV_LOBBY_FOOTPRINTS", EvidenceType.Photo, "N2-M01", false)),
 
                 // N3: a number stamped on a seal, and two heights scratched on a wall.
                 Evidence_("EV_SEAL_NUMBER", EvidenceType.Photo, "N3-M01", false),
@@ -68,6 +72,13 @@ namespace NO404.ContentData
                 // N6: what 404 was actually for.
                 Evidence_("EV_ORIGINAL_LEDGER", EvidenceType.Document, "N6-M01", true)
             };
+        }
+
+        /// <summary>Marks evidence as an invariant (see <see cref="EvidenceTags.Invariant"/>).</summary>
+        static EvidenceDefinition Invariant(EvidenceDefinition definition)
+        {
+            definition.tags = new[] { EvidenceTags.Invariant };
+            return definition;
         }
 
         public static CaseDefinition[] BuildV5Mains()
@@ -184,7 +195,16 @@ namespace NO404.ContentData
             // pacing it, nothing to hang its callers on, and no last case to close. The
             // courier still arrives with the quest: GameLoop files him against this beat.
             c.startWindowBegin = At(22, 20);
-            c.evidenceIds = new[] { "EV_CAM02_DOUBLE", "EV_WAYBILL_ORDER" };
+
+            // v5.1 19.2: a main needs at least three channels and an answer no one screen
+            // can settle. The sighting is on the camera wall; the four invariants are split
+            // between the camera wall (weather), the door (waybills) and the lobby floor
+            // itself (clock, footprints), so settling it means leaving the desk.
+            c.evidenceIds = new[]
+            {
+                "EV_CAM02_DOUBLE",
+                "E06_CCTV_WEATHER_MISMATCH", "EV_WAYBILL_ORDER", "EV_LOBBY_CLOCK", "EV_LOBBY_FOOTPRINTS"
+            };
 
             c.objectives = new[]
             {

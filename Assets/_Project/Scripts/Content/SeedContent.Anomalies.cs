@@ -46,7 +46,7 @@ namespace NO404.ContentData
 
             // ---- night 2: the couriers ----
             list.Add(Anomaly(9, "CAM-02", 2, At(22, 18), At(22, 40), 10f,
-                             caseId: "N2-M01"));
+                             evidenceId: "EV_CAM02_DOUBLE", caseId: "N2-M01"));
             list.Add(Anomaly(17, "CAM-02", 2, At(22, 45), At(23, 30), 8f,
                              evidenceId: "E06_CCTV_WEATHER_MISMATCH", caseId: "N2-M01"));
             list.Add(Anomaly(2, "CAM-02", 2, At(23, 40), At(0, 40), 6f));

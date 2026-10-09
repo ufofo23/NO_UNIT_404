@@ -3338,10 +3338,16 @@ case.n2m01.failsafe.notify,출입 기록에 22:18 로비 진입 1건이 문 개�
 evidence.ev_cam02_double.name,CAM-02 로비 화면,CAM-02 lobby capture
 evidence.ev_cam02_double.desc,서준호가 공동현관 밖에 서 있는 시각에 같은 사람이 로비 안에서 상자를 정리하고 있다.,"While Seo Jun-ho stands outside the front door, the same man is sorting boxes inside the lobby."
 evidence.ev_waybill_order.name,송장 번호 순서,Waybill number order
-evidence.ev_waybill_order.desc,서준호가 들고 온 송장 세 장의 번호. 로비 택배대에 놓인 상자의 송장과 대조할 수 있다.,The numbers on the three waybills Seo Jun-ho is carrying. They can be set against the labels on the boxes in the lobby.
+evidence.ev_waybill_order.desc,서준호가 든 송장 세 장은 오늘 날짜에 번호가 이어진다. 로비 택배대에는 그 번호의 상자가 아직 없다.,The three waybills Seo Jun-ho is carrying are dated today and run in sequence. No box with those numbers is on the lobby parcel shelf yet.
 reason.saw_the_same_man_twice,같은 사람을 두 곳에서 봤다,Saw the same man in two places
 reason.read_correctly,직접 확인해 바로 읽었다,Checked it and read it right
 reason.delivery_delayed,배송 지연,Delivery delayed
 reason.unverified_pass,확인 없이 내준 출입 권한,Access given without checking
 reason.followed_the_wrong_one,엉뚱한 사람을 따라갔다,Followed the wrong one
 reason.turned_away_a_real_caller,정상 방문자를 돌려보냈다,Turned away a genuine caller
+ui.prompt.inspect_clock,벽시계 확인,Check the wall clock
+ui.prompt.inspect_floor,바닥 확인,Check the floor
+evidence.ev_lobby_clock.name,로비 벽시계,Lobby wall clock
+evidence.ev_lobby_clock.desc,로비 벽시계는 관리실 시계와 같은 시각을 가리킨다. CAM-02 화면 속 같은 시계는 다른 시각에 있다.,The lobby wall clock agrees with the office clock. On CAM-02 the same clock reads a different time.
+evidence.ev_lobby_footprints.name,현관 안쪽 바닥,Floor inside the entrance
+evidence.ev_lobby_footprints.desc,밖은 비가 오는데 문 안쪽 바닥은 말라 있다. 로비로 들어온 젖은 발자국이 없다.,It is raining outside and the floor inside the door is dry. No wet footprints lead into the lobby.
