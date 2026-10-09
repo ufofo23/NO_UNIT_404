@@ -11,7 +11,7 @@ using NO404.Visitors;
 
 namespace NO404.Core
 {
-    public enum GameMode { Menu, Playing, Paused, NightSummary, Ending, Gallery, Credits, EndlessResult }
+    public enum GameMode { Menu, Playing, Paused, NightSummary, Ending, Gallery, Credits, EndlessResult, DevStart }
 
     /// <summary>
     /// Owns the frame loop and the mode machine. Everything else is a service or a view;
@@ -56,10 +56,17 @@ namespace NO404.Core
         EndingView _ending;
         EndingGalleryView _gallery;
         CreditsView _credits;
+        DevStartView _devStart;
 
         GameMode _mode = GameMode.Menu;
         bool _worldBuilt;
         bool _endingResolved;
+
+        /// <summary>True while the shift on screen was opened from the developer start.</summary>
+        bool _devSession;
+
+        /// <summary>Where backing out of the developer start goes: the title, or the pause menu.</summary>
+        GameMode _devStartReturn = GameMode.Menu;
 
         // Scripted early-shift beats (GDD 9.1 / 9.2 / 15.6). One-shot flags rather than case
         // objectives because none of them is something the player is asked to do.
@@ -241,14 +248,17 @@ namespace NO404.Core
             _ending = EndingView.Create(persistentRoot);
             _gallery = EndingGalleryView.Create(persistentRoot);
             _credits = CreditsView.Create(persistentRoot);
+            _devStart = DevStartView.Create(persistentRoot);
             _intro = IntroSequenceView.Create(persistentRoot);
 
             _pause.OnResume = () => SetMode(GameMode.Playing);
             _pause.OnQuitToMenu = ReturnToMenu;
+            _pause.OnDevStart = () => OpenDevStart(GameMode.Paused);
 
             _menu.OnContinue = ContinueGame;
             _menu.OnNewGame = NewGame;
             _menu.OnEndless = StartEndless;
+            _menu.OnDevStart = () => OpenDevStart(GameMode.Menu);
             _menu.OnGallery = () => SetMode(GameMode.Gallery);
             _menu.OnCredits = () => SetMode(GameMode.Credits);
             _menu.OnQuit = QuitGame;
@@ -258,6 +268,8 @@ namespace NO404.Core
             _ending.OnContinue = ReturnToMenu;
             _gallery.OnClose = ReturnToMenu;
             _credits.OnClose = () => SetMode(GameMode.Menu);
+            _devStart.OnClose = () => SetMode(_devStartReturn);
+            _devStart.OnStart = options => DebugNewGameAt(options);
 
             ServiceHub.Phone.OnCallStartedRinging += OnPhoneRinging;
             ServiceHub.Interphone.OnVisitorArrived += OnVisitorArrived;
@@ -486,6 +498,7 @@ namespace NO404.Core
 
         IEnumerator NewGameRoutine()
         {
+            EndDevSession();
             ServiceHub.ResetPlaythrough();
             yield return EnsureWorldRoutine();
             _endingResolved = false;
@@ -509,6 +522,7 @@ namespace NO404.Core
 
         IEnumerator ContinueGameRoutine()
         {
+            EndDevSession();
             yield return EnsureWorldRoutine();
             _endingResolved = false;
 
@@ -604,6 +618,93 @@ namespace NO404.Core
         }
 
         /// <summary>
+        /// A fresh game opened on a chosen night, from the developer start screen (GDD 20.21).
+        ///
+        /// The same sequence NewGameRoutine runs - reset, build, spawn, start - with three
+        /// things put in before the night starts, because each of them is read while it does:
+        /// whether saves are written (StartNight asks for one), whether the shift is stripped
+        /// to its main (every schedule is built once at the top of a shift), and what the
+        /// earlier nights left behind (the draw and the opening state both read it).
+        ///
+        /// Returns false where it is refused: a release build, or a caretaker who has joined
+        /// somebody else's shift.
+        /// </summary>
+        /// <summary>
+        /// Opens the developer start from the title or from the pause menu.
+        ///
+        /// It remembers which, because backing out has to put a tester who only looked back
+        /// in the shift they paused - not on the title with that shift gone.
+        /// </summary>
+        void OpenDevStart(GameMode returnTo)
+        {
+            if (!DevConsole.Enabled) return;
+
+            _devStartReturn = returnTo;
+            if (returnTo == GameMode.Paused) _devStart.SelectNight(ServiceHub.State.NightIndex);
+            SetMode(GameMode.DevStart);
+        }
+
+        public bool DebugNewGameAt(DevStartOptions options)
+        {
+            if (!DevConsole.Enabled || options == null) return false;
+            if (!Net.NetSession.Authoritative) return false;
+
+            // Closed before the world is built, the way NewGame closes the menu: the screen
+            // would otherwise sit there taking a second click while the first one loads.
+            _devStart.SetOpen(false);
+            StartCoroutine(DebugNewGameRoutine(options));
+            return true;
+        }
+
+        IEnumerator DebugNewGameRoutine(DevStartOptions options)
+        {
+            int night = Mathf.Clamp(options.Night, 1, FinalNight);
+
+            ServiceHub.ResetPlaythrough();
+            yield return EnsureWorldRoutine();
+
+            // Reached from the pause menu this replaces a shift that is still standing, and
+            // the floors it walked are still resident. Dropped here for the reason
+            // ReturnToMenu drops them; from the title there is nothing to drop.
+            ServiceHub.Zones.UnloadAllStreamed();
+            _endingResolved = false;
+
+            _devSession = true;
+            ServiceHub.Save.WritesSuspended = !options.AllowSaves;
+            MainOnlyMode.Set(options.MainOnly);
+
+            var spawn = WorldBuilder.OfficeSpawn;
+            if (spawn != null) _player.Teleport(spawn.position, spawn.rotation);
+            ServiceHub.Player.EnterZone(ZoneIds.Office);
+
+            DevStart.ApplyPriorNights(night, options.PriorNights);
+
+            StartNight(night);
+            SetMode(GameMode.Playing);
+            Log.Info("Dev", "developer start: night " + night +
+                            (options.MainOnly ? ", main only" : string.Empty) +
+                            (options.AllowSaves ? ", saves on" : ", saves off") +
+                            ", earlier nights " + options.PriorNights);
+        }
+
+        /// <summary>
+        /// Puts back what the developer start switched off, when a real game begins.
+        ///
+        /// Both switches belong to the sitting they were chosen for. Left on, the next New
+        /// Game would be a campaign that never saves and whose nights have only a main in
+        /// them, with nothing on screen to say why. A main-only switch thrown from the console
+        /// is not this method's to undo, which is why it only acts on a developer session.
+        /// </summary>
+        void EndDevSession()
+        {
+            if (!_devSession) return;
+
+            _devSession = false;
+            ServiceHub.Save.WritesSuspended = false;
+            MainOnlyMode.Set(false);
+        }
+
+        /// <summary>
         /// Leaves the night summary the way pressing Continue does (GDD 28.3).
         ///
         /// The summary is a dead end without it: the only route onward is a button, and a
@@ -612,6 +713,18 @@ namespace NO404.Core
         /// takes no shortcut through the flow - it is the same call the button makes.
         /// </summary>
         public void DebugAdvanceNight() { AdvanceToNextNight(); }
+
+        /// <summary>
+        /// Leaves the shift the way Quit to menu does.
+        ///
+        /// For automation that opens a shift and is then followed by something that expects
+        /// to find the game where a player finds it: a test that left the loop in Playing made
+        /// the next one's "wait until the shift starts" return on its first frame.
+        /// </summary>
+        public void DebugReturnToMenu()
+        {
+            if (DevConsole.Enabled) ReturnToMenu();
+        }
 
         /// <summary>
         /// Walk onto a shift somebody else already started (v3.0 34).
@@ -1149,6 +1262,7 @@ namespace NO404.Core
 
         IEnumerator StartEndlessRoutine()
         {
+            EndDevSession();
             ServiceHub.ResetPlaythrough();
             yield return EnsureWorldRoutine();
             _endingResolved = false;
@@ -1235,6 +1349,7 @@ namespace NO404.Core
             _ending.SetOpen(mode == GameMode.Ending);
             _gallery.SetOpen(mode == GameMode.Gallery);
             _credits.SetOpen(mode == GameMode.Credits);
+            _devStart.SetOpen(mode == GameMode.DevStart);
             _hud.SetVisible(playing);
             _pressureHud.SetVisible(playing);
 
@@ -1735,6 +1850,8 @@ namespace NO404.Core
         void HandlePauseKey()
         {
             if (_console != null && _console.IsOpen) { _console.Toggle(); ApplyCursor(); return; }
+
+            if (_mode == GameMode.DevStart) { SetMode(_devStartReturn); return; }
 
             if (_mode == GameMode.Gallery || _mode == GameMode.Credits) { SetMode(GameMode.Menu); return; }
 

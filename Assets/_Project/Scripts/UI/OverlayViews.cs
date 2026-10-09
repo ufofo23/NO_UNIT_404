@@ -354,8 +354,10 @@ namespace NO404.UI
     {
         public System.Action OnResume;
         public System.Action OnQuitToMenu;
+        public System.Action OnDevStart;
 
         Text _status;
+        Button _devStartButton;
 
         public bool IsOpen { get { return gameObject.activeSelf; } }
 
@@ -374,7 +376,7 @@ namespace NO404.UI
 
             var panel = UiFactory.CreatePanel("Panel", root, UiFactory.Panel);
             UiFactory.Pin(panel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                          Vector2.zero, new Vector2(480f, 460f));
+                          Vector2.zero, new Vector2(480f, DevConsole.Enabled ? 512f : 460f));
             UiFactory.AddVerticalLayout(panel.rectTransform, 8f, new RectOffset(24, 24, 24, 24));
 
             var title = UiFactory.CreateText("Title", panel.transform, Loc.T("ui.pause.title"), 26,
@@ -393,6 +395,17 @@ namespace NO404.UI
             UiFactory.SetHeight(UiFactory.CreateButton("Menu", panel.transform, Loc.T("ui.pause.quit_to_menu"), 18,
                 () => { var cb = OnQuitToMenu; if (cb != null) cb(); }).gameObject, 44f);
 
+            // The developer start, reachable mid-shift so a tester can change night without
+            // going back through the title (GDD 20.21). Not built outside the editor and
+            // development builds, the same as its button on the main menu.
+            if (DevConsole.Enabled)
+            {
+                _devStartButton = UiFactory.CreateButton("DevStart", panel.transform,
+                    Loc.T("ui.menu.dev_start"), 18,
+                    () => { var cb = OnDevStart; if (cb != null) cb(); });
+                UiFactory.SetHeight(_devStartButton.gameObject, 44f);
+            }
+
             _status = UiFactory.CreateText("Status", panel.transform, string.Empty, 15, TextAnchor.MiddleCenter,
                                            UiFactory.TextMuted);
             UiFactory.SetHeight(_status.gameObject, 60f);
@@ -404,6 +417,9 @@ namespace NO404.UI
         {
             gameObject.SetActive(open);
             if (!open) return;
+
+            // The shift is the host's; a caretaker who joined it cannot restart it.
+            if (_devStartButton != null) _devStartButton.interactable = Net.NetSession.Authoritative;
 
             _status.text = Loc.T("ui.pause.status",
                                  ServiceHub.State.NightIndex,
