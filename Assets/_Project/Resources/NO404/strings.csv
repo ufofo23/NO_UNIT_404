@@ -3320,3 +3320,28 @@ ui.dev.main_only,메인 사건만 진행 (랜덤 사건 · 일반 방문자 · �
 ui.dev.allow_saves,저장 허용 (끄면 이 세션은 세이브 파일을 건드리지 않음),Allow saving (off: this session never touches the save files)
 ui.dev.start,시작,Start
 ui.dev.notify.saves_off,개발자 모드: 이 세션은 저장이 꺼져 있습니다.,Developer mode: saving is off for this session.
+# ================================================================ case N2-M01
+case.n2-m01.title,두 명의 서준호,Two Seo Jun-hos
+case.n2-m01.summary,택배기사 서준호가 공동현관에 와 있다. 같은 시각 로비 카메라에도 같은 사람이 잡힌다.,Courier Seo Jun-ho is at the front door. The lobby camera shows the same man at the same moment.
+case.n2m01.objective.watch_cam02,CAM-02 로비 화면을 확인하십시오,Check the lobby feed on CAM-02
+case.n2m01.objective.check_lobby,로비를 직접 확인하십시오,Check the lobby in person
+case.n2m01.objective.judge,공동현관의 서준호에게 줄 출입 권한을 정하십시오,Decide what access the Seo Jun-ho at the front door gets
+case.n2m01.decision.lobby_only,확인 후 로비까지만 들였다고 보고,"Report: checked, then admitted to the lobby only"
+case.n2m01.decision.wait_outside,밖에서 기다리게 하고 현장을 확인했다고 보고,Report: kept him outside and checked in person
+case.n2m01.decision.full_pass,전층 출입을 허용했다고 보고,Report: gave him a pass to every floor
+case.n2m01.decision.reject,출입을 거절했다고 보고,Report: turned him away
+case.n2m01.result.lobby_only,보고서가 접수됐다. 서준호는 상자를 택배대에 두고 돌아갔다. 로비 화면 속 남자가 들어온 기록은 끝내 찾지 못했다.,Filed. Seo Jun-ho left the boxes on the parcel shelf and went. No record of the man on the lobby feed coming in was ever found.
+case.n2m01.result.wait_outside,보고서가 접수됐다. 배송이 늦어져 202호에서 문의가 들어왔다. 로비에는 아무도 없었다.,Filed. The delivery ran late and 202 called to ask about it. There was nobody in the lobby.
+case.n2m01.result.full_pass,보고서가 접수됐다. 서준호가 어느 층까지 올라갔는지는 출입 기록으로 확인되지 않는다.,Filed. The access log does not show which floor Seo Jun-ho went up to.
+case.n2m01.result.reject,보고서가 접수됐다. 서준호는 상자를 들고 돌아갔다. 한성택배에서 수령 거부 사유를 물어 왔다.,Filed. Seo Jun-ho took the boxes back. Hanseong Delivery has asked why they were refused.
+case.n2m01.failsafe.notify,출입 기록에 22:18 로비 진입 1건이 문 개방 기록 없이 남아 있습니다.,The access log holds one 22:18 lobby entry with no door release against it.
+evidence.ev_cam02_double.name,CAM-02 로비 화면,CAM-02 lobby capture
+evidence.ev_cam02_double.desc,서준호가 공동현관 밖에 서 있는 시각에 같은 사람이 로비 안에서 상자를 정리하고 있다.,"While Seo Jun-ho stands outside the front door, the same man is sorting boxes inside the lobby."
+evidence.ev_waybill_order.name,송장 번호 순서,Waybill number order
+evidence.ev_waybill_order.desc,서준호가 들고 온 송장 세 장의 번호. 로비 택배대에 놓인 상자의 송장과 대조할 수 있다.,The numbers on the three waybills Seo Jun-ho is carrying. They can be set against the labels on the boxes in the lobby.
+reason.saw_the_same_man_twice,같은 사람을 두 곳에서 봤다,Saw the same man in two places
+reason.read_correctly,직접 확인해 바로 읽었다,Checked it and read it right
+reason.delivery_delayed,배송 지연,Delivery delayed
+reason.unverified_pass,확인 없이 내준 출입 권한,Access given without checking
+reason.followed_the_wrong_one,엉뚱한 사람을 따라갔다,Followed the wrong one
+reason.turned_away_a_real_caller,정상 방문자를 돌려보냈다,Turned away a genuine caller
