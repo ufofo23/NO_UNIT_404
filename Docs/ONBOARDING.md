@@ -146,10 +146,10 @@ night 1까지만 손을 댄 상태다 — 호스트 마이그레이션·재접�
 
 1. `CLAUDE.md` — 타협 불가 규칙 (`GameObject.Find` 금지, 하드코딩 문자열 금지,
    `Loc.T(key)` + `Resources/NO404/strings.csv` ko/en 동시 등록, 정수 게임 초 등)
-2. `NO_UNIT_404_GDD_v5.0.md` — **현재 기준 설계 문서**
+2. `Docs/GDD/NO_UNIT_404_GDD_v5.1.md` — **현재 기준 설계 문서** (이전 버전은 `Docs/GDD/archive/`)
 3. `Docs/V5_STATUS.md` — 계획이 아니라 **지금 되는 것과 안 되는 것**
 4. `README.md` — 구조·조작·메뉴·치수. 단 협동 중심 서술은 v3.0 시절 잔재가 섞여 있다
-5. `Docs/NO_UNIT_404_SCENARIO_BOOK_v2_0.md`, `Docs/ENDING_PATH_v1_1.md` — 내러티브
+5. `Docs/Scenario/NO_UNIT_404_SCENARIO_BOOK_v2_0.md`, `Docs/ENDING_PATH_v1_1.md` — 내러티브
 
 ## 9. git에 들어가지 않는 것
 
