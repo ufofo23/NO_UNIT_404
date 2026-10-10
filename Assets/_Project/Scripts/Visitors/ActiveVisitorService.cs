@@ -303,8 +303,10 @@ namespace NO404.Visitors
             if (ServiceHub.Cases != null)
                 ServiceHub.Cases.ApplyConsequences(tracked.Definition.onFoundOffRoute);
 
-            EventBus.Publish(new NotificationEvent("ui.access.notify.found_off_route",
-                                                    NotificationSeverity.Info));
+            var notice = string.IsNullOrEmpty(tracked.Definition.foundOffRouteNoticeKey)
+                ? "ui.access.notify.found_off_route"
+                : tracked.Definition.foundOffRouteNoticeKey;
+            EventBus.Publish(new NotificationEvent(notice, NotificationSeverity.Info));
             NO404.Core.Log.Info("Visitors", tracked.VisitorId + " found in " + tracked.CurrentZone +
                                             " and is leaving");
         }

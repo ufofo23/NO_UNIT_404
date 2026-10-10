@@ -126,6 +126,7 @@ namespace NO404.Visitors
 
             _caller = VisitorAppearance.Build(doorstep, visitorId, "CALLER_" + visitorId);
             _callerMotion = _caller.GetComponent<FirstGuestMotion>();
+            OnlyOnCameraIfReplay(_caller, active);
 
             // Facing the glass, which is the way somebody who has just pressed the bell stands.
             _caller.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
@@ -166,6 +167,7 @@ namespace NO404.Visitors
 
                 body.Root = VisitorAppearance.Build(zoneRoot, visitorId, "VISITOR_" + visitorId);
                 body.Motion = body.Root.GetComponent<FirstGuestMotion>();
+                OnlyOnCameraIfReplay(body.Root, tracked.Definition);
                 body.ZoneId = tracked.CurrentZone;
 
                 // Somebody who has just been let in came through the front door, so that is
@@ -181,6 +183,22 @@ namespace NO404.Visitors
             if (body.Motion != null)
                 body.Motion.Tick(scaledSeconds, scaledSeconds > 0f
                     ? Vector3.Distance(before, body.Root.transform.position) / scaledSeconds : 0f);
+        }
+
+        /// <summary>
+        /// Somebody who is not happening now is on the cameras and nowhere else (v5.1 ECHO).
+        ///
+        /// The body goes on the CCTV-only layer, the same one the anomaly stager uses, so the
+        /// door camera and the lobby camera show a man and the caretaker who walks down to
+        /// the glass finds an empty doorstep. That gap is the whole of the evidence: nothing
+        /// tells the player the caller is a replay except that he cannot be found.
+        /// </summary>
+        static void OnlyOnCameraIfReplay(GameObject body, VisitorDefinition definition)
+        {
+            if (body == null || definition == null || !definition.isHistoricalReplay) return;
+            if (Layers.CctvOnly < 0) return;
+
+            PropArt.SetLayerRecursively(body, Layers.CctvOnly);
         }
 
         /// <summary>

@@ -77,6 +77,12 @@ namespace NO404.Visitors
         [Tooltip("Applied once, when a member of staff finds them off their route.")]
         public ConsequenceDefinition[] onFoundOffRoute = new ConsequenceDefinition[0];
 
+        [Tooltip("What the caretaker is told on finding them. Empty = the standard line.")]
+        public string foundOffRouteNoticeKey;
+
+        [Tooltip("Applied once, the moment they ring at the front door.")]
+        public ConsequenceDefinition[] onArrive = new ConsequenceDefinition[0];
+
         [Tooltip("Escorting is refused for some callers - a delivery has no reason to need one.")]
         public bool canBeEscorted = true;
 

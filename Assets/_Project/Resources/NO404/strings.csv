@@ -610,7 +610,7 @@ evidence.e04_old_delivery_label.desc,단종된 음료 상자에 붙은 송장. �
 evidence.e05_fire_call_tape_a.name,화재 신고 통화 테이프,Fire call tape
 evidence.e05_fire_call_tape_a.desc,녹아붙은 카세트. 2009년 11월 7일 새벽 신고 통화 일부가 남아 있다.,A half-melted cassette holding part of the emergency call from 7 November 2009.
 evidence.e06_cctv_weather_mismatch.name,CCTV 날씨 모순,CCTV weather mismatch
-evidence.e06_cctv_weather_mismatch.desc,같은 시각인데 외부는 비가 오고 로비 화면은 맑다.,"Same timestamp: rain outside, dry weather on the lobby feed."
+evidence.e06_cctv_weather_mismatch.desc,같은 시각인데 밖은 비가 오고 화면 속 그의 뒤는 맑다.,"Same moment: rain outside, a clear night behind him on the screen."
 evidence.e07_hidden_maintenance_floor_log.name,정비층 운행 기록,Maintenance level log
 evidence.e07_hidden_maintenance_floor_log.desc,15층 건물의 운행 기록에 층 사이 정차가 반복적으로 남아 있다.,In a fifteen-storey building the log repeatedly shows stops between floors.
 evidence.e08_child_height_marks.name,아이 키 자국,Child height marks
@@ -662,7 +662,7 @@ dlg.n2.junho2.choice.already_inside,방금 들어가시지 않았습니까,Didn'
 dlg.n2.junho2.choice.invoice_number,송장 번호를 다시 불러주십시오,Read me the invoice number again.
 dlg.n2.junho2.choice.weather,지금 그쪽 비 옵니까,Is it raining where you are?
 dlg.n2.junho2.denies,아니요. 저 계속 여기 서 있었는데요.,No. I have been standing right here.
-dlg.n2.junho2.number,H2611-0407입니다. 아까 말씀드린 거랑 같은 번호예요.,H2611-0407. The same number I gave you before.
+dlg.n2.junho2.number,H2611-0407입니다. 오늘 날짜로 찍힌 송장이에요.,H2611-0407. It's stamped with today's date.
 dlg.n2.junho2.weather,예. 십 분째 쏟아집니다. 우산도 없어요.,Yes. Ten minutes now. I do not even have an umbrella.
 dlg.n2.junho2.await,...안에 누가 들어가 있는 겁니까?,...is there someone in there already?
 # ================================================================ dialogue night 3
@@ -3322,23 +3322,23 @@ ui.dev.start,시작,Start
 ui.dev.notify.saves_off,개발자 모드: 이 세션은 저장이 꺼져 있습니다.,Developer mode: saving is off for this session.
 # ================================================================ case N2-M01
 case.n2-m01.title,두 명의 서준호,Two Seo Jun-hos
-case.n2-m01.summary,택배기사 서준호가 공동현관에 와 있다. 같은 시각 로비 카메라에도 같은 사람이 잡힌다.,Courier Seo Jun-ho is at the front door. The lobby camera shows the same man at the same moment.
+case.n2-m01.summary,택배기사 서준호가 공동현관에서 호출한다. 인터폰 화면 속 그의 모습이 오늘 밤과 맞지 않는다.,Courier Seo Jun-ho is ringing at the front door. What the interphone shows of him does not match tonight.
 case.n2m01.objective.watch_cam02,CAM-02 로비 화면을 확인하십시오,Check the lobby feed on CAM-02
 case.n2m01.objective.check_lobby,로비를 직접 확인하십시오,Check the lobby in person
 case.n2m01.objective.judge,공동현관의 서준호에게 줄 출입 권한을 정하십시오,Decide what access the Seo Jun-ho at the front door gets
-case.n2m01.decision.lobby_only,확인 후 로비까지만 들였다고 보고,"Report: checked, then admitted to the lobby only"
-case.n2m01.decision.wait_outside,밖에서 기다리게 하고 현장을 확인했다고 보고,Report: kept him outside and checked in person
-case.n2m01.decision.full_pass,전층 출입을 허용했다고 보고,Report: gave him a pass to every floor
-case.n2m01.decision.reject,출입을 거절했다고 보고,Report: turned him away
-case.n2m01.result.lobby_only,보고서가 접수됐다. 서준호는 상자를 택배대에 두고 돌아갔다. 로비 화면 속 남자가 들어온 기록은 끝내 찾지 못했다.,Filed. Seo Jun-ho left the boxes on the parcel shelf and went. No record of the man on the lobby feed coming in was ever found.
-case.n2m01.result.wait_outside,보고서가 접수됐다. 배송이 늦어져 202호에서 문의가 들어왔다. 로비에는 아무도 없었다.,Filed. The delivery ran late and 202 called to ask about it. There was nobody in the lobby.
-case.n2m01.result.full_pass,보고서가 접수됐다. 서준호가 어느 층까지 올라갔는지는 출입 기록으로 확인되지 않는다.,Filed. The access log does not show which floor Seo Jun-ho went up to.
+case.n2m01.decision.lobby_only,처음 호출은 돌려보내고 다시 온 서준호는 로비까지 들였다고 보고,"Report: turned the first call away, and let the Seo Jun-ho who came back as far as the lobby"
+case.n2m01.decision.wait_outside,"밖에서 기다리게 하고 확인한 뒤, 다시 온 서준호만 로비까지 들였다고 보고","Report: kept him waiting outside while checking, then let only the one who came back into the lobby"
+case.n2m01.decision.full_pass,층 출입을 허용했다고 보고,Report: gave him a pass up to the floors
+case.n2m01.decision.reject,다시 온 서준호를 돌려보냈다고 보고,Report: turned away the Seo Jun-ho who came back
+case.n2m01.result.lobby_only,보고서가 접수됐다. 서준호는 상자를 택배대에 두고 돌아갔다. 처음 호출한 사람이 문 앞에 서 있었던 기록은 어디에도 없다.,Filed. Seo Jun-ho left the boxes on the parcel shelf and went. There is no record anywhere of the first caller having stood at the door.
+case.n2m01.result.wait_outside,보고서가 접수됐다. 배송이 늦어져 202호에서 문의가 들어왔다. 처음 호출한 사람이 문 앞에 서 있었던 기록은 어디에도 없다.,Filed. The delivery ran late and 202 called to ask about it. There is no record anywhere of the first caller having stood at the door.
+case.n2m01.result.full_pass,보고서가 접수됐다. 그가 어느 층까지 올라갔는지는 출입 기록으로 확인되지 않는다.,Filed. The access log does not show which floor he went up to.
 case.n2m01.result.reject,보고서가 접수됐다. 서준호는 상자를 들고 돌아갔다. 한성택배에서 수령 거부 사유를 물어 왔다.,Filed. Seo Jun-ho took the boxes back. Hanseong Delivery has asked why they were refused.
-case.n2m01.failsafe.notify,출입 기록에 22:18 로비 진입 1건이 문 개방 기록 없이 남아 있습니다.,The access log holds one 22:18 lobby entry with no door release against it.
+case.n2m01.failsafe.notify,인터폰 기록에 같은 방문자의 호출이 두 번 남아 있습니다.,The interphone log holds two calls from the same visitor.
 evidence.ev_cam02_double.name,CAM-02 로비 화면,CAM-02 lobby capture
-evidence.ev_cam02_double.desc,서준호가 공동현관 밖에 서 있는 시각에 같은 사람이 로비 안에서 상자를 정리하고 있다.,"While Seo Jun-ho stands outside the front door, the same man is sorting boxes inside the lobby."
+evidence.ev_cam02_double.desc,들여보낸 서준호가 로비에서 상자를 정리하는 화면. 같은 시각 실제 로비에는 아무도 없다.,"The Seo Jun-ho who was let in, sorting boxes in the lobby. At that moment there is nobody in the real lobby."
 evidence.ev_waybill_order.name,송장 번호 순서,Waybill number order
-evidence.ev_waybill_order.desc,서준호가 든 송장 세 장은 오늘 날짜에 번호가 이어진다. 로비 택배대에는 그 번호의 상자가 아직 없다.,The three waybills Seo Jun-ho is carrying are dated today and run in sequence. No box with those numbers is on the lobby parcel shelf yet.
+evidence.ev_waybill_order.desc,처음 호출한 서준호가 보여 준 송장. 지금은 쓰지 않는 양식이고 발행 연도가 2009년이다.,"The waybills the first Seo Jun-ho held up. A form no longer in use, issued in 2009."
 reason.saw_the_same_man_twice,같은 사람을 두 곳에서 봤다,Saw the same man in two places
 reason.read_correctly,직접 확인해 바로 읽었다,Checked it and read it right
 reason.delivery_delayed,배송 지연,Delivery delayed
@@ -3347,12 +3347,18 @@ reason.turned_away_a_real_caller,정상 방문자를 돌려보냈다,Turned away
 ui.prompt.inspect_clock,벽시계 확인,Check the wall clock
 ui.prompt.inspect_floor,바닥 확인,Check the floor
 evidence.ev_lobby_clock.name,로비 벽시계,Lobby wall clock
-evidence.ev_lobby_clock.desc,로비 벽시계는 관리실 시계와 같은 시각을 가리킨다. CAM-02 화면 속 같은 시계는 다른 시각에 있다.,The lobby wall clock agrees with the office clock. On CAM-02 the same clock reads a different time.
+evidence.ev_lobby_clock.desc,로비 벽시계는 관리실 시계와 같은 시각을 가리킨다. 그가 비친 화면의 시각 표시는 그 시각이 아니다.,The lobby wall clock agrees with the office clock. The time shown on the feed he appears in does not.
 evidence.ev_lobby_footprints.name,현관 안쪽 바닥,Floor inside the entrance
-evidence.ev_lobby_footprints.desc,밖은 비가 오는데 문 안쪽 바닥은 말라 있다. 로비로 들어온 젖은 발자국이 없다.,It is raining outside and the floor inside the door is dry. No wet footprints lead into the lobby.
+evidence.ev_lobby_footprints.desc,밖은 비가 오는데 현관 앞에도 문 안쪽 바닥에도 젖은 발자국이 없다.,"It is raining, and there are no wet footprints at the door or on the floor inside it."
 case.n2m01.objective.judge_again,다시 호출한 서준호에게 줄 출입 권한을 정하십시오,Decide what access the Seo Jun-ho who rang again gets
-reason.found_him_at_the_wall,4층 빈 벽 앞에 서 있는 그를 봤다,Found him standing at the blank wall on 4F
 ui.access.notify.found_off_route,경로를 벗어난 방문자를 찾았다. 방문자가 건물 밖으로 나간다.,You found the visitor who had left their route. They are on their way out.
 ui.memo.echo_rule,메모: 화면 속 사람은 날씨와 시계까지 맞추지는 못한다. 직접 확인할 것.,Note to self: whoever is on the screen cannot match the weather or the clock. Check in person.
-ui.memo.n2_paper_format,메모: 어젯밤 보관한 2009년 고지서와 용지 규격이 다르다. 오늘 송장은 지금 쓰는 규격이다.,Note to self: not the same paper stock as the 2009 bill kept last night. Tonight's waybills are current issue.
+ui.memo.n2_paper_format,메모: 어젯밤 보관한 2009년 고지서와 같은 용지 규격이다. 지금은 쓰지 않는 양식이다.,Note to self: the same paper stock as the 2009 bill kept last night. Nobody prints on that form any more.
 ui.memo.n2_package_complaint,202호에서 어젯밤 택배를 받지 못했다는 민원이 접수되어 있다.,Unit 202 has filed a complaint: last night's parcels never arrived.
+case.n2m01.decision.both_in,두 번 모두 로비까지 들였다고 보고,Report: let him as far as the lobby both times
+case.n2m01.result.both_in,보고서가 접수됐다. 택배대에는 상자가 한 번 놓였다. 출입 기록에는 서준호가 두 번 들어온 것으로 남았다.,Filed. One set of boxes is on the parcel shelf. The access log has Seo Jun-ho coming in twice.
+dlg.n2.junho.choice.weather,지금 그쪽 비 옵니까,Is it raining where you are?
+dlg.n2.junho.weather,비요? 안 오는데요. 오늘 밤은 맑습니다.,Rain? No. It's a clear night.
+visitor.check.value.no_van_logged,오늘 차량 진입 기록 없음,No van entry logged tonight
+ui.memo.n2_nobody_upstairs,4층에는 아무도 없다. 화면에서도 그가 사라졌다.,There is nobody on the fourth floor. He is gone from the screen as well.
+reason.followed_the_screen_upstairs,화면 속 그를 따라 4층까지 올라갔다,Followed the one on the screen up to 4F

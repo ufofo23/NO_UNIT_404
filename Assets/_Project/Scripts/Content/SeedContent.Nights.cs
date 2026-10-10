@@ -132,21 +132,101 @@ namespace NO404.ContentData
 
         public static VisitorDefinition[] BuildLateVisitors()
         {
+            // The first call. Seo Jun-ho at the front door as he once stood at it - not the
+            // man, a replay of him (v5.1 ECHO), and the interphone cannot tell the difference.
+            //
+            // He reads completely clean, which is the trap: the player has just been taught
+            // that agitation is worth watching, and here is a caller with none of it. What
+            // gives him away is not him. It is that it is raining tonight and not behind him,
+            // that his waybills are on a form nobody has printed since 2009, and that the
+            // caretaker who walks down to the glass finds nobody standing there.
+            //
+            // The informed answer is to let nobody in, because there is nobody. Letting him in
+            // is not a disaster either: the door releases, the log records an entry, the lobby
+            // camera shows him at the parcel shelf - and the lobby is empty.
+            var echo = ScriptableObject.CreateInstance<VisitorDefinition>();
+            echo.name = "VIS_JUNHO_ECHO";
+            echo.visitorId = "vis_junho_echo";
+            echo.nameKey = "visitor.junho.name";
+            echo.purposeKey = "visitor.junho.purpose";
+            echo.idCardNameKey = "visitor.junho.id_name";
+            echo.targetUnit = "202";
+            echo.cameraId = "CAM-01";
+            echo.conversationId = "D_N2_JUNHO_ENTRY";
+            echo.nightIndex = 2;
+            echo.arrivalGameSecond = At(22, 10);
+            echo.correctAccess = VisitorAccessLevel.Reject;
+            echo.isHistoricalReplay = true;
+            // Walking somebody in means walking beside them, and there is no beside.
+            echo.canBeEscorted = false;
+            echo.destinationZone = ZoneIds.Lobby;
+            echo.expectedRoute = new[] { ZoneIds.Lobby };
+            WandersToTheFourthFloor(echo);
+
+            // v5.1 11: SAN -8 for following the wrong one up. The fourth floor is where the
+            // screen says he went, and it is empty when the caretaker gets there.
+            echo.onFoundOffRoute = new[]
+            {
+                ConsequenceDefinition.Sanity(-8, "reason.followed_the_screen_upstairs")
+            };
+            echo.foundOffRouteNoticeKey = "ui.memo.n2_nobody_upstairs";
+
+            echo.checks = new[]
+            {
+                Check("visitor.check.id_name", "visitor.check.value.seo_junho", false, AppIds.Residents),
+                Check("visitor.check.invoice", "visitor.check.value.invoice_ok", false, AppIds.Access),
+                Check("visitor.check.vehicle", "visitor.check.value.no_van_logged", true, AppIds.Cctv),
+                Check("visitor.check.weather", "visitor.check.value.rain_outside_only", true, AppIds.Cctv)
+            };
+            echo.onCorrect = new[]
+            {
+                ConsequenceDefinition.Stat(StatIds.Performance, 3, "reason.correct_visitor")
+            };
+            echo.onWrong = new[]
+            {
+                ConsequenceDefinition.Stat(StatIds.Performance, -2, "reason.wrong_visitor")
+            };
+            echo.onHold = new[] { ConsequenceDefinition.Stat(StatIds.Performance, -1, "reason.held_visitor") };
+
+            echo.truth = VisitorTruth.Legitimate;
+            echo.breakingPoint = 88;
+            echo.tells = Tells(
+                Tell("obs_annoyed", ReadChannel.Voice, TellWeight.Noise),
+                Tell("obs_corrects_you", ReadChannel.Voice, TellWeight.Innocent),
+                Tell("obs_full_name", ReadChannel.Voice, TellWeight.Innocent));
+            echo.responses = Responses(
+                Reply(PressureTactic.AskAgain, "visitor.junho.reply.ask_again", 8),
+                Reply(PressureTactic.Silence, "visitor.junho.reply.silence", 10),
+                Reply(PressureTactic.ShowMe, "visitor.junho.reply.show_me", 6, "obs_corrects_you"),
+                Reply(PressureTactic.Reassure, "visitor.junho.reply.reassure", -8));
+
+            // The second call. The real Seo Jun-ho, who has been standing at the door in the
+            // rain while the interphone showed somebody else - and who is now being asked by
+            // a stranger whether he did not just go in. Every signal says liar. He is the
+            // most honest person on the night, and the lobby is as far as a courier goes.
             var real = ScriptableObject.CreateInstance<VisitorDefinition>();
             real.name = "VIS_JUNHO_REAL";
             real.visitorId = "vis_junho_real";
             real.nameKey = "visitor.junho.name";
-            real.purposeKey = "visitor.junho.purpose";
+            real.purposeKey = "visitor.junho.purpose_again";
             real.idCardNameKey = "visitor.junho.id_name";
             real.targetUnit = "202";
             real.cameraId = "CAM-01";
-            real.conversationId = "D_N2_JUNHO_ENTRY";
+            real.conversationId = "D_N2_JUNHO_SECOND";
             real.nightIndex = 2;
-            real.arrivalGameSecond = At(22, 10);
+            real.arrivalGameSecond = At(22, 25);
             real.correctAccess = VisitorAccessLevel.LobbyOnly;
             real.destinationZone = ZoneIds.Lobby;
             real.expectedRoute = new[] { ZoneIds.Lobby };
             WandersToTheFourthFloor(real);
+
+            // v5.1 11: SAN -5 the first time the contradiction is seen - which is now. The
+            // same man is at the door again, whatever was decided about him a minute ago.
+            real.onArrive = new[]
+            {
+                ConsequenceDefinition.Sanity(-5, "reason.saw_the_same_man_twice")
+            };
+
             real.checks = new[]
             {
                 Check("visitor.check.id_name", "visitor.check.value.seo_junho", false, AppIds.Residents),
@@ -156,127 +236,63 @@ namespace NO404.ContentData
             };
             real.onCorrect = new[]
             {
-                ConsequenceDefinition.Stat(StatIds.Performance, 3, "reason.correct_visitor"),
-                ConsequenceDefinition.Stat(StatIds.CommunityTrust, 2, "reason.correct_visitor")
-            };
-            real.onWrong = new[]
-            {
-                ConsequenceDefinition.Stat(StatIds.CommunityTrust, -4, "reason.wrong_visitor"),
-                ConsequenceDefinition.Stat(StatIds.Performance, -2, "reason.wrong_visitor")
-            };
-            real.onHold = new[] { ConsequenceDefinition.Stat(StatIds.Performance, -1, "reason.held_visitor") };
-
-            // The first Jun-ho reads completely clean, which is the trap: the player has just
-            // been taught that agitation is worth watching, and here is a man with none of it
-            // who is nonetheless standing at a door somebody has already walked through.
-            real.truth = VisitorTruth.Legitimate;
-            real.breakingPoint = 88;
-            real.tells = Tells(
-                Tell("obs_annoyed", ReadChannel.Voice, TellWeight.Noise),
-                Tell("obs_engine_running", ReadChannel.Camera, TellWeight.Noise),
-                Tell("obs_corrects_you", ReadChannel.Voice, TellWeight.Innocent),
-                Tell("obs_full_name", ReadChannel.Glass, TellWeight.Innocent));
-            real.responses = Responses(
-                Reply(PressureTactic.AskAgain, "visitor.junho.reply.ask_again", 8),
-                Reply(PressureTactic.Silence, "visitor.junho.reply.silence", 10),
-                Reply(PressureTactic.ShowMe, "visitor.junho.reply.show_me", 6, "obs_corrects_you"),
-                Reply(PressureTactic.Reassure, "visitor.junho.reply.reassure", -8));
-
-            // 22:25: the same courier says he was never let in. He is the real one; the
-            // person already inside the lobby is a 2009 recording (GDD 9.3).
-            var second = ScriptableObject.CreateInstance<VisitorDefinition>();
-            second.name = "VIS_JUNHO_SECOND";
-            second.visitorId = "vis_junho_second";
-            second.nameKey = "visitor.junho.name";
-            second.purposeKey = "visitor.junho.purpose_again";
-            second.idCardNameKey = "visitor.junho.id_name";
-            second.targetUnit = "202";
-            second.cameraId = "CAM-01";
-            second.conversationId = "D_N2_JUNHO_SECOND";
-            second.nightIndex = 2;
-            second.arrivalGameSecond = At(22, 25);
-            second.correctAccess = VisitorAccessLevel.LobbyOnly;
-            second.destinationZone = ZoneIds.Lobby;
-            second.expectedRoute = new[] { ZoneIds.Lobby };
-            WandersToTheFourthFloor(second);
-
-            // The one in the lobby recording is not him and never arrived, which is what the
-            // flag is for: the building believes there are two of him (v3.0 38.1).
-            second.isHistoricalReplay = false;
-            second.checks = new[]
-            {
-                Check("visitor.check.invoice", "visitor.check.value.invoice_same_number", false, AppIds.Access),
-                Check("visitor.check.access_log", "visitor.check.value.no_entry_logged", true, AppIds.Access),
-                Check("visitor.check.weather", "visitor.check.value.rain_outside_only", true, AppIds.Cctv),
-                Check("visitor.check.lobby_feed", "visitor.check.value.lobby_noise", true, AppIds.Cctv)
-            };
-            second.onCorrect = new[]
-            {
                 ConsequenceDefinition.Stat(StatIds.CommunityTrust, 4, "reason.correct_visitor"),
                 ConsequenceDefinition.Stat(StatIds.Performance, 4, "reason.correct_visitor"),
                 ConsequenceDefinition.Achievement(AchievementIds.TwoCouriers)
             };
-            second.onWrong = new[]
+            real.onWrong = new[]
             {
                 ConsequenceDefinition.Stat(StatIds.CommunityTrust, -6, "reason.wrong_visitor"),
                 ConsequenceDefinition.Stat(StatIds.Performance, -3, "reason.wrong_visitor")
             };
-            second.onHold = new[] { ConsequenceDefinition.Stat(StatIds.CommunityTrust, -2, "reason.held_visitor") };
+            real.onHold = new[] { ConsequenceDefinition.Stat(StatIds.CommunityTrust, -2, "reason.held_visitor") };
 
-            // And the same man again, twenty minutes later, now frightened - because he is
-            // being told by a stranger on an interphone that he already came in, and he knows
-            // he did not. Every signal says liar. He is the most honest person on the night.
-            second.truth = VisitorTruth.Shaken;
-            second.breakingPoint = 55;
-            second.hiddenReasonKey = "visitor.junho.hidden_second";
-            second.tells = Tells(
+            real.truth = VisitorTruth.Shaken;
+            real.breakingPoint = 55;
+            real.hiddenReasonKey = "visitor.junho.hidden_second";
+            real.tells = Tells(
                 Tell("obs_breath", ReadChannel.Voice, TellWeight.Noise),
                 Tell("obs_overtalks", ReadChannel.Voice, TellWeight.Noise),
                 Tell("obs_checks_street", ReadChannel.Camera, TellWeight.Noise),
                 Tell("obs_hands_shake", ReadChannel.Glass, TellWeight.Noise),
-                // The van outside is the same van, still logged, still running. The person in
-                // the lobby recording did not arrive in it, because nothing did.
+                // The van outside is his van, logged, still running. Nothing else arrived in
+                // one tonight.
                 Tell("obs_engine_running", ReadChannel.Glass, TellWeight.Innocent),
                 Tell("obs_corrects_you", ReadChannel.Voice, TellWeight.Innocent, PressureTactic.Reassure));
-            second.responses = Responses(
+            real.responses = Responses(
                 Reply(PressureTactic.AskAgain, "visitor.junho.reply.ask_again_second", 22),
                 Reply(PressureTactic.Confront, "visitor.junho.reply.confront_second", 30, null, AppIds.Access),
                 Reply(PressureTactic.Silence, "visitor.junho.reply.silence_second", 26),
                 Reply(PressureTactic.ShowMe, "visitor.junho.reply.show_me_second", 14),
                 Reply(PressureTactic.Reassure, "visitor.junho.reply.reassure_second", -16, "obs_corrects_you"));
 
-            return new[] { real, second };
+            return new[] { echo, real };
         }
 
         /// <summary>
         /// What a pass past the lobby turns into (v5.1 11: a wrong grant is not game over, the
         /// visitor has to be found again on 4F or B1).
         ///
-        /// A courier with the run of the building does not stay by the parcel shelf. He goes
-        /// up to the fourth floor and stops at the stretch of wall between 401 and 405 - the
-        /// thing he is still talking about when he comes back on night 4 - and he stands
-        /// there until the caretaker walks up and finds him. Held to the lobby he has nowhere
-        /// to go, so none of this happens on the right answer.
+        /// Either of them given the floors goes up to the fourth and stops at the stretch of
+        /// wall between 401 and 405, and stays until the caretaker walks up there. For the
+        /// real courier that is a man to be found and sent home - the thing he is still
+        /// talking about on night 4. For the replay it is a figure on CAM-04 and an empty
+        /// corridor. Held to the lobby neither has anywhere to go.
         ///
-        /// v5.1 prices following him at SAN -8 "into the 4F service area".
-        /// ASSUMPTION: the service passage is sealed until night 3, so on night 2 the cost
-        /// lands where he actually is - the fourth-floor corridor, in front of that wall.
+        /// ASSUMPTION: v5.1 names "the 4F service area". The service passage is sealed until
+        /// night 3, so on night 2 this is the fourth-floor corridor in front of that wall.
         /// </summary>
         static void WandersToTheFourthFloor(VisitorDefinition junho)
         {
             junho.canDeviate = true;
             junho.deviationZone = ZoneIds.Floor04;
             junho.leavesWhenFound = true;
-            junho.onFoundOffRoute = new[]
-            {
-                ConsequenceDefinition.Sanity(-8, "reason.found_him_at_the_wall")
-            };
         }
 
         /// <summary>
         /// v5.1 16: N1_404_BILL_PRESERVED gives night 2 a hint for the ECHO call - the 2009
-        /// paper can be compared. One line, the moment the waybills are in hand, and only for
-        /// a caretaker who kept the bill.
+        /// paper can be compared. One line, when the first caller's waybills are held up, and
+        /// only for a caretaker who kept the bill: it is the same stock.
         /// </summary>
         static ConsequenceDefinition PaperFormatMemo()
         {
@@ -327,23 +343,33 @@ namespace NO404.ContentData
             return definition;
         }
 
+        /// <summary>
+        /// The first call. Two of the three questions that matter can be asked from the desk:
+        /// what is on his waybills, and whether it is raining where he is standing.
+        /// </summary>
         static DialogueDefinition JunhoEntry()
         {
             return Conversation("D_N2_JUNHO_ENTRY", DialogueChannel.Interphone, 0.25f, 12f,
                 Node("start", "speaker.junho", "dlg.n2.junho.start", null,
                     Choices(
                         Choice("check_invoice", "dlg.n2.junho.choice.invoice", "invoice"),
+                        Choice("ask_weather", "dlg.n2.junho.choice.weather", "weather"),
                         Choice("check_company", "dlg.n2.junho.choice.company", "company"),
                         Choice("ask_units", "dlg.n2.junho.choice.units", "units"))),
-                // Asking to see the waybills is how their numbers get written down: three in
-                // a run, dated tonight, for boxes that are not on the lobby shelf yet.
                 Node("invoice", "speaker.junho", "dlg.n2.junho.invoice", "await",
                     null, ConsequenceDefinition.Evidence("EV_WAYBILL_ORDER"), PaperFormatMemo()),
+                Node("weather", "speaker.junho", "dlg.n2.junho.weather", "await",
+                    null, ConsequenceDefinition.Evidence("E06_CCTV_WEATHER_MISMATCH")),
                 Node("company", "speaker.junho", "dlg.n2.junho.company", "await"),
                 Node("units", "speaker.junho", "dlg.n2.junho.units", "await"),
                 Node("await", "speaker.junho", "dlg.n2.junho.await", null));
         }
 
+        /// <summary>
+        /// The second call. His answers are the ones tonight would give - it is raining, the
+        /// waybill is dated today - and they are not evidence of anything except that he is
+        /// here, which is the point.
+        /// </summary>
         static DialogueDefinition JunhoSecond()
         {
             return Conversation("D_N2_JUNHO_SECOND", DialogueChannel.Interphone, 0.25f, 12f,
@@ -354,8 +380,7 @@ namespace NO404.ContentData
                         Choice("ask_weather", "dlg.n2.junho2.choice.weather", "weather"))),
                 Node("denies", "speaker.junho", "dlg.n2.junho2.denies", "await"),
                 Node("number", "speaker.junho", "dlg.n2.junho2.number", "await",
-                    null, ConsequenceDefinition.Stat(StatIds.HarinResonance, 1, "reason.noticed_contradiction"),
-                    ConsequenceDefinition.Evidence("EV_WAYBILL_ORDER"), PaperFormatMemo()),
+                    null, ConsequenceDefinition.Stat(StatIds.HarinResonance, 1, "reason.noticed_contradiction")),
                 Node("weather", "speaker.junho", "dlg.n2.junho2.weather", "await"),
                 Node("await", "speaker.junho", "dlg.n2.junho2.await", null));
         }

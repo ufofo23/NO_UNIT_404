@@ -231,19 +231,23 @@ namespace NO404.Tests
             Assert.AreEqual(100, hp,
                             "no first-choice decision on any night costs health, so HP should be full");
 
-            // Six mains, first decision each, cost -3 -2 -2 -8 -13 -5. v5.1 adds
+            // Six mains, first decision each, cost -3 -5 -2 -8 -13 -5. v5.1 adds
             // five SAN when Park's final rescue is cross-verified. Night 6 closes, and the shift
-            // gives seven back (v5.0 7.3) - so 100 - 33 + 7.
+            // gives seven back (v5.0 7.3) - so 100 - 36 + 7.
+            //
+            // Night 2 is five and not two: this walk lets both of Seo Jun-ho's calls into the
+            // lobby, which costs the second ring and earns no +3, because +3 is for having
+            // told the two calls apart.
             //
             // Only one recovery lands here because this walk jumps between nights rather than
             // clocking off each one; a played campaign collects five more. Which is the point
             // worth keeping: even the harshest reading of the current content leaves a
             // caretaker who takes no physical risk comfortably above the gate.
-            CollectionAssert.AreEqual(new[] { "N1:-3", "N2:-2", "N3:-2", "N4:-8", "N5:-13", "N6:-5" },
+            CollectionAssert.AreEqual(new[] { "N1:-3", "N2:-5", "N3:-2", "N4:-8", "N5:-13", "N6:-5" },
                                       sanByNight,
                                       "the SAN cost of a night's main changed");
 
-            Assert.AreEqual(100 - 33 + VitalService.NightEndCalm, san,
+            Assert.AreEqual(100 - 36 + VitalService.NightEndCalm, san,
                             "the six mains and one end-of-shift recovery should leave SAN here");
         }
 

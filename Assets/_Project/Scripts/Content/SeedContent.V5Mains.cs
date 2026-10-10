@@ -179,12 +179,19 @@ namespace NO404.ContentData
         // =================================================================
 
         /// <summary>
-        /// The courier is at the entrance on the interphone. He is also already in the lobby
-        /// on CAM-02, sorting boxes.
+        /// The courier rings at the entrance twice. The first call is a replay of him at this
+        /// door years ago; the second is the man, who has been standing in the rain the whole
+        /// time. The right answer is nobody in for the first and the lobby for the second.
         ///
-        /// v5.0 11 wants the answer to come from invariants rather than from the face: it is
-        /// raining outside, and the weather, the wall clock and the order of the waybills are
-        /// what disagree. Getting it right off two of those is what sets ECHO_RULE_CONFIRMED.
+        /// v5.1 11 wants the answer to come from invariants rather than from the face: it is
+        /// raining outside and not behind the first caller, his waybills are a 2009 form, and
+        /// nobody is standing at the door. Getting it right off two of those is what sets
+        /// ECHO_RULE_CONFIRMED.
+        ///
+        /// This departs from v5.1 11's own description, which has the present-day courier on
+        /// the interphone and the replay already in the lobby on CAM-02 at the same moment.
+        /// Here the lobby feed is empty until the first call is let in - a replay cannot be
+        /// asking at the door and sorting boxes inside it. Docs/GDD/CHANGE_PROPOSALS.md.
         /// </summary>
         static CaseDefinition BuildN2Main()
         {
@@ -198,84 +205,102 @@ namespace NO404.ContentData
             c.startWindowBegin = At(22, 20);
 
             // v5.1 19.2: a main needs at least three channels and an answer no one screen
-            // can settle. The sighting is on the camera wall; the four invariants are split
-            // between the camera wall (weather), the door (waybills) and the lobby floor
-            // itself (clock, footprints), so settling it means leaving the desk.
+            // can settle. Two invariants come from asking at the door (weather, waybills) and
+            // two from the lobby itself (clock, floor); the camera wall only has something to
+            // say once the first call has been let in, which is the mistake.
             c.evidenceIds = new[]
             {
                 "EV_CAM02_DOUBLE",
                 "E06_CCTV_WEATHER_MISMATCH", "EV_WAYBILL_ORDER", "EV_LOBBY_CLOCK", "EV_LOBBY_FOOTPRINTS"
             };
 
-            // v5.1 11: SAN -5 the first time the same man is seen in two places. It is charged
-            // on seeing it, not on the report, so it lands whatever is decided afterwards.
-            var seeTheDouble = Objective("obj_watch_cam02", "case.n2m01.objective.watch_cam02",
-                                         ObjectiveType.ViewCctvChannel, "CAM-02");
-            seeTheDouble.onComplete = new[]
-            {
-                ConsequenceDefinition.Sanity(-5, "reason.saw_the_same_man_twice")
-            };
+            // He rings twice, and it is two decisions: the first call is a replay and the
+            // second is the man. The second objective is hidden until it happens - a task list
+            // that says "the Seo Jun-ho who rang again" before he has is the twist, printed.
+            var judgeAgain = Objective("obj_judge_junho_again", "case.n2m01.objective.judge_again",
+                                       ObjectiveType.JudgeVisitor, "vis_junho_real");
+            judgeAgain.hidden = true;
 
-            // He rings twice, and both calls are the same decision about the same man.
             c.objectives = new[]
             {
-                seeTheDouble,
+                Objective("obj_judge_junho", "case.n2m01.objective.judge",
+                          ObjectiveType.JudgeVisitor, "vis_junho_echo"),
+                judgeAgain,
                 Objective("obj_check_lobby", "case.n2m01.objective.check_lobby",
                           ObjectiveType.EnterZone, ZoneIds.Lobby),
-                Objective("obj_judge_junho", "case.n2m01.objective.judge",
-                          ObjectiveType.JudgeVisitor, "vis_junho_real"),
-                Objective("obj_judge_junho_again", "case.n2m01.objective.judge_again",
-                          ObjectiveType.JudgeVisitor, "vis_junho_second")
+                // Optional: the lobby feed has nothing on it unless the first call was let in.
+                Objective("obj_watch_cam02", "case.n2m01.objective.watch_cam02",
+                          ObjectiveType.ViewCctvChannel, "CAM-02", true)
             };
 
             // The report is the log entry for what was done at the door, not a second chance
             // to decide it. Each option is only on the form when the door log agrees with it,
-            // so exactly one of the four is ever offered: the furthest either call was let in
-            // decides which, and "kept him outside" needs him to have actually been held.
-            const string Junho = "vis_junho_real|vis_junho_second";
+            // so exactly one of the five is ever offered.
+            const string Echo = "vis_junho_echo";
+            const string Real = "vis_junho_real";
+            const string Either = Echo + "|" + Real;
 
-            var toTheLobby = ConditionDefinition.VisitorAccess(Junho, VisitorAccessLevel.Vestibule,
-                                                               VisitorAccessLevel.Escorted);
-            var pastTheLobby = ConditionDefinition.VisitorAccess(Junho, VisitorAccessLevel.FloorPass,
-                                                                 VisitorAccessLevel.FullTemporary);
-            var turnedAway = ConditionDefinition.VisitorAccess(Junho, VisitorAccessLevel.Reject,
-                                                               VisitorAccessLevel.Reject);
+            var echoTurnedAway = ConditionDefinition.VisitorAccess(Echo, VisitorAccessLevel.Reject,
+                                                                   VisitorAccessLevel.Reject);
+            var echoInTheLobby = ConditionDefinition.VisitorAccess(Echo, VisitorAccessLevel.Vestibule,
+                                                                   VisitorAccessLevel.Escorted);
+            var echoNoFurther = ConditionDefinition.VisitorAccess(Echo, VisitorAccessLevel.Reject,
+                                                                  VisitorAccessLevel.Escorted);
+            var realInTheLobby = ConditionDefinition.VisitorAccess(Real, VisitorAccessLevel.Vestibule,
+                                                                   VisitorAccessLevel.Escorted);
+            var realTurnedAway = ConditionDefinition.VisitorAccess(Real, VisitorAccessLevel.Reject,
+                                                                   VisitorAccessLevel.Reject);
+            var somebodyPastTheLobby = ConditionDefinition.VisitorAccess(Either, VisitorAccessLevel.FloorPass,
+                                                                         VisitorAccessLevel.FullTemporary);
 
-            // v5.1 11: "ECHO_RULE_CONFIRMED = TRUE if 2 or more invariants". Applies to either
-            // safe answer - what confirms the rule is how it was checked, not how long he
-            // stood in the rain.
+            // v5.1 11: "ECHO_RULE_CONFIRMED = TRUE if 2 or more invariants", on the right
+            // answer. Applies to either way of reaching it - what confirms the rule is how it
+            // was checked, not how long anybody stood in the rain.
             var twoInvariants = ConditionDefinition.EvidenceTagged(EvidenceTags.Invariant, c.caseId, 2);
 
             c.decisions = new[]
             {
+                // The whole of the right answer: nobody for the first call, the lobby for him.
                 Decision("dec_verified_lobby_only", "case.n2m01.decision.lobby_only",
                     "case.n2m01.result.lobby_only", DecisionQuality.Correct,
-                    null, new[] { toTheLobby, ConditionDefinition.VisitorHeld(Junho, false) },
+                    null, new[] { echoTurnedAway, realInTheLobby, ConditionDefinition.VisitorHeld(Either, false) },
                     ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "TRUSTED"),
                     VerifiedEchoRule(twoInvariants),
                     VerifiedCalm(twoInvariants),
                     WaybillKept()),
 
+                // v5.1 11 "wait outside + check in person": the same answer, reached by
+                // leaving somebody on the step while it was checked. Safest, and slow.
                 Decision("dec_wait_outside", "case.n2m01.decision.wait_outside",
                     "case.n2m01.result.wait_outside", DecisionQuality.Partial,
-                    null, new[] { toTheLobby, ConditionDefinition.VisitorHeld(Junho) },
+                    null, new[] { echoTurnedAway, realInTheLobby, ConditionDefinition.VisitorHeld(Either) },
                     ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "NEUTRAL"),
                     ConsequenceDefinition.Stat(StatIds.CommunityTrust, -3, "reason.delivery_delayed"),
                     VerifiedEchoRule(twoInvariants),
                     VerifiedCalm(twoInvariants),
                     WaybillKept()),
 
-                // v5.1 11: a pass past the lobby is the access debt this campaign bills for.
-                // What following him upstairs costs is charged where it happens, not here.
+                // Both calls as far as the lobby. v5.1 11's LobbyOnly on an ECHO: nothing is
+                // lost - the delivery happens, nobody is loose - and nothing is learned. The
+                // log has him in twice and the rule stays unconfirmed however much was checked,
+                // because the check did not change what was done.
+                Decision("dec_both_in", "case.n2m01.decision.both_in",
+                    "case.n2m01.result.both_in", DecisionQuality.Partial,
+                    null, new[] { echoInTheLobby, realInTheLobby },
+                    ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "TRUSTED")),
+
+                // v5.1 11: a pass past the lobby, to either of them, is the access debt this
+                // campaign bills for. What following it upstairs costs is charged upstairs.
                 Decision("dec_full_pass", "case.n2m01.decision.full_pass",
                     "case.n2m01.result.full_pass", DecisionQuality.Wrong,
-                    null, new[] { pastTheLobby },
+                    null, new[] { somebodyPastTheLobby },
                     ConsequenceDefinition.Debt(DebtIds.Access, 1, "reason.unverified_pass"),
                     ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "NEUTRAL")),
 
+                // The real courier turned away, whatever was done about the first call.
                 Decision("dec_reject", "case.n2m01.decision.reject",
                     "case.n2m01.result.reject", DecisionQuality.Wrong,
-                    null, new[] { turnedAway },
+                    null, new[] { realTurnedAway, echoNoFurther },
                     ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "REJECTED"),
                     ConsequenceDefinition.Debt(DebtIds.Trust, 1, "reason.turned_away_a_real_caller"),
                     ConsequenceDefinition.Stat(StatIds.CommunityTrust, -5, "reason.wrong_report"),

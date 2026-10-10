@@ -984,10 +984,9 @@ namespace NO404.Core
                     break;
 
                 case 2:
-                    // The lobby entry at 22:18 has no matching door release - that gap is the
-                    // contradiction the player is meant to find (GDD 9.3).
-                    log.Add(ShiftTime(22, 18), Residents.AccessSubject.Unknown, "visitor.junho.name",
-                            "", "log.location.lobby", "CAM-02", true, "grp_junho");
+                    // Nothing is written in advance any more. The entry that should not be
+                    // there is the one the door makes itself, if the first Seo Jun-ho is let
+                    // in: a release, a logged entry, and an empty lobby (v5.1 11).
                     break;
 
                 case 3:
@@ -1087,8 +1086,8 @@ namespace NO404.Core
                     // one is the contradiction, so he comes with it rather than later. Which
                     // is also why dev.mainonly leaves them alone: strip these two and N2-M01
                     // is a quest about two couriers with nobody at the door.
+                    CallerOn("N2-M01", "vis_junho_echo");
                     CallerOn("N2-M01", "vis_junho_real");
-                    CallerOn("N2-M01", "vis_junho_second");
                     break;
             }
         }
