@@ -278,7 +278,16 @@ namespace NO404.ContentData
                     null, new[] { turnedAway },
                     ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "REJECTED"),
                     ConsequenceDefinition.Debt(DebtIds.Trust, 1, "reason.turned_away_a_real_caller"),
-                    ConsequenceDefinition.Stat(StatIds.CommunityTrust, -5, "reason.wrong_report"))
+                    ConsequenceDefinition.Stat(StatIds.CommunityTrust, -5, "reason.wrong_report"),
+                    // v5.1 11: refusing the real courier leads to a lost-package follow-up.
+                    // The flag is what that follow-up will read; the line the next evening is
+                    // the least of it the caretaker should see until it exists.
+                    ConsequenceDefinition.Flag(FlagIds.JunhoPackageLost, true),
+                    new ConsequenceDefinition
+                    {
+                        type = ConsequenceType.Notify, targetId = "ui.memo.n2_package_complaint",
+                        nextNight = true
+                    })
             };
 
             c.failSafe = FailSafe(T0300, null, "case.n2m01.failsafe.notify");

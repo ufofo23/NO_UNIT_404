@@ -146,6 +146,7 @@ namespace NO404.ContentData
             real.correctAccess = VisitorAccessLevel.LobbyOnly;
             real.destinationZone = ZoneIds.Lobby;
             real.expectedRoute = new[] { ZoneIds.Lobby };
+            WandersToTheFourthFloor(real);
             real.checks = new[]
             {
                 Check("visitor.check.id_name", "visitor.check.value.seo_junho", false, AppIds.Residents),
@@ -197,6 +198,7 @@ namespace NO404.ContentData
             second.correctAccess = VisitorAccessLevel.LobbyOnly;
             second.destinationZone = ZoneIds.Lobby;
             second.expectedRoute = new[] { ZoneIds.Lobby };
+            WandersToTheFourthFloor(second);
 
             // The one in the lobby recording is not him and never arrived, which is what the
             // flag is for: the building believes there are two of him (v3.0 38.1).
@@ -244,6 +246,42 @@ namespace NO404.ContentData
                 Reply(PressureTactic.Reassure, "visitor.junho.reply.reassure_second", -16, "obs_corrects_you"));
 
             return new[] { real, second };
+        }
+
+        /// <summary>
+        /// What a pass past the lobby turns into (v5.1 11: a wrong grant is not game over, the
+        /// visitor has to be found again on 4F or B1).
+        ///
+        /// A courier with the run of the building does not stay by the parcel shelf. He goes
+        /// up to the fourth floor and stops at the stretch of wall between 401 and 405 - the
+        /// thing he is still talking about when he comes back on night 4 - and he stands
+        /// there until the caretaker walks up and finds him. Held to the lobby he has nowhere
+        /// to go, so none of this happens on the right answer.
+        ///
+        /// v5.1 prices following him at SAN -8 "into the 4F service area".
+        /// ASSUMPTION: the service passage is sealed until night 3, so on night 2 the cost
+        /// lands where he actually is - the fourth-floor corridor, in front of that wall.
+        /// </summary>
+        static void WandersToTheFourthFloor(VisitorDefinition junho)
+        {
+            junho.canDeviate = true;
+            junho.deviationZone = ZoneIds.Floor04;
+            junho.leavesWhenFound = true;
+            junho.onFoundOffRoute = new[]
+            {
+                ConsequenceDefinition.Sanity(-8, "reason.found_him_at_the_wall")
+            };
+        }
+
+        /// <summary>
+        /// v5.1 16: N1_404_BILL_PRESERVED gives night 2 a hint for the ECHO call - the 2009
+        /// paper can be compared. One line, the moment the waybills are in hand, and only for
+        /// a caretaker who kept the bill.
+        /// </summary>
+        static ConsequenceDefinition PaperFormatMemo()
+        {
+            return ConsequenceDefinition.Notify("ui.memo.n2_paper_format")
+                                        .When(ConditionDefinition.Flag(FlagIds.BillPreserved404));
         }
 
         // =====================================================================
@@ -300,7 +338,7 @@ namespace NO404.ContentData
                 // Asking to see the waybills is how their numbers get written down: three in
                 // a run, dated tonight, for boxes that are not on the lobby shelf yet.
                 Node("invoice", "speaker.junho", "dlg.n2.junho.invoice", "await",
-                    null, ConsequenceDefinition.Evidence("EV_WAYBILL_ORDER")),
+                    null, ConsequenceDefinition.Evidence("EV_WAYBILL_ORDER"), PaperFormatMemo()),
                 Node("company", "speaker.junho", "dlg.n2.junho.company", "await"),
                 Node("units", "speaker.junho", "dlg.n2.junho.units", "await"),
                 Node("await", "speaker.junho", "dlg.n2.junho.await", null));
@@ -317,7 +355,7 @@ namespace NO404.ContentData
                 Node("denies", "speaker.junho", "dlg.n2.junho2.denies", "await"),
                 Node("number", "speaker.junho", "dlg.n2.junho2.number", "await",
                     null, ConsequenceDefinition.Stat(StatIds.HarinResonance, 1, "reason.noticed_contradiction"),
-                    ConsequenceDefinition.Evidence("EV_WAYBILL_ORDER")),
+                    ConsequenceDefinition.Evidence("EV_WAYBILL_ORDER"), PaperFormatMemo()),
                 Node("weather", "speaker.junho", "dlg.n2.junho2.weather", "await"),
                 Node("await", "speaker.junho", "dlg.n2.junho2.await", null));
         }

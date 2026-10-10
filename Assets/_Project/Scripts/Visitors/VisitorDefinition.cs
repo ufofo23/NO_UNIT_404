@@ -70,6 +70,13 @@ namespace NO404.Visitors
                  "as a scripted trap rather than as somebody taking their chance.")]
         public int deviateAfterStep = 1;
 
+        [Tooltip("An off-route caller normally stays where they went. True = they go back out " +
+                 "once a member of staff walks in on them, which is the recovery v5.1 asks for.")]
+        public bool leavesWhenFound;
+
+        [Tooltip("Applied once, when a member of staff finds them off their route.")]
+        public ConsequenceDefinition[] onFoundOffRoute = new ConsequenceDefinition[0];
+
         [Tooltip("Escorting is refused for some callers - a delivery has no reason to need one.")]
         public bool canBeEscorted = true;
 

@@ -3343,7 +3343,6 @@ reason.saw_the_same_man_twice,같은 사람을 두 곳에서 봤다,Saw the same
 reason.read_correctly,직접 확인해 바로 읽었다,Checked it and read it right
 reason.delivery_delayed,배송 지연,Delivery delayed
 reason.unverified_pass,확인 없이 내준 출입 권한,Access given without checking
-reason.followed_the_wrong_one,엉뚱한 사람을 따라갔다,Followed the wrong one
 reason.turned_away_a_real_caller,정상 방문자를 돌려보냈다,Turned away a genuine caller
 ui.prompt.inspect_clock,벽시계 확인,Check the wall clock
 ui.prompt.inspect_floor,바닥 확인,Check the floor
@@ -3352,3 +3351,8 @@ evidence.ev_lobby_clock.desc,로비 벽시계는 관리실 시계와 같은 시�
 evidence.ev_lobby_footprints.name,현관 안쪽 바닥,Floor inside the entrance
 evidence.ev_lobby_footprints.desc,밖은 비가 오는데 문 안쪽 바닥은 말라 있다. 로비로 들어온 젖은 발자국이 없다.,It is raining outside and the floor inside the door is dry. No wet footprints lead into the lobby.
 case.n2m01.objective.judge_again,다시 호출한 서준호에게 줄 출입 권한을 정하십시오,Decide what access the Seo Jun-ho who rang again gets
+reason.found_him_at_the_wall,4층 빈 벽 앞에 서 있는 그를 봤다,Found him standing at the blank wall on 4F
+ui.access.notify.found_off_route,경로를 벗어난 방문자를 찾았다. 방문자가 건물 밖으로 나간다.,You found the visitor who had left their route. They are on their way out.
+ui.memo.echo_rule,메모: 화면 속 사람은 날씨와 시계까지 맞추지는 못한다. 직접 확인할 것.,Note to self: whoever is on the screen cannot match the weather or the clock. Check in person.
+ui.memo.n2_paper_format,메모: 어젯밤 보관한 2009년 고지서와 용지 규격이 다르다. 오늘 송장은 지금 쓰는 규격이다.,Note to self: not the same paper stock as the 2009 bill kept last night. Tonight's waybills are current issue.
+ui.memo.n2_package_complaint,202호에서 어젯밤 택배를 받지 못했다는 민원이 접수되어 있다.,Unit 202 has filed a complaint: last night's parcels never arrived.

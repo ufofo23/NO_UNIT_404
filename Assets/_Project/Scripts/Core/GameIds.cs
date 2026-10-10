@@ -173,6 +173,14 @@ namespace NO404.Core
         public const string BillPreserved404 = "N1_404_BILL_PRESERVED";
         /// <summary>N2-M01: two independent invariants agreed, so the ECHO rule is known.</summary>
         public const string EchoRuleConfirmed = "ECHO_RULE_CONFIRMED";
+        /// <summary>
+        /// N2-M01: the real courier was turned away and took 202's parcels with him.
+        ///
+        /// ASSUMPTION: not in v5.1 5.4's flag list. v5.1 11 says a refusal leads to "a
+        /// follow-up event about the lost package" without naming what records it, and the
+        /// quest that would read it does not exist yet - this is the hook for that quest.
+        /// </summary>
+        public const string JunhoPackageLost = "N2_PACKAGE_LOST";
         /// <summary>N3-M01: the seal, the stairs and the analogue gauge were checked first.</summary>
         public const string SpaceRuleConfirmed = "SPACE_RULE_CONFIRMED";
         /// <summary>N4-M01: the 404 household record survived the chairman's instruction.</summary>

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using NO404.Cases;
 using NO404.Core;
+using NO404.Dialogue;
 using NO404.Evidence;
 using NO404.Save;
 using NO404.Visitors;
@@ -61,6 +62,15 @@ namespace NO404.Tests
             AddReasons(definition.consequences, keys);
             if (definition.failSafe != null && definition.failSafe.enabled)
                 keys.Add(definition.failSafe.notifyKey);
+
+            // What the quest says after the report: being found upstairs, and the notes.
+            foreach (var visitorId in new[] { Real, Again })
+                AddReasons(ServiceHub.Content.FindVisitor(visitorId).onFoundOffRoute, keys);
+
+            keys.Add("ui.access.notify.found_off_route");
+            keys.Add(CaseService.EchoRuleMemoKey);
+            keys.Add("ui.memo.n2_paper_format");
+            keys.Add("ui.memo.n2_package_complaint");
 
             foreach (var evidenceId in definition.evidenceIds)
             {
@@ -365,6 +375,149 @@ namespace NO404.Tests
             TheDoorGave(VisitorAccessLevel.Reject, VisitorAccessLevel.Reject);
             Assert.IsTrue(File("dec_reject").Accepted);
             Assert.AreEqual(-5, ServiceHub.Vitals.San - before, "the report charged for the sighting again");
+        }
+
+        // ---- when it goes wrong, and what it leaves behind (GDD v5.1 11, 16) -----
+
+        readonly List<string> _notices = new List<string>();
+
+        void HearNotices()
+        {
+            _notices.Clear();
+            EventBus.Subscribe<NotificationEvent>(evt => _notices.Add(evt.BodyKey));
+        }
+
+        /// <summary>Lets Jun-ho in at this level, with the caretaker back at the desk.</summary>
+        static ActiveVisitorService.Tracked LetHimIn(VisitorAccessLevel level)
+        {
+            ServiceHub.Player.EnterZone(ZoneIds.Office);
+            ServiceHub.ActiveVisitors.Admit(ServiceHub.Content.FindVisitor(Real), level, "P1");
+
+            var tracked = ServiceHub.ActiveVisitors.Find(Real);
+            Assert.IsNotNull(tracked, "he was let in and is not in the building");
+            return tracked;
+        }
+
+        static void TimePasses(int legs)
+        {
+            for (int i = 0; i < legs; i++)
+            {
+                ServiceHub.Clock.AdvanceSeconds(ActiveVisitorService.SecondsPerLeg + 1);
+                ServiceHub.ActiveVisitors.Tick();
+            }
+        }
+
+        /// <summary>
+        /// v5.1 11: a wrong pass is not game over - he has to be found again. He goes up to
+        /// the fourth floor and stays there for as long as nobody comes, and going up is both
+        /// what ends it and what costs the eight.
+        /// </summary>
+        [Test]
+        public void APassPastTheLobbyHasToBeWalkedUpstairsAndUndone()
+        {
+            OpenTheQuest();
+            var junho = LetHimIn(VisitorAccessLevel.FloorPass);
+
+            TimePasses(1);
+            Assert.AreEqual(VisitorState.Deviating, junho.State);
+            Assert.AreEqual(ZoneIds.Floor04, junho.CurrentZone);
+
+            // Nothing fixes it from the desk. He is still there an hour's worth of legs later.
+            TimePasses(6);
+            Assert.AreEqual(VisitorState.Deviating, junho.State, "he left on his own");
+            Assert.AreEqual(ZoneIds.Floor04, junho.CurrentZone);
+
+            int before = ServiceHub.Vitals.San;
+            ServiceHub.Player.EnterZone(ZoneIds.Floor04);
+            ServiceHub.ActiveVisitors.Tick();
+
+            Assert.AreEqual(VisitorState.Leaving, junho.State, "being found did not send him out");
+            Assert.AreEqual(-8, ServiceHub.Vitals.San - before);
+
+            ServiceHub.ActiveVisitors.Tick();
+            Assert.AreEqual(-8, ServiceHub.Vitals.San - before, "finding him was charged twice");
+
+            TimePasses(1);
+            Assert.IsNull(ServiceHub.ActiveVisitors.Find(Real), "he was found and never left the building");
+        }
+
+        /// <summary>The right answer has no recovery, because there is nothing to recover.</summary>
+        [Test]
+        public void HeldToTheLobbyHeDeliversAndLeaves()
+        {
+            OpenTheQuest();
+            var junho = LetHimIn(VisitorAccessLevel.LobbyOnly);
+
+            for (int i = 0; i < 8 && ServiceHub.ActiveVisitors.Find(Real) != null; i++)
+            {
+                TimePasses(1);
+                Assert.AreNotEqual(VisitorState.Deviating, junho.State);
+                Assert.AreEqual(ZoneIds.Lobby, junho.CurrentZone);
+            }
+
+            Assert.IsNull(ServiceHub.ActiveVisitors.Find(Real), "he never left the lobby at all");
+        }
+
+        /// <summary>v5.1 11: refusing the real courier leads to a lost-package follow-up.</summary>
+        [Test]
+        public void TurningHimAwayLeavesTheParcelsUnaccountedForTomorrow()
+        {
+            OpenTheQuest();
+            TheDoorGave(VisitorAccessLevel.Reject, VisitorAccessLevel.Reject);
+            Assert.IsTrue(File("dec_reject").Accepted);
+
+            Assert.IsTrue(ServiceHub.State.GetFlag(FlagIds.JunhoPackageLost));
+
+            bool queued = false;
+            foreach (var deferred in ServiceHub.Cases.NextNightQueue)
+                if (deferred.type == ConsequenceType.Notify && deferred.targetId == "ui.memo.n2_package_complaint")
+                    queued = true;
+
+            Assert.IsTrue(queued, "nothing about the parcels is waiting for the next shift");
+        }
+
+        /// <summary>
+        /// v5.1 11: once the ECHO rule is confirmed, later ECHO cases open with one line of
+        /// the caretaker's own note - and a caretaker who never confirmed it gets nothing.
+        /// </summary>
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ALaterEchoCaseOpensWithTheNoteOnlyIfTheRuleWasConfirmed(bool confirmed)
+        {
+            ServiceHub.ResetPlaythrough();
+            if (ServiceHub.NightPool.CampaignSeed == 0) ServiceHub.NightPool.BeginCampaign(1);
+            ServiceHub.State.SetFlag(FlagIds.EchoRuleConfirmed, confirmed);
+
+            ServiceHub.State.BeginNight(5);
+            ServiceHub.Cases.BeginNight(5);
+            HearNotices();
+
+            var later = ServiceHub.Cases.Find("N5-M01");
+            Assert.AreEqual(AnomalyFamily.Echo, later.Definition.family, "N5-M01 is no longer an ECHO case");
+            if (later.State == CaseState.Dormant) Assert.IsTrue(ServiceHub.Cases.TryStartCase("N5-M01"));
+
+            Assert.AreEqual(confirmed, _notices.Contains(CaseService.EchoRuleMemoKey));
+        }
+
+        /// <summary>
+        /// v5.1 16: keeping the 404 bill on night 1 is a hint on night 2. Asking either caller
+        /// for the waybills is when the two pieces of paper are side by side.
+        /// </summary>
+        [TestCase("D_N2_JUNHO_ENTRY", "invoice", true)]
+        [TestCase("D_N2_JUNHO_ENTRY", "invoice", false)]
+        [TestCase("D_N2_JUNHO_SECOND", "number", true)]
+        public void TheKeptBillIsANoteWhenTheWaybillsAreRead(string conversationId, string nodeId, bool billKept)
+        {
+            OpenTheQuest();
+            ServiceHub.State.SetFlag(FlagIds.BillPreserved404, billKept);
+            HearNotices();
+
+            var node = ServiceHub.Content.FindDialogue(conversationId).FindNode(nodeId);
+            Assert.IsNotNull(node, conversationId + " has no node " + nodeId);
+            ServiceHub.Cases.ApplyConsequences(node.onEnter);
+
+            Assert.AreEqual(billKept, _notices.Contains("ui.memo.n2_paper_format"));
+            Assert.IsTrue(ServiceHub.Evidence.Has("EV_WAYBILL_ORDER"), "the waybills are read either way");
         }
 
         static void AddReasons(ConsequenceDefinition[] consequences, List<string> keys)

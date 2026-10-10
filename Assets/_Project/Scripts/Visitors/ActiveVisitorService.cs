@@ -194,7 +194,10 @@ namespace NO404.Visitors
                 // who has walked up to the second floor and is standing next to somebody
                 // knows where they are for as long as they stay there.
                 if (ServiceHub.Presence != null && ServiceHub.Presence.AnyoneIn(tracked.CurrentZone))
+                {
                     Observe(tracked, now);
+                    FindOffRoute(tracked, now);
+                }
 
                 UpdateStaleness(tracked, now);
 
@@ -275,6 +278,35 @@ namespace NO404.Visitors
                 tracked.NextMoveSecond = now + DwellAtDestinationSeconds;
 
             MoveTo(tracked, next, now);
+        }
+
+        /// <summary>
+        /// A member of staff has walked in on somebody who left their route (v5.1 11).
+        ///
+        /// v5.1's rule for a wrong pass is that it is not the end of anything: the caretaker
+        /// has to go and find the person again. This is the finding. For callers authored to
+        /// respond to it, being found is what sends them back out - they stop being a problem
+        /// the moment somebody is standing next to them, which is also the only moment the
+        /// building has ever been able to do anything about them.
+        ///
+        /// Opt-in per caller. Others stay where they went, as they always have.
+        /// </summary>
+        void FindOffRoute(Tracked tracked, int now)
+        {
+            if (tracked.State != VisitorState.Deviating) return;
+            if (tracked.Definition == null || !tracked.Definition.leavesWhenFound) return;
+
+            tracked.State = VisitorState.Leaving;
+            tracked.Flags &= ~VisitorFlags.HostileIntent;
+            tracked.NextMoveSecond = now + SecondsPerLeg;
+
+            if (ServiceHub.Cases != null)
+                ServiceHub.Cases.ApplyConsequences(tracked.Definition.onFoundOffRoute);
+
+            EventBus.Publish(new NotificationEvent("ui.access.notify.found_off_route",
+                                                    NotificationSeverity.Info));
+            NO404.Core.Log.Info("Visitors", tracked.VisitorId + " found in " + tracked.CurrentZone +
+                                            " and is leaving");
         }
 
         /// <summary>

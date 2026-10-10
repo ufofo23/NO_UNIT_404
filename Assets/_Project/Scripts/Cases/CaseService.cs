@@ -581,6 +581,9 @@ namespace NO404.Cases
             return true;
         }
 
+        /// <summary>The note a caretaker who confirmed the ECHO rule gets on later ECHO cases.</summary>
+        public const string EchoRuleMemoKey = "ui.memo.echo_rule";
+
         void StartInternal(string caseId)
         {
             var runtime = Find(caseId);
@@ -599,6 +602,14 @@ namespace NO404.Cases
             SubquestRules.Started(caseId);
             EventBus.Publish(new CaseStartedEvent(caseId));
             EventBus.Publish(new NotificationEvent("ui.notify.new_task", NotificationSeverity.Task));
+
+            // v5.1 11: once the ECHO rule has been confirmed, every later ECHO case opens with
+            // one line of the caretaker's own note. It says what they worked out, not what
+            // this case's answer is.
+            if (runtime.Definition.family == AnomalyFamily.Echo &&
+                _state.GetFlag(FlagIds.EchoRuleConfirmed))
+                EventBus.Publish(new NotificationEvent(EchoRuleMemoKey, NotificationSeverity.Info));
+
             ServiceHub.Analytics.Track(AnalyticsService.Events.CaseStarted, caseId);
             Log.Info("Cases", "started " + caseId);
         }
