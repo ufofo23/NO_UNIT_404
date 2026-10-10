@@ -3260,18 +3260,18 @@ evidence.ev_n5r14_overlap.desc,"온도와 씰, 벽 위치는 지금의 것이다
 quest.prop.ev_n5r01_reset,과부하 패널 수동 리셋 (선택),Reset the overloaded panel by hand (optional)
 # ---------------------------------------------------------------- v5.0 mains, nights 2/4/6 (were never given text)
 case.n2-m01.title,두 명의 서준호,Two Seo Jun-hos
-case.n2-m01.summary,택배기사 서준호가 인터폰 앞에 서 있다. CAM-02에는 그가 이미 로비에서 상자를 정리하고 있다.,"Courier Seo Jun-ho is at the interphone. On CAM-02 he is already in the lobby, sorting boxes."
-case.n2m01.objective.watch_cam02,CAM-02 로비 영상 확인,Check the lobby on CAM-02
-case.n2m01.objective.check_lobby,로비에 직접 나가 확인,Go down to the lobby and look
-case.n2m01.objective.judge,인터폰의 서준호 출입범위 결정,Decide the courier's access at the interphone
-case.n2m01.decision.lobby_only,검증 후 로비까지만 허용,"Verify, then lobby only"
-case.n2m01.result.lobby_only,"날씨와 시계, 송장 순서가 같은 사람을 가리켰다. 로비까지만 들였다.","The weather, the clock and the waybill order agreed on one man. Lobby only."
-case.n2m01.decision.wait_outside,밖에서 기다리게 함,Keep him waiting outside
-case.n2m01.result.wait_outside,밖에 세워 두었다. 배송이 늦어졌다.,Left him outside. The delivery is late.
-case.n2m01.decision.full_pass,검증 없이 통과,Let him through unchecked
-case.n2m01.result.full_pass,확인하지 않고 들였다. 누구를 들였는지 알 수 없다.,Let him in unchecked. There is no telling which one you let in.
-case.n2m01.decision.reject,출입 거절,Turn him away
-case.n2m01.result.reject,돌려보냈다. 진짜 배송기사였다.,Sent him away. He was the real courier.
+case.n2-m01.summary,택배기사 서준호가 공동현관에서 호출한다. 인터폰 화면 속 그의 모습이 오늘 밤과 맞지 않는다.,Courier Seo Jun-ho is ringing at the front door. What the interphone shows of him does not match tonight.
+case.n2m01.objective.watch_cam02,CAM-02 로비 화면을 확인하십시오,Check the lobby feed on CAM-02
+case.n2m01.objective.check_lobby,로비를 직접 확인하십시오,Check the lobby in person
+case.n2m01.objective.judge,공동현관의 서준호에게 줄 출입 권한을 정하십시오,Decide what access the Seo Jun-ho at the front door gets
+case.n2m01.decision.lobby_only,처음 호출은 돌려보내고 다시 온 서준호는 로비까지 들였다고 보고,"Report: turned the first call away, and let the Seo Jun-ho who came back as far as the lobby"
+case.n2m01.result.lobby_only,보고서가 접수됐다. 서준호는 상자를 택배대에 두고 돌아갔다. 처음 호출한 사람이 문 앞에 서 있었던 기록은 어디에도 없다.,Filed. Seo Jun-ho left the boxes on the parcel shelf and went. There is no record anywhere of the first caller having stood at the door.
+case.n2m01.decision.wait_outside,"밖에서 기다리게 하고 확인한 뒤, 다시 온 서준호만 로비까지 들였다고 보고","Report: kept him waiting outside while checking, then let only the one who came back into the lobby"
+case.n2m01.result.wait_outside,보고서가 접수됐다. 배송이 늦어져 202호에서 문의가 들어왔다. 처음 호출한 사람이 문 앞에 서 있었던 기록은 어디에도 없다.,Filed. The delivery ran late and 202 called to ask about it. There is no record anywhere of the first caller having stood at the door.
+case.n2m01.decision.full_pass,층 출입을 허용했다고 보고,Report: gave him a pass up to the floors
+case.n2m01.result.full_pass,보고서가 접수됐다. 그가 어느 층까지 올라갔는지는 출입 기록으로 확인되지 않는다.,Filed. The access log does not show which floor he went up to.
+case.n2m01.decision.reject,다시 온 서준호를 돌려보냈다고 보고,Report: turned away the Seo Jun-ho who came back
+case.n2m01.result.reject,보고서가 접수됐다. 서준호는 상자를 들고 돌아갔다. 한성택배에서 수령 거부 사유를 물어 왔다.,Filed. Seo Jun-ho took the boxes back. Hanseong Delivery has asked why they were refused.
 case.n4-m01.title,404 주민 DB 침투,404 in the resident database
 case.n4-m01.summary,"존재하지 않는 세대가 주민 DB에 나타났다. 입주일 2008-12-19, 세대원 3명. 최경태는 동기화 오류라며 지우라고 한다.","A household that does not exist has appeared in the resident database: moved in 2008-12-19, three members. Choi calls it a sync error and says delete it."
 case.n4m01.objective.open_residents,주민 DB 열기,Open the resident database
@@ -3297,10 +3297,10 @@ case.n6m01.decision.both,둘 다,Both
 case.n6m01.result.both,"구조물이 무너지기 직전, 둘 다 가지고 나왔다.","Just before the structure gave, you brought out both."
 case.n6m01.decision.leave,그대로 두고 나감,Leave it all
 case.n6m01.result.leave,아무것도 가지고 나오지 않았다.,You came out with nothing.
-evidence.ev_cam02_double.name,CAM-02의 두 번째 서준호,The second Jun-ho on CAM-02
-evidence.ev_cam02_double.desc,인터폰 앞에 선 그와 같은 사람이 로비에서 상자를 정리하고 있다. 영상 속 바깥은 비가 오지 않는다.,"The same man as the one at the interphone, sorting boxes in the lobby. Outside, on the feed, it is not raining."
-evidence.ev_waybill_order.name,송장 순서,Waybill order
-evidence.ev_waybill_order.desc,로비의 송장 번호가 오늘 배송 순서보다 하나 앞서 있다.,The lobby waybills are one ahead of tonight's delivery order.
+evidence.ev_cam02_double.name,CAM-02 로비 화면,CAM-02 lobby capture
+evidence.ev_cam02_double.desc,들여보낸 서준호가 로비에서 상자를 정리하는 화면. 같은 시각 실제 로비에는 아무도 없다.,"The Seo Jun-ho who was let in, sorting boxes in the lobby. At that moment there is nobody in the real lobby."
+evidence.ev_waybill_order.name,송장 번호 순서,Waybill number order
+evidence.ev_waybill_order.desc,처음 호출한 서준호가 보여 준 송장. 지금은 쓰지 않는 양식이고 발행 연도가 2009년이다.,"The waybills the first Seo Jun-ho held up. A form no longer in use, issued in 2009."
 evidence.ev_db404_row.name,404호 주민 DB 행,The 404 database row
 evidence.ev_db404_row.desc,4동 404호. 입주일 2008-12-19. 세대원 3명.,"Building 4, unit 404. Moved in 2008-12-19. Three household members."
 evidence.ev_paper_ledger.name,종이 주민 장부,Paper resident ledger
@@ -3321,26 +3321,8 @@ ui.dev.allow_saves,저장 허용 (끄면 이 세션은 세이브 파일을 건�
 ui.dev.start,시작,Start
 ui.dev.notify.saves_off,개발자 모드: 이 세션은 저장이 꺼져 있습니다.,Developer mode: saving is off for this session.
 # ================================================================ case N2-M01
-case.n2-m01.title,두 명의 서준호,Two Seo Jun-hos
-case.n2-m01.summary,택배기사 서준호가 공동현관에서 호출한다. 인터폰 화면 속 그의 모습이 오늘 밤과 맞지 않는다.,Courier Seo Jun-ho is ringing at the front door. What the interphone shows of him does not match tonight.
-case.n2m01.objective.watch_cam02,CAM-02 로비 화면을 확인하십시오,Check the lobby feed on CAM-02
-case.n2m01.objective.check_lobby,로비를 직접 확인하십시오,Check the lobby in person
-case.n2m01.objective.judge,공동현관의 서준호에게 줄 출입 권한을 정하십시오,Decide what access the Seo Jun-ho at the front door gets
-case.n2m01.decision.lobby_only,처음 호출은 돌려보내고 다시 온 서준호는 로비까지 들였다고 보고,"Report: turned the first call away, and let the Seo Jun-ho who came back as far as the lobby"
-case.n2m01.decision.wait_outside,"밖에서 기다리게 하고 확인한 뒤, 다시 온 서준호만 로비까지 들였다고 보고","Report: kept him waiting outside while checking, then let only the one who came back into the lobby"
-case.n2m01.decision.full_pass,층 출입을 허용했다고 보고,Report: gave him a pass up to the floors
-case.n2m01.decision.reject,다시 온 서준호를 돌려보냈다고 보고,Report: turned away the Seo Jun-ho who came back
-case.n2m01.result.lobby_only,보고서가 접수됐다. 서준호는 상자를 택배대에 두고 돌아갔다. 처음 호출한 사람이 문 앞에 서 있었던 기록은 어디에도 없다.,Filed. Seo Jun-ho left the boxes on the parcel shelf and went. There is no record anywhere of the first caller having stood at the door.
-case.n2m01.result.wait_outside,보고서가 접수됐다. 배송이 늦어져 202호에서 문의가 들어왔다. 처음 호출한 사람이 문 앞에 서 있었던 기록은 어디에도 없다.,Filed. The delivery ran late and 202 called to ask about it. There is no record anywhere of the first caller having stood at the door.
-case.n2m01.result.full_pass,보고서가 접수됐다. 그가 어느 층까지 올라갔는지는 출입 기록으로 확인되지 않는다.,Filed. The access log does not show which floor he went up to.
-case.n2m01.result.reject,보고서가 접수됐다. 서준호는 상자를 들고 돌아갔다. 한성택배에서 수령 거부 사유를 물어 왔다.,Filed. Seo Jun-ho took the boxes back. Hanseong Delivery has asked why they were refused.
 case.n2m01.failsafe.notify,인터폰 기록에 같은 방문자의 호출이 두 번 남아 있습니다.,The interphone log holds two calls from the same visitor.
-evidence.ev_cam02_double.name,CAM-02 로비 화면,CAM-02 lobby capture
-evidence.ev_cam02_double.desc,들여보낸 서준호가 로비에서 상자를 정리하는 화면. 같은 시각 실제 로비에는 아무도 없다.,"The Seo Jun-ho who was let in, sorting boxes in the lobby. At that moment there is nobody in the real lobby."
-evidence.ev_waybill_order.name,송장 번호 순서,Waybill number order
-evidence.ev_waybill_order.desc,처음 호출한 서준호가 보여 준 송장. 지금은 쓰지 않는 양식이고 발행 연도가 2009년이다.,"The waybills the first Seo Jun-ho held up. A form no longer in use, issued in 2009."
 reason.saw_the_same_man_twice,같은 사람을 두 곳에서 봤다,Saw the same man in two places
-reason.read_correctly,직접 확인해 바로 읽었다,Checked it and read it right
 reason.delivery_delayed,배송 지연,Delivery delayed
 reason.unverified_pass,확인 없이 내준 출입 권한,Access given without checking
 reason.turned_away_a_real_caller,정상 방문자를 돌려보냈다,Turned away a genuine caller
