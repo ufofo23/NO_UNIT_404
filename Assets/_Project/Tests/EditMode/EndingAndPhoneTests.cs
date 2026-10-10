@@ -373,8 +373,10 @@ namespace NO404.Tests
             Assert.Contains(ZoneIds.ServicePassage, ZoneIds.All);
             Assert.Contains(ZoneIds.Unit404, ZoneIds.All);
 
-            // Present as a place, absent as a floor (spec 0.7.1).
-            Assert.Contains(ZoneIds.PhantomFloor13, ZoneIds.All);
+            // v5.1 3.1: SPACE anomalies happen inside the seven floors. The thirteenth floor
+            // and the roof are neither floors nor places any more.
+            CollectionAssert.DoesNotContain(ZoneIds.All, ZoneIds.PhantomFloor13);
+            CollectionAssert.DoesNotContain(ZoneIds.All, ZoneIds.Rooftop);
             Assert.IsNull(Gameplay.FloorPlan.FloorOfZone(ZoneIds.PhantomFloor13));
         }
 

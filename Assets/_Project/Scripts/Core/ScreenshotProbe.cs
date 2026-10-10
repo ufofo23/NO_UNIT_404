@@ -84,6 +84,31 @@ namespace NO404.Core
                 yield return null;
             }
 
+            // -no404-tour "Floor04:90,Lobby:0" photographs each zone from its spawn point,
+            // facing the given yaw, into <path>_<n>_<zone>.png. The art pass is checked on
+            // frames, not on code - the same lesson that put this probe here.
+            // "Lobby:-90:-3:-2.6" stands at zone-local x -3, z -2.6 instead of the spawn, for
+            // the close look at one wall that a spawn point in the middle of a room cannot give.
+            var tour = Argument("-no404-tour");
+            if (!string.IsNullOrEmpty(tour) && GameLoop.Instance != null)
+            {
+                var stops = tour.Split(',');
+                for (int i = 0; i < stops.Length; i++)
+                {
+                    var parts = stops[i].Split(':');
+                    float yaw = 0f;
+                    if (parts.Length > 1) float.TryParse(parts[1], out yaw);
+                    Vector2? at = null;
+                    float x, z;
+                    if (parts.Length > 3 && float.TryParse(parts[2], out x) && float.TryParse(parts[3], out z))
+                        at = new Vector2(x, z);
+                    yield return Visit(parts[0], yaw, at);
+                    yield return Shoot(System.IO.Path.ChangeExtension(path, null) + "_" + i + "_" + parts[0] + ".png");
+                }
+                Application.Quit();
+                yield break;
+            }
+
             // The frame has to be finished before it can be read.
             yield return new WaitForEndOfFrame();
 
@@ -101,6 +126,45 @@ namespace NO404.Core
                 : "screenshot never appeared at " + path);
 
             Application.Quit();
+        }
+
+        static IEnumerator Visit(string zoneId, float yaw, Vector2? at = null)
+        {
+            var streamer = ServiceHub.Zones;
+            if (streamer != null)
+            {
+                streamer.RequestZone(zoneId);
+                float deadline = Time.realtimeSinceStartup + 20f;
+                while (!streamer.IsZoneReady(zoneId) && Time.realtimeSinceStartup < deadline) yield return null;
+            }
+
+            var spawn = Gameplay.ZoneRegistry.FindSpawn(zoneId);
+            var body = GameLoop.Instance.PlayerTransform;
+            var player = body != null ? body.GetComponent<Gameplay.PlayerController>() : null;
+            if (spawn == null || player == null)
+            {
+                Log.Error("Probe", "cannot visit " + zoneId);
+                yield break;
+            }
+
+            var position = spawn.position;
+            if (at.HasValue && spawn.parent != null)
+            {
+                var local = spawn.localPosition;
+                position = spawn.parent.TransformPoint(new Vector3(at.Value.x, local.y, at.Value.y));
+            }
+            player.Teleport(position, Quaternion.Euler(0f, yaw, 0f));
+            ServiceHub.Player.EnterZone(zoneId);
+            yield return new WaitForSecondsRealtime(1.5f);
+        }
+
+        static IEnumerator Shoot(string file)
+        {
+            yield return new WaitForEndOfFrame();
+            ScreenCapture.CaptureScreenshot(file);
+            for (int i = 0; i < 40 && !System.IO.File.Exists(file); i++)
+                yield return new WaitForSecondsRealtime(0.25f);
+            Log.Info("Probe", (System.IO.File.Exists(file) ? "wrote " : "missed ") + file);
         }
 
         static bool HasFlag(string flag)

@@ -323,7 +323,8 @@ namespace NO404.Cases
                 return byTime != 0 ? byTime : string.CompareOrdinal(a.caseId, b.caseId);
             });
 
-            for (int i = 0; i < scheduled.Count; i++) _nightChain.Add(scheduled[i].caseId);
+            var ordered = ShiftOrder(scheduled);
+            for (int i = 0; i < ordered.Count; i++) _nightChain.Add(ordered[i].caseId);
 
             // A mirrored shift rebuilds this twice a second; only a night that actually began
             // is worth a line in the log.
@@ -331,6 +332,37 @@ namespace NO404.Cases
 
             Log.Info("Cases", "night " + nightIndex + " queue: " +
                               (_nightChain.Count == 0 ? "(none)" : string.Join(" -> ", _nightChain.ToArray())));
+        }
+
+        /// <summary>
+        /// v5.1 4.2: random A, the story subquest, random B, the main, then the rest.
+        ///
+        /// Which random lands in which slot is the draw's business; this only fixes where the
+        /// two placed quests sit among them, so the main's conflict arrives in the middle of
+        /// the shift rather than whenever its authored time happened to sort it.
+        /// </summary>
+        static List<CaseDefinition> ShiftOrder(List<CaseDefinition> sorted)
+        {
+            CaseDefinition main = null, story = null;
+            var randoms = new List<CaseDefinition>(sorted.Count);
+            for (int i = 0; i < sorted.Count; i++)
+            {
+                var def = sorted[i];
+                if (def.isFixedMain && main == null) main = def;
+                else if (def.isFixedStory && story == null) story = def;
+                else randoms.Add(def);
+            }
+
+            if (story == null) return sorted;
+
+            var ordered = new List<CaseDefinition>(sorted.Count);
+            int next = 0;
+            if (next < randoms.Count) ordered.Add(randoms[next++]);
+            ordered.Add(story);
+            if (next < randoms.Count) ordered.Add(randoms[next++]);
+            if (main != null) ordered.Add(main);
+            while (next < randoms.Count) ordered.Add(randoms[next++]);
+            return ordered;
         }
 
         /// <summary>
@@ -559,6 +591,12 @@ namespace NO404.Cases
             if (!_active.Contains(runtime)) _active.Add(runtime);
             if (TrackedCase == null) TrackedCase = runtime;
 
+            if (SelectedMainQuestRules.Handles(caseId) || SubquestRules.Handles(caseId))
+                foreach (var objective in runtime.Definition.objectives)
+                    if (objective.type == ObjectiveType.AcquireEvidence && ServiceHub.Evidence.Has(objective.targetId))
+                        runtime.CompleteObjective(objective.objectiveId);
+            SelectedMainQuestRules.Started(caseId);
+            SubquestRules.Started(caseId);
             EventBus.Publish(new CaseStartedEvent(caseId));
             EventBus.Publish(new NotificationEvent("ui.notify.new_task", NotificationSeverity.Task));
             ServiceHub.Analytics.Track(AnalyticsService.Events.CaseStarted, caseId);
@@ -628,6 +666,14 @@ namespace NO404.Cases
             var decision = runtime.Definition.FindDecision(decisionId);
             if (decision == null) return DecisionResult.Rejected("ui.report.error.unknown_decision");
 
+            if ((SelectedMainQuestRules.Handles(caseId) || SubquestRules.Handles(caseId)) &&
+                (!runtime.State.IsActive() || !runtime.AllRequiredObjectivesComplete()))
+                return DecisionResult.Rejected("ui.report.error.investigate_first");
+            string lostKey = SubquestRules.ReportBlockedKey(caseId);
+            if (lostKey != null) return DecisionResult.Rejected(lostKey);
+            if (caseId == "N3-M01" && _state.GetFlag("N3_PLAYER_LOST"))
+                return DecisionResult.Rejected("quest.lost_marker");
+
             string reason;
             if (!ConditionEvaluator.EvaluateAll(decision.availability, out reason))
             {
@@ -675,6 +721,9 @@ namespace NO404.Cases
             ApplyConsequences(Earned(decision.consequences, runtime.FailSafeFired));
             ApplyConsequences(Earned(runtime.Definition.consequences, runtime.FailSafeFired));
             runtime.SetState(CaseState.ConsequenceApplied, _clock.GameSecond);
+
+            SelectedMainQuestRules.Resolved(caseId, decisionId);
+            SubquestRules.Resolved(caseId, decisionId);
 
             // A case waiting on CaseTrigger.CaseResolved (e.g. C04 waits on C03) only ever
             // gets a chance to start here.

@@ -65,7 +65,8 @@ namespace NO404.ContentData
             return new Bundle
             {
                 Residents = Concat(BuildResidents(), BuildLateResidents()),
-                Evidence = Concat(Concat(BuildEvidence(), BuildLateEvidence()), BuildV5Evidence()),
+                Evidence = Concat(Concat(Concat(BuildEvidence(), BuildLateEvidence()), BuildV5Evidence()),
+                                  BuildV51Evidence()),
                 Visitors = Concat(Concat(BuildVisitors(), BuildLateVisitors()), BuildDoorstepVisitors()),
                 Dialogues = Concat(Concat(BuildDialogues(), BuildLateDialogues()), BuildDoorstepDialogues()),
                 // v5.0 10-15. The per-night cases C00-C14 and the routine tasks T01-T18 were
@@ -74,7 +75,7 @@ namespace NO404.ContentData
                 // structure that no longer exists. The manual events M01-M18 and the anomalous
                 // tools A01-A05 were kept - they are candidates for the pool v5.0 4 wants
                 // filled next, not casualties of it.
-                Cases = BuildV5Mains(),
+                Cases = Concat(BuildV5Mains(), BuildV51Subquests()),
                 Channels = BuildChannels(),
                 Anomalies = BuildAnomalies(),
                 MeterSeries = BuildMeterSeries(),
@@ -271,20 +272,22 @@ namespace NO404.ContentData
             minseo.nameKey = "visitor.minseo.name";
             minseo.purposeKey = "visitor.minseo.purpose";
             minseo.idCardNameKey = "visitor.minseo.id_name";
-            minseo.targetUnit = "202";
+            // v5.1 N1-R01: she is here for 303, Lee Seon-ja. Not on tonight's booking list,
+            // but eight weeks of visits say she is exactly who she says she is.
+            minseo.targetUnit = "303";
             minseo.cameraId = "CAM-01";
             minseo.conversationId = "D_N1_MINSEO_ENTRY";
             minseo.nightIndex = 1;
             minseo.arrivalGameSecond = At(23, 5);
-            minseo.correctAccess = VisitorAccessLevel.FloorPass;
-            minseo.destinationZone = ZoneIds.Floor02;
-            minseo.expectedRoute = new[] { ZoneIds.Lobby, ZoneIds.Elevator, ZoneIds.Floor02 };
+            minseo.correctAccess = VisitorAccessLevel.Escorted;
+            minseo.destinationZone = ZoneIds.Floor03;
+            minseo.expectedRoute = new[] { ZoneIds.Lobby, ZoneIds.Elevator, ZoneIds.Floor03 };
             minseo.checks = new[]
             {
-                Check("visitor.check.pre_registered", "visitor.check.value.registered_202", false, AppIds.Residents),
+                Check("visitor.check.badge_date", "visitor.check.value.badge_valid", false, AppIds.Residents),
                 Check("visitor.check.id_name", "visitor.check.value.kim_minseo", false, AppIds.Residents),
-                Check("visitor.check.recent_visits", "visitor.check.value.weekly_night", false, AppIds.Access),
-                Check("visitor.check.camera_route", "visitor.check.value.from_bus_stop", false, AppIds.Cctv)
+                Check("visitor.check.recent_visits", "visitor.check.value.eight_weeks_303", false, AppIds.Access),
+                Check("visitor.check.resident_call", "visitor.check.value.303_no_answer", false, AppIds.Residents)
             };
             minseo.onCorrect = new[]
             {
@@ -978,12 +981,12 @@ namespace NO404.ContentData
                 Channel("CAM-04", ZoneIds.Floor04,   new Vector3(9.5f, H, 0f),      new Vector3(10f, -90f, 0f), false),
                 Channel("CAM-05", ZoneIds.Stairwell, new Vector3(0f, H, -2.3f),     new Vector3(12f, 0f, 0f), false),
                 Channel("CAM-06", ZoneIds.Floor03,   new Vector3(-9.5f, H, 0f),     new Vector3(10f, 90f, 0f), true),
-                Channel("CAM-07", ZoneIds.PhantomFloor13,   new Vector3(-9.5f, H, 0f),     new Vector3(10f, 90f, 0f), false),
+                Channel("CAM-07", ZoneIds.Floor05,   new Vector3(-9.5f, H, 0f),     new Vector3(10f, 90f, 0f), false),
                 Channel("CAM-08", ZoneIds.Elevator,  new Vector3(0f, 2.15f, 0.6f),  new Vector3(22f, 180f, 0f), true),
                 Channel("CAM-09", ZoneIds.Parking,   new Vector3(0f, H, -8.6f),     new Vector3(12f, 0f, 0f), false),
                 Channel("CAM-10", ZoneIds.Archive,   new Vector3(0f, H, -2.3f),     new Vector3(12f, 0f, 0f), false),
                 Channel("CAM-11", ZoneIds.Parking,   new Vector3(-11.9f, H, 6f),    new Vector3(12f, 90f, 0f), false),
-                Channel("CAM-12", ZoneIds.Rooftop,   new Vector3(0f, 3f, -5.6f),    new Vector3(15f, 0f, 0f), false)
+                Channel("CAM-12", ZoneIds.Floor06,   new Vector3(9.5f, H, 0f),      new Vector3(10f, -90f, 0f), false)
             };
         }
 

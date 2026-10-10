@@ -26,6 +26,7 @@ namespace NO404.Tests
         {
             TestServices.Ensure();
             ServiceHub.ResetPlaythrough();
+            ServiceHub.ManualEvents.YieldToAuthoredPools = false;
             EventBus.Clear();
             _savedHintMode = ServiceHub.Settings.Current.hintMode;
         }
@@ -250,13 +251,13 @@ namespace NO404.Tests
         {
             DevConsole.Execute("risk.exposure 60");
             DevConsole.Execute("risk.floor F4 3");
-            DevConsole.Execute("risk.floor B2 1");
+            DevConsole.Execute("risk.floor B1 1");
 
             var reply = DevConsole.Execute("risk.show");
 
             StringAssert.Contains("Marked", reply);
             StringAssert.Contains(FloorPlan.F4, reply);
-            StringAssert.Contains(FloorPlan.B2, reply);
+            StringAssert.Contains(FloorPlan.B1, reply);
             Assert.IsFalse(reply.Contains(FloorPlan.F2), "a clear floor is not worth a line");
         }
 

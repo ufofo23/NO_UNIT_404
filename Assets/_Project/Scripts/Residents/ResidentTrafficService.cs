@@ -103,7 +103,7 @@ namespace NO404.Residents
             new Route(ZoneIds.Lobby,      "CAM-02", "log.location.lobby"),
             new Route(ZoneIds.Floor04,    "CAM-04", "log.location.floor04"),
             new Route(ZoneIds.Floor03,    "CAM-06", "log.location.floor08"),
-            new Route(ZoneIds.PhantomFloor13,    "CAM-07", "log.location.floor13"),
+            new Route(ZoneIds.Floor05,           "CAM-07", "log.location.floor05"),
             new Route(ZoneIds.Stairwell,  "CAM-05", "log.location.stairwell"),
             new Route(ZoneIds.Parking,    "CAM-09", "log.location.parking")
         };

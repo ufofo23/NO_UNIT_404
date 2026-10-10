@@ -24,6 +24,12 @@ namespace NO404.Cases
         /// </summary>
         public bool isFixedMain;
 
+        /// <summary>
+        /// The night's story subquest (v5.1 4.1 / 4.4 step 2). Always placed, never drawn,
+        /// and the only non-main quest allowed to set an ending presentation flag.
+        /// </summary>
+        public bool isFixedStory;
+
         [Tooltip("Relative chance of being drawn. Weight 0 means never drawn at random.")]
         public int baseWeight = 100;
 

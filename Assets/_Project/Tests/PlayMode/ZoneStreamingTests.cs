@@ -77,22 +77,22 @@ namespace NO404.Tests
         public IEnumerator AnUnusedFloorIsEvictedAndItsZonesDeregistered()
         {
             ServiceHub.Zones.LoadCoreImmediate();
-            ServiceHub.Zones.RequestZone(ZoneIds.PhantomFloor13);
-            yield return WaitForZone(ZoneIds.PhantomFloor13);
+            ServiceHub.Zones.RequestZone(ZoneIds.Floor06);
+            yield return WaitForZone(ZoneIds.Floor06);
 
-            Assert.IsTrue(ZoneRegistry.IsLoaded(ZoneIds.PhantomFloor13));
+            Assert.IsTrue(ZoneRegistry.IsLoaded(ZoneIds.Floor06));
 
             // Nothing renews the request and the player is still in the office.
             ServiceHub.Player.EnterZone(ZoneIds.Office);
             float deadline = Time.realtimeSinceStartup + ZoneStreamer.KeepAliveSeconds + 5f;
 
-            while (ZoneRegistry.IsLoaded(ZoneIds.PhantomFloor13) && Time.realtimeSinceStartup < deadline)
+            while (ZoneRegistry.IsLoaded(ZoneIds.Floor06) && Time.realtimeSinceStartup < deadline)
             {
                 ServiceHub.Zones.Tick();
                 yield return null;
             }
 
-            Assert.IsFalse(ZoneRegistry.IsLoaded(ZoneIds.PhantomFloor13),
+            Assert.IsFalse(ZoneRegistry.IsLoaded(ZoneIds.Floor06),
                            "an unused floor must be unloaded and unregistered");
         }
 
@@ -128,7 +128,7 @@ namespace NO404.Tests
         {
             ServiceHub.Zones.LoadCoreImmediate();
 
-            string[] corridors = { ZoneIds.Floor04, ZoneIds.Floor03, ZoneIds.PhantomFloor13 };
+            string[] corridors = { ZoneIds.Floor02, ZoneIds.Floor03, ZoneIds.Floor04, ZoneIds.Floor05, ZoneIds.Floor06 };
             for (int c = 0; c < corridors.Length; c++)
             {
                 ServiceHub.Zones.RequestZone(corridors[c]);
@@ -231,7 +231,7 @@ namespace NO404.Tests
             var root = ZoneRegistry.Find(ZoneIds.Stairwell);
             Physics.SyncTransforms();
 
-            // All eight flights, B2 to the roof, in the lanes WorldBuilder alternates them
+            // All six flights, B1 to 6F, in the lanes WorldBuilder alternates them
             // between. Walking every one of them is the point: spec 0.8 makes the stairs a
             // continuous space, and a single flight nobody can pass turns it back into a
             // teleport menu with extra steps.

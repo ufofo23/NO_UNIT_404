@@ -7,7 +7,7 @@ using NO404.Core;
 namespace NO404.Tests
 {
     /// <summary>
-    /// v5.0 30.1 — the acceptance tests for the nightly draw.
+    /// v5.1 30.1 — the acceptance tests for the nightly draw.
     ///
     /// A random system is the one kind of code that cannot be checked by playing it. A shift
     /// that quietly skips its main quest, or draws six events instead of five, or shuffles
@@ -31,13 +31,15 @@ namespace NO404.Tests
         }
 
         CaseDefinition Quest(string id, int night, QuestType type, bool main = false,
-                             AnomalyFamily family = AnomalyFamily.None, string mutex = null)
+                             AnomalyFamily family = AnomalyFamily.None, string mutex = null,
+                             bool story = false)
         {
             var def = ScriptableObject.CreateInstance<CaseDefinition>();
             def.caseId = id;
             def.nightIndex = night;
             def.questType = type;
             def.isFixedMain = main;
+            def.isFixedStory = story;
             def.family = family;
             def.mutexGroup = mutex;
             def.baseWeight = 100;
@@ -47,17 +49,18 @@ namespace NO404.Tests
         }
 
         /// <summary>
-        /// A night authored the way v5.0 4.1 asks: one main and fourteen candidates, with
-        /// enough of each type that the quota is payable.
+        /// A night authored the way v5.1 4.1 asks: one main, one story subquest and thirteen
+        /// candidates, with enough of each type that the quota is payable.
         /// </summary>
         List<CaseDefinition> BuildPool(int night)
         {
             var pool = new List<CaseDefinition>
             {
-                Quest("N" + night + "-M01", night, QuestType.Main, main: true)
+                Quest("N" + night + "-M01", night, QuestType.Main, main: true),
+                Quest("N" + night + "-STORY", night, QuestType.Normal, story: true)
             };
 
-            for (int i = 0; i < 5; i++) pool.Add(Quest("N" + night + "-NRM" + i, night, QuestType.Normal));
+            for (int i = 0; i < 4; i++) pool.Add(Quest("N" + night + "-NRM" + i, night, QuestType.Normal));
             for (int i = 0; i < 4; i++) pool.Add(Quest("N" + night + "-MIX" + i, night, QuestType.Mixed));
             for (int i = 0; i < 3; i++)
                 pool.Add(Quest("N" + night + "-ANM" + i, night, QuestType.Anomaly,
@@ -90,7 +93,23 @@ namespace NO404.Tests
         }
 
         [Test]
-        public void EveryNightDrawsFourOrFiveRandomsOnTopOfTheMain()
+        public void TheStorySubquestIsAlwaysPlacedAndNeverCountsAsARandom()
+        {
+            for (int seed = 1; seed <= Seeds; seed++)
+            {
+                var pool = new NightPoolService();
+                pool.BeginCampaign(seed);
+
+                var drawn = new List<string>(pool.SelectForNight(3, BuildPool(3), Healthy));
+                CollectionAssert.Contains(drawn, "N3-STORY", "seed " + seed + " lost the story subquest");
+                Assert.AreEqual(1, drawn.FindAll(id => id == "N3-STORY").Count);
+
+                TearDown();
+            }
+        }
+
+        [Test]
+        public void EveryNightDrawsThreeOrFourRandomsOnTopOfMainAndStory()
         {
             for (int seed = 1; seed <= Seeds; seed++)
             {
@@ -100,7 +119,7 @@ namespace NO404.Tests
                     pool.BeginCampaign(seed);
 
                     var drawn = pool.SelectForNight(night, BuildPool(night), Healthy);
-                    int randoms = drawn.Count - 1;
+                    int randoms = drawn.Count - 2;
 
                     Assert.GreaterOrEqual(randoms, NightPoolService.RandomFloor,
                         "seed " + seed + " night " + night + " drew too few");
@@ -168,7 +187,7 @@ namespace NO404.Tests
                     for (int i = 0; i < drawn.Count; i++)
                     {
                         var def = byId[drawn[i]];
-                        if (def.isFixedMain) continue;
+                        if (def.isFixedMain || def.isFixedStory) continue;
 
                         if (def.questType == QuestType.Normal) normal++;
                         else if (def.questType == QuestType.Mixed) mixed++;
@@ -231,12 +250,12 @@ namespace NO404.Tests
         }
 
         [Test]
-        public void AHurtCaretakerIsNeverGivenTheFifthSlot()
+        public void AHurtCaretakerIsNeverGivenTheFourthSlot()
         {
-            // v5.0 4.4 step 9: below either floor, the night stops at four.
+            // v5.1 4.4 step 10: below either floor, the night stops at three.
             var broken = new NightPoolService.Conditions
             {
-                Hp = NightPoolService.FifthSlotMinHp - 1,
+                Hp = NightPoolService.FourthSlotMinHp - 1,
                 San = 100
             };
 
@@ -246,7 +265,7 @@ namespace NO404.Tests
                 pool.BeginCampaign(seed);
 
                 var drawn = pool.SelectForNight(1, BuildPool(1), broken);
-                Assert.AreEqual(NightPoolService.RandomFloor, drawn.Count - 1,
+                Assert.AreEqual(NightPoolService.RandomFloor, drawn.Count - 2,
                     "seed " + seed + " handed a fifth job to somebody at " + broken.Hp + " HP");
 
                 TearDown();
@@ -277,7 +296,7 @@ namespace NO404.Tests
             pool.SelectForNight(3, BuildPool(3), Healthy);
             var second = pool.SelectForNight(4, BuildPool(4), Healthy);
 
-            Assert.GreaterOrEqual(second.Count - 1, NightPoolService.RandomFloor,
+            Assert.GreaterOrEqual(second.Count - 2, NightPoolService.RandomFloor,
                 "the repeat penalty starved the following night");
         }
     }

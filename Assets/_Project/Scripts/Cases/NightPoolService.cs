@@ -28,16 +28,18 @@ namespace NO404.Cases
     /// </summary>
     public sealed class NightPoolService
     {
-        /// <summary>v5.0 4.1. Every night is authored to this size.</summary>
+        /// <summary>v5.1 4.1. Every night is authored to this size.</summary>
         public const int PoolPerNight = 15;
-        public const int RandomFloor = 4;
-        public const int RandomCeiling = 5;
+        /// <summary>v5.1 4.1: main and story subquest are placed; thirteen compete.</summary>
+        public const int RandomCandidates = 13;
+        public const int RandomFloor = 3;
+        public const int RandomCeiling = 4;
 
-        // ---- the optional fifth slot (v5.0 4.4 step 9) ----------------------
-        public const int FifthSlotMinHp = 45;
-        public const int FifthSlotMinSan = 40;
-        public const float FifthSlotMinutesBudget = 48f;
-        public const int FifthSlotPercent = 60;
+        // ---- the optional fourth slot (v5.1 4.4 step 10) --------------------
+        public const int FourthSlotMinHp = 45;
+        public const int FourthSlotMinSan = 40;
+        public const float FourthSlotMinutesBudget = 48f;
+        public const int FourthSlotPercent = 60;
 
         /// <summary>How much a quest is discounted for repeating last night (v5.0 4.4 step 5).</summary>
         public const int AlreadySeenPenaltyPercent = 60;
@@ -48,29 +50,52 @@ namespace NO404.Cases
             public int Normal;
             public int Mixed;
             public int Heavy;              // ANOMALY or CONSEQUENCE together
-            public QuestType FifthPreference;
+            /// <summary>What the fourth slot looks for first. Main means "any".</summary>
+            public QuestType FourthPreference;
+            /// <summary>What it looks for second, before taking anything at all.</summary>
+            public QuestType FourthFallback;
 
-            public Quota(int normal, int mixed, int heavy, QuestType fifth)
+            public Quota(int normal, int mixed, int heavy, QuestType fourth, QuestType fallback = QuestType.Main)
             {
-                Normal = normal; Mixed = mixed; Heavy = heavy; FifthPreference = fifth;
+                Normal = normal; Mixed = mixed; Heavy = heavy;
+                FourthPreference = fourth; FourthFallback = fallback;
             }
         }
 
         /// <summary>
-        /// v5.0 4.3, exactly as tabled. Night 1 is two thirds ordinary work and night 6 has
-        /// no ordinary work left in it at all.
+        /// v5.1 4.3, exactly as tabled. Night 1 still owes one ordinary job and night 5 owes
+        /// none - by then the night is made of what the player left behind.
         /// </summary>
         public static Quota QuotaFor(int nightIndex)
         {
             switch (nightIndex)
             {
-                case 1:  return new Quota(2, 1, 1, QuestType.Normal);
-                case 2:  return new Quota(1, 1, 2, QuestType.Main);      // Main here means "any"
-                case 3:  return new Quota(1, 1, 2, QuestType.Anomaly);
-                case 4:  return new Quota(0, 1, 3, QuestType.Anomaly);
-                case 5:  return new Quota(0, 1, 3, QuestType.Consequence);
-                default: return new Quota(0, 0, 4, QuestType.FinalPressure);
+                case 1:  return new Quota(1, 1, 1, QuestType.Normal, QuestType.Mixed);
+                case 2:  return new Quota(1, 1, 1, QuestType.Main);      // Main here means "any"
+                case 3:  return new Quota(0, 1, 2, QuestType.Anomaly);
+                case 4:  return new Quota(0, 1, 2, QuestType.Anomaly);
+                case 5:  return new Quota(0, 0, 3, QuestType.Consequence);
+                default: return new Quota(0, 0, 3, QuestType.FinalPressure);
             }
+        }
+
+        /// <summary>
+        /// Whether a night has its full v5.1 pool authored, rather than just its main.
+        ///
+        /// The old night-response events (M01-M18) were written for nights with nothing else
+        /// in them. A night with its fifteen quests is already five or six jobs long (v5.1
+        /// 4.1), and running the old chain on top of it would double the shift.
+        /// </summary>
+        public static bool HasAuthoredPool(int nightIndex)
+        {
+            var content = ServiceHub.Content;
+            if (content == null) return false;
+
+            int count = 0;
+            foreach (var def in content.Cases)
+                if (def != null && def.nightIndex == nightIndex) count++;
+
+            return count >= PoolPerNight;
         }
 
         /// <summary>What the draw is allowed to know about the caretaker (v5.0 4.4 step 9).</summary>
@@ -132,7 +157,7 @@ namespace NO404.Cases
         // -----------------------------------------------------------------
 
         /// <summary>
-        /// Chooses tonight's shift out of the night's pool, following v5.0 4.4 step by step.
+        /// Chooses tonight's shift out of the night's pool, following v5.1 4.4 step by step.
         ///
         /// The main quest is placed rather than drawn, so a pool whose fourteen candidates are
         /// all ineligible still produces a playable night. That is deliberate: the campaign has
@@ -159,6 +184,7 @@ namespace NO404.Cases
 
             var candidates = new List<CaseDefinition>();
             CaseDefinition main = null;
+            CaseDefinition story = null;
 
             for (int i = 0; i < pool.Count; i++)
             {
@@ -166,6 +192,7 @@ namespace NO404.Cases
                 if (def == null) continue;
 
                 if (def.isFixedMain) { if (main == null) main = def; continue; }
+                if (def.isFixedStory) { if (story == null) story = def; continue; }
                 if (IsEligible(def)) candidates.Add(def);
             }
 
@@ -188,6 +215,15 @@ namespace NO404.Cases
                 return _selected;
             }
 
+            // Step 2. The story subquest is placed regardless of seed: what it decides is
+            // part of the ending, and an ending cannot hang on a coin toss.
+            if (story != null)
+            {
+                _selected.Add(story.caseId);
+                if (!string.IsNullOrEmpty(story.mutexGroup)) takenMutex.Add(story.mutexGroup);
+            }
+
+            int placed = _selected.Count;
             var quota = QuotaFor(nightIndex);
             int target = RandomFloor;
 
@@ -197,18 +233,20 @@ namespace NO404.Cases
             TakeQuota(candidates, takenMutex, random, quota.Mixed, QuestType.Mixed);
             TakeHeavyQuota(candidates, takenMutex, random, quota.Heavy);
 
-            // Step 8. Whatever the quota did not already cover, up to four.
-            while (_selected.Count - (main != null ? 1 : 0) < target)
+            // Step 9. Whatever the quota did not already cover, up to three.
+            while (_selected.Count - placed < target)
             {
                 var pick = Draw(candidates, takenMutex, random, QuestType.Main /* any */);
                 if (pick == null) break;
                 Accept(pick, candidates, takenMutex);
             }
 
-            // Step 9. A fifth only for somebody who can still carry one.
-            if (WantsFifth(conditions, random))
+            // Step 10. A fourth only for somebody who can still carry one.
+            if (_selected.Count - placed >= target && WantsFourth(conditions, random))
             {
-                var pick = Draw(candidates, takenMutex, random, quota.FifthPreference);
+                var pick = Draw(candidates, takenMutex, random, quota.FourthPreference)
+                        ?? Draw(candidates, takenMutex, random, quota.FourthFallback)
+                        ?? Draw(candidates, takenMutex, random, QuestType.Main /* any */);
                 if (pick != null) Accept(pick, candidates, takenMutex);
             }
 
@@ -218,18 +256,18 @@ namespace NO404.Cases
         }
 
         /// <summary>
-        /// Whether the night has room for a fifth random event.
+        /// Whether the night has room for a fourth random event.
         ///
-        /// The three gates are the whole of v5.0 4.4 step 9 and they are all about the person
+        /// The three gates are the whole of v5.1 4.4 step 10 and they are all about the person
         /// rather than the pool: somebody at 30 HP does not need one more errand, they need
         /// the shift to end so they can start the next one able to walk.
         /// </summary>
-        bool WantsFifth(Conditions conditions, System.Random random)
+        bool WantsFourth(Conditions conditions, System.Random random)
         {
-            if (conditions.Hp < FifthSlotMinHp || conditions.San < FifthSlotMinSan) return false;
-            if (EstimatedMinutes() > FifthSlotMinutesBudget) return false;
+            if (conditions.Hp < FourthSlotMinHp || conditions.San < FourthSlotMinSan) return false;
+            if (EstimatedMinutes() > FourthSlotMinutesBudget) return false;
 
-            return random.Next(100) < FifthSlotPercent;
+            return random.Next(100) < FourthSlotPercent;
         }
 
         float EstimatedMinutes()
@@ -327,6 +365,10 @@ namespace NO404.Cases
         {
             int weight = def.baseWeight;
             if (weight <= 0) return 0;
+            if (def.nightIndex == 2 && def.family == AnomalyFamily.Record &&
+                ServiceHub.State != null && ServiceHub.State.GetFlag("N1_404_BILL_DISCARDED"))
+                weight += 50;
+            weight += SubquestRules.WeightBonus(def);
 
             if (SeenLastNight(def)) weight = weight * (100 - AlreadySeenPenaltyPercent) / 100;
 

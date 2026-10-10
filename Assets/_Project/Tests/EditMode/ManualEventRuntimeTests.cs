@@ -33,9 +33,26 @@ namespace NO404.Tests
             TestServices.Ensure();
             ServiceHub.ResetPlaythrough();
             EventBus.Clear();
+            // These tests drive the runtime on night 1, the night the events were written for.
+            Events.YieldToAuthoredPools = false;
         }
 
-        [TearDown] public void TearDown() { EventBus.Clear(); }
+        [TearDown]
+        public void TearDown()
+        {
+            Events.YieldToAuthoredPools = true;
+            EventBus.Clear();
+        }
+
+        [Test]
+        public void ANightWithItsOwnPoolRunsNoNightResponseEvents()
+        {
+            // v5.1 4.1: five or six quests is the whole shift.
+            Events.YieldToAuthoredPools = true;
+            BeginNightOne();
+            Assert.AreEqual(0, Events.ActiveEvents.Count);
+            Assert.AreEqual(ManualEventState.Dormant, Events.Find(M06).State);
+        }
 
         // ---- helpers ---------------------------------------------------------
 

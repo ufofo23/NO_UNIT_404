@@ -197,13 +197,13 @@ namespace NO404.Tests
         {
             // The ladder has to run both ways, or nothing the caretaker does to repair a floor
             // ever reads as repair.
-            var dressing = DressingsOn(FloorPlan.B2)[0];
+            var dressing = DressingsOn(FloorPlan.B1)[0];
 
-            ServiceHub.Risk.AddFloorRisk(FloorPlan.B2, 5, "test");
+            ServiceHub.Risk.AddFloorRisk(FloorPlan.B1, 5, "test");
             yield return null;
             Assert.Greater(ActiveRiskProps(dressing), 0);
 
-            ServiceHub.Risk.AddFloorRisk(FloorPlan.B2, -5, "test");
+            ServiceHub.Risk.AddFloorRisk(FloorPlan.B1, -5, "test");
             yield return null;
 
             Assert.AreEqual(FloorRiskTier.Clear, dressing.AppliedTier);

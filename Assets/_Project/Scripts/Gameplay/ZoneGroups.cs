@@ -18,16 +18,12 @@ namespace NO404.Gameplay
     {
         /// <summary>1F plus the vertical circulation. Never unloaded.</summary>
         public const string Core = "SCN_Core";
-        public const string B2 = "SCN_B2";
         public const string B1 = "SCN_B1";
         public const string Floor02 = "SCN_Floor02";
         public const string Floor03 = "SCN_Floor03";
         public const string Floor04 = "SCN_Floor04";
         public const string Floor05 = "SCN_Floor05";
         public const string Floor06 = "SCN_Floor06";
-        public const string Rooftop = "SCN_Rooftop";
-        /// <summary>The thirteenth floor. Loaded by an anomaly, never by navigation.</summary>
-        public const string PhantomFloor13 = "SCN_PhantomFloor13";
 
         static readonly Dictionary<string, string[]> Groups = new Dictionary<string, string[]>
         {
@@ -38,27 +34,31 @@ namespace NO404.Gameplay
                     ZoneIds.Playground, ZoneIds.Elevator, ZoneIds.Stairwell
                 }
             },
-            { B2, new[] { ZoneIds.Machinery, ZoneIds.PumpRoom, ZoneIds.PipeRoom, ZoneIds.Toolroom, ZoneIds.Archive } },
-            { B1, new[] { ZoneIds.Parking, ZoneIds.RecyclingYard } },
+            // v5.1 3.1: one basement holds parking, plant and records.
+            {
+                B1, new[]
+                {
+                    ZoneIds.Parking, ZoneIds.RecyclingYard, ZoneIds.Machinery, ZoneIds.PumpRoom,
+                    ZoneIds.PipeRoom, ZoneIds.Toolroom, ZoneIds.Archive
+                }
+            },
             { Floor02, new[] { ZoneIds.Floor02, ZoneIds.Lounge, ZoneIds.FitnessRoom, ZoneIds.Terrace } },
             { Floor03, new[] { ZoneIds.Floor03 } },
             // The service passage and 404 are only reachable through the fourth floor.
             { Floor04, new[] { ZoneIds.Floor04, ZoneIds.ServicePassage, ZoneIds.Unit404 } },
             { Floor05, new[] { ZoneIds.Floor05 } },
-            { Floor06, new[] { ZoneIds.Floor06 } },
-            { Rooftop, new[] { ZoneIds.Rooftop } },
-            { PhantomFloor13, new[] { ZoneIds.PhantomFloor13 } }
+            { Floor06, new[] { ZoneIds.Floor06 } }
         };
 
         public static readonly string[] All =
         {
-            Core, B2, B1, Floor02, Floor03, Floor04, Floor05, Floor06, Rooftop, PhantomFloor13
+            Core, B1, Floor02, Floor03, Floor04, Floor05, Floor06
         };
 
         /// <summary>Groups that stream in and out. Core is never unloaded.</summary>
         public static readonly string[] Streamed =
         {
-            B2, B1, Floor02, Floor03, Floor04, Floor05, Floor06, Rooftop, PhantomFloor13
+            B1, Floor02, Floor03, Floor04, Floor05, Floor06
         };
 
         public static string[] ZonesIn(string group)

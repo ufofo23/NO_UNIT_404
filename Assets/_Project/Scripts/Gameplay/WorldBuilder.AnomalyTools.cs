@@ -134,22 +134,24 @@ namespace NO404.Gameplay
         /// </summary>
         void StageRoofMachine()
         {
-            var root = OwnedRoot(ZoneIds.Rooftop);
+            // v5.1 3.1: there is no roof. The machine stands at the east end of the top floor,
+            // against the windows, which is the nearest thing the building still has to an edge.
+            var root = OwnedRoot(ZoneIds.Floor06);
             if (root == null) return;
 
-            var half = HalfOf(ZoneIds.Rooftop);
+            var half = HalfOf(ZoneIds.Floor06);
 
-            var machine = Prop(root, "A05_Vending", new Vector3(-half.x + 0.7f, 0.9f, -half.y + 0.9f),
+            var machine = Prop(root, "A05_Vending", new Vector3(half.x - 1.4f, 0.9f, -half.y + 0.4f),
                                new Vector3(0.7f, 1.8f, 0.6f), MachineColour);
             machine.AddComponent<AnomalyToolTerminal>()
                    .Setup(ManualEventIds.A05_LostAndFoundMachine, "ui.prompt.a05.use");
 
-            var token = Prop(root, "A05_Token_Roof", new Vector3(-half.x + 1.4f, 0.06f, -half.y + 0.9f),
+            var token = Prop(root, "A05_Token_Roof", new Vector3(half.x - 2.2f, 0.06f, -half.y + 0.4f),
                              new Vector3(0.1f, 0.06f, 0.1f), TokenColour);
             token.AddComponent<AnomalyTokenPickup>().Setup("ui.prompt.a05.take_token");
 
-            // The same edge M18 spends its whole procedure keeping the caretaker away from.
-            Marker(root, "A05_Parapet", new Vector3(0f, 1f, half.y - 0.4f))
+            // The window M18 spends its whole procedure keeping the caretaker away from.
+            Marker(root, "A05_Parapet", new Vector3(6f, 1f, -half.y + 0.3f))
                 .AddComponent<AnomalyDriftAnchor>()
                 .Setup(ManualEventIds.A05_LostAndFoundMachine);
         }

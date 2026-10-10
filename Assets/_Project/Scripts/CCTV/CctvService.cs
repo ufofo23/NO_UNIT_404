@@ -406,6 +406,7 @@ namespace NO404.CCTV
         /// </summary>
         public string TimestampFor(int gameSecond)
         {
+            if (Cases.SelectedMainQuestRules.Active("N5-M01")) return ArchiveDate + "  02:08";
             return ArchiveTimestamp
                 ? ArchiveDate + "  " + GameClock.FormatSecond(gameSecond)
                 : GameClock.FormatSecond(gameSecond);

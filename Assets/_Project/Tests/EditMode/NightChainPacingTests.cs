@@ -55,13 +55,17 @@ namespace NO404.Tests
                 Assert.AreEqual(1, definition.nightIndex, id + " belongs to another night");
                 Assert.AreEqual(CaseTrigger.Time, definition.trigger, id + " is not timed work");
 
+                // The drawn randoms keep their authored order among themselves; the story
+                // subquest and the main are placed by v5.1 4.2 instead.
+                if (definition.isFixedMain || definition.isFixedStory) continue;
                 Assert.GreaterOrEqual(definition.startWindowBegin, previousWindow,
                                       "the chain is out of order at " + id);
                 previousWindow = definition.startWindowBegin;
             }
 
-            // v5.0 4.1: the night's spine is always in it.
-            CollectionAssert.Contains(chain, "N1-M01");
+            // v5.1 4.2: random A, story, random B, main, then the rest.
+            Assert.AreEqual("N1-R01", chain[1], "the story subquest comes second");
+            Assert.AreEqual("N1-M01", chain[3], "the main comes fourth");
         }
 
         /// <summary>

@@ -12,7 +12,7 @@ namespace NO404.Tests
     /// </summary>
     public sealed class BuildingSpecTests
     {
-        static readonly string[] Corridors = { ZoneIds.Floor04, ZoneIds.Floor03, ZoneIds.PhantomFloor13 };
+        static readonly string[] Corridors = { ZoneIds.Floor02, ZoneIds.Floor03, ZoneIds.Floor04, ZoneIds.Floor05, ZoneIds.Floor06 };
 
         [Test]
         public void CorridorsAreTheSpecifiedWidth()
@@ -41,12 +41,12 @@ namespace NO404.Tests
         public void RoomsUseTheSpecifiedWallHeight()
         {
             // The stairwell is not on this list any more. It is a shaft rather than a room
-            // (GDD 17.5.8): five landings a flight apart, so its ceiling is four storeys up.
+            // (GDD 17.5.8): seven landings a flight apart, so its ceiling is six storeys up.
             string[] standardHeight =
             {
                 ZoneIds.Office, ZoneIds.Lobby,
                 ZoneIds.Parking, ZoneIds.Archive,
-                ZoneIds.Floor04, ZoneIds.Floor03, ZoneIds.PhantomFloor13
+                ZoneIds.Floor04, ZoneIds.Floor03, ZoneIds.Floor05
             };
 
             for (int i = 0; i < standardHeight.Length; i++)
@@ -196,7 +196,7 @@ namespace NO404.Tests
                                    WorldBuilder.StairShaft.IsNorth(order[i]),
                                    order[i] + " is at the same end of the shaft as " + order[i - 1]);
 
-            float lowest = WorldBuilder.StairShaft.HeightOf(FloorPlan.B2);
+            float lowest = WorldBuilder.StairShaft.HeightOf(FloorPlan.B1);
             Assert.AreEqual(WorldBuilder.StairShaft.Drop, -lowest, 0.001f,
                             "the slab has to reach the lowest landing");
             Assert.AreEqual(WorldBuilder.StairShaft.Drop,
@@ -204,7 +204,7 @@ namespace NO404.Tests
                             "PlayerController reads the drop from the zone, so they must agree");
 
             float ceiling = WorldBuilder.HeightOf(ZoneIds.Stairwell);
-            float top = WorldBuilder.StairShaft.HeightOf(FloorPlan.Roof);
+            float top = WorldBuilder.StairShaft.HeightOf(FloorPlan.F6);
             Assert.GreaterOrEqual(ceiling, top + BuildingSpec.UnitDoorHeight,
                                   "the top landing's door does not fit under the shaft ceiling");
         }

@@ -303,7 +303,7 @@ namespace NO404.ContentData
         /// </summary>
         static AnomalyToolDefinition BuildEndlessToolbox()
         {
-            var tool = Tool(ManualEventIds.A04_EndlessToolbox, ZoneIds.Toolroom, FloorPlan.B2,
+            var tool = Tool(ManualEventIds.A04_EndlessToolbox, ZoneIds.Toolroom, FloorPlan.B1,
                             night: 5, rootMenuId: "a04.root");
 
             tool.hold = AnomalyToolHold.ReturnTool;
@@ -377,7 +377,7 @@ namespace NO404.ContentData
         /// </summary>
         static AnomalyToolDefinition BuildLostAndFoundMachine()
         {
-            var tool = Tool(ManualEventIds.A05_LostAndFoundMachine, ZoneIds.Rooftop, FloorPlan.Roof,
+            var tool = Tool(ManualEventIds.A05_LostAndFoundMachine, ZoneIds.Floor06, FloorPlan.F6,
                             night: 6, rootMenuId: "a05.root");
 
             tool.menus = new[]

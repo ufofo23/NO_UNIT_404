@@ -56,23 +56,20 @@ namespace NO404.Gameplay
             Zone(ZoneIds.Lobby,          new Vector3(0f, 0f, 30f),    new Vector2(12f, 8f),    Storey, 0.28f, 0.34f, 1.5f),
             // A six-person car: 1.5m square, lower ceiling than a room.
             Zone(ZoneIds.Elevator,       new Vector3(30f, 0f, 30f),   new Vector2(1.5f, 1.5f), 2.4f,   0.30f, 0.36f, 1.1f),
-            // Two 1.25m flights plus a landing.
             // GDD 17.5.8. Not a room with plates on the wall - a shaft with real flights.
-            // Five landings, 2.8m apart, from the basement up to the thirteenth floor door,
-            // which is what makes "up" and "down" things the player does rather than reads.
+            // Seven landings, 2.8m apart, B1 to 6F (v5.1 3.1), which is what makes "up" and
+            // "down" things the player does rather than reads.
             Zone(ZoneIds.Stairwell,      new Vector3(0f, 0f, 50f),    new Vector2(5f, 9f),     ShaftHeight, 0.20f, 0.26f, 0.9f, StairShaft.Drop),
             // GDD 17.5.3: build a 25m x 18m section, not the whole level.
-            // B1 (spec 0.7.1): parking, the barrier, the recycling yard.
+            // B1 (v5.1 3.1): parking, recycling, and - beside them on the same level - the
+            // electrical room, the pump and tank plant, and the records room.
             Zone(ZoneIds.Parking,        new Vector3(0f, -12f, 0f),   new Vector2(25f, 18f),   Storey, 0.18f, 0.22f, 1.2f),
             Zone(ZoneIds.RecyclingYard,  new Vector3(0f, -12f, 30f),  new Vector2(10f, 8f),    Storey, 0.17f, 0.21f, 0.9f),
-
-            // B2 (spec 25): plant rooms and the records room. Its own y band, one storey below
-            // B1, so a zone id can never be mistaken for the wrong basement.
-            Zone(ZoneIds.Machinery,      new Vector3(0f, -24f, 0f),   new Vector2(10f, 8f),    Storey, 0.17f, 0.21f, 1.0f),
-            Zone(ZoneIds.PumpRoom,       new Vector3(0f, -24f, 14f),  new Vector2(8f, 6f),     Storey, 0.16f, 0.20f, 0.9f),
-            Zone(ZoneIds.PipeRoom,       new Vector3(0f, -24f, 26f),  new Vector2(10f, 4f),    2.3f,   0.15f, 0.19f, 0.7f),
-            Zone(ZoneIds.Toolroom,       new Vector3(0f, -24f, 36f),  new Vector2(6f, 5f),     Storey, 0.16f, 0.20f, 0.9f),
-            Zone(ZoneIds.Archive,        new Vector3(0f, -24f, 46f),  new Vector2(6f, 5f),     Storey, 0.19f, 0.24f, 1.0f),
+            Zone(ZoneIds.Machinery,      new Vector3(40f, -12f, 0f),  new Vector2(10f, 8f),    Storey, 0.17f, 0.21f, 1.0f),
+            Zone(ZoneIds.PumpRoom,       new Vector3(40f, -12f, 14f), new Vector2(8f, 6f),     Storey, 0.16f, 0.20f, 0.9f),
+            Zone(ZoneIds.PipeRoom,       new Vector3(40f, -12f, 26f), new Vector2(10f, 4f),    2.3f,   0.15f, 0.19f, 0.7f),
+            Zone(ZoneIds.Toolroom,       new Vector3(40f, -12f, 36f), new Vector2(6f, 5f),     Storey, 0.16f, 0.20f, 0.9f),
+            Zone(ZoneIds.Archive,        new Vector3(40f, -12f, 46f), new Vector2(6f, 5f),     Storey, 0.19f, 0.24f, 1.0f),
 
             // 1F (spec 25): the hub the building means to feel safe.
             Zone(ZoneIds.Laundry,        new Vector3(30f, 0f, 0f),    new Vector2(6f, 5f),     Storey, 0.26f, 0.32f, 1.6f),
@@ -92,10 +89,8 @@ namespace NO404.Gameplay
             Zone(ZoneIds.Floor03,        new Vector3(60f, 0f, 24f),   CorridorSize(),          Storey, 0.22f, 0.31f, 1.3f),
             Zone(ZoneIds.Floor05,        new Vector3(90f, 0f, 46f),   CorridorSize(),          Storey, 0.22f, 0.30f, 1.2f),
             Zone(ZoneIds.Floor06,        new Vector3(90f, 0f, 58f),   CorridorSize(),          Storey, 0.22f, 0.30f, 1.2f),
-            // Not a floor (spec 0.7.1). Built so an anomaly has somewhere to put the player,
-            // and reachable by nothing that computes a destination.
-            Zone(ZoneIds.PhantomFloor13, new Vector3(60f, 0f, 36f),   CorridorSize(),          Storey, 0.22f, 0.32f, 1.3f),
-            Zone(ZoneIds.Rooftop,        new Vector3(60f, 0f, 50f),   new Vector2(20f, 12f),   6f,     0.16f, 0.20f, 0.8f),
+            // v5.1 3.1: no roof and no thirteenth floor are built. Their ids survive only so
+            // old saves and the retired night-response content still compile against them.
             // GDD 17.5.7: 18 square metres.
             Zone(ZoneIds.Unit404,        new Vector3(60f, 0f, 18f),   new Vector2(4.5f, 4f),   2.3f,   0.14f, 0.18f, 0.6f)
         };
@@ -131,7 +126,6 @@ namespace NO404.Gameplay
         /// </summary>
         public static class StairShaft
         {
-            public const float SubBasement = -BuildingSpec.FlightRise * 2f;  // B2,  -5.6
             public const float Basement = -BuildingSpec.FlightRise;          // B1,  -2.8
             public const float Ground = 0f;                                  // 1F
             public const float Floor02 = BuildingSpec.FlightRise;            // +2.8
@@ -139,13 +133,12 @@ namespace NO404.Gameplay
             public const float Floor04 = BuildingSpec.FlightRise * 3f;       // +8.4
             public const float Floor05 = BuildingSpec.FlightRise * 4f;       // +11.2
             public const float Floor06 = BuildingSpec.FlightRise * 5f;       // +14.0
-            public const float Rooftop = BuildingSpec.FlightRise * 6f;       // +16.8
 
-            /// <summary>How far the slab sits below the zone origin. B2 is two flights down.</summary>
-            public const float Drop = BuildingSpec.FlightRise * 2f;
+            /// <summary>How far the slab sits below the zone origin. B1 is one flight down.</summary>
+            public const float Drop = BuildingSpec.FlightRise;
 
             /// <summary>Ceiling height above the zone origin: the top landing plus a storey.</summary>
-            public const float Ceiling = Rooftop + BuildingSpec.WallHeight;  // 19.4
+            public const float Ceiling = Floor06 + BuildingSpec.WallHeight;  // 16.6
 
             /// <summary>
             /// Height of a landing, from the floor position in FloorPlan.Order.
@@ -302,6 +295,9 @@ namespace NO404.Gameplay
             BuildCorridors();
             BuildServicePassageInterior();
             BuildUnit404Interior();
+            BuildSelectedMainProps();
+            BuildSubquestProps();
+            BuildDressing();
             BuildTransitions();
             BuildManualStages();
 
@@ -310,8 +306,7 @@ namespace NO404.Gameplay
             float lift = ServiceHub.Settings.Current.brightness;
             if (ServiceHub.Settings.Current.streamerMode) lift += 0.25f;
 
-            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.10f, 0.11f, 0.13f, 1f) * lift;
+            RenderLook.ApplyAmbient(lift);
             RenderSettings.fog = false;
 
             Log.Info("World", "greybox built: " +
@@ -389,9 +384,8 @@ namespace NO404.Gameplay
             Box(root, "Floor", new Vector3(0f, floorTop - floorT * 0.5f, 0f),
                 new Vector3(spec.Size.x, floorT, spec.Size.y), spec.Floor);
 
-            if (spec.Id != ZoneIds.Rooftop)
-                Box(root, "Ceiling", new Vector3(0f, spec.Height + t * 0.5f, 0f),
-                    new Vector3(spec.Size.x, t, spec.Size.y), spec.Wall * 0.8f);
+            Box(root, "Ceiling", new Vector3(0f, spec.Height + t * 0.5f, 0f),
+                new Vector3(spec.Size.x, t, spec.Size.y), spec.Wall * 0.8f);
 
             float wallSpan = spec.Height + spec.FloorDrop;
             float wallY = floorTop + wallSpan * 0.5f;
@@ -407,13 +401,17 @@ namespace NO404.Gameplay
             var light = lightGo.AddComponent<Light>();
             light.type = LightType.Point;
             light.range = Mathf.Max(spec.Size.x, spec.Size.y) * 1.2f;
-            light.intensity = spec.LightIntensity;
+            // Filmic tonemapping darkens the mid-tones, so rooms lit by this one light alone
+            // (unit 404, the plant rooms) need more of it than the greybox did.
+            light.intensity = spec.LightIntensity * 1.6f;
             light.color = spec.Id == ZoneIds.Parking || spec.Id == ZoneIds.Archive
                 ? new Color(0.85f, 0.9f, 1f)
                 : new Color(1f, 0.96f, 0.88f);
             light.shadows = LightShadows.None;   // greybox: shadow budget is GDD 20.20
 
             if (IsCorridor(spec.Id)) lightGo.AddComponent<CircuitLight>().Setup(CircuitIds.CorridorLights);
+
+            DressShell(root, spec);
 
             var spawn = new GameObject("Spawn").transform;
             spawn.SetParent(root, false);
@@ -449,8 +447,8 @@ namespace NO404.Gameplay
 
         static bool IsCorridor(string zoneId)
         {
-            return zoneId == ZoneIds.Floor04 || zoneId == ZoneIds.Floor03 || zoneId == ZoneIds.PhantomFloor13
-                || zoneId == ZoneIds.ServicePassage;
+            return zoneId == ZoneIds.Floor02 || zoneId == ZoneIds.Floor03 || zoneId == ZoneIds.Floor04
+                || zoneId == ZoneIds.Floor05 || zoneId == ZoneIds.Floor06 || zoneId == ZoneIds.ServicePassage;
         }
 
         /// <summary>
@@ -472,6 +470,7 @@ namespace NO404.Gameplay
             go.transform.localPosition = localPosition;
             go.transform.localScale = size;
             go.GetComponent<MeshRenderer>().sharedMaterial = MaterialFor(color);
+            SurfaceArt.Apply(go, size, SurfaceForProp(name), color, IsShell(name) ? 0f : SurfaceArt.PropBevel);
             return go;
         }
 
@@ -741,10 +740,10 @@ namespace NO404.Gameplay
             Box(root, "EntranceCallPanel", new Vector3(east - 0.45f, 1.35f, OuterZ + 0.12f),
                 new Vector3(0.24f, 0.36f, 0.08f), new Color(0.28f, 0.30f, 0.31f));
 
-            var sign = BuildWorldLabel(root, "EntranceSign", new Vector3(centre, Head + 0.32f, InnerZ - 0.09f),
-                                       2.4f, 0.4f, 96, 180f);
-            sign.text = Loc.T("world.sign.entrance");
-            sign.alignment = TextAnchor.MiddleCenter;
+            // Between the door head (2.2m) and the ceiling (2.6m), not half inside the ceiling,
+            // and over the west glass: the doorway's own head carries the door sensor (N1-R03).
+            SignPlate(root, "EntranceSign", new Vector3(centre - 1.25f, Head + 0.2f, InnerZ - 0.07f), 1.7f, 0.3f, 0f,
+                      "world.sign.entrance", new Color(0.12f, 0.17f, 0.24f), SignWhite);
 
             LobbyVestibule = Anchor(root, "VestibuleAnchor", new Vector3(centre, 0f, (InnerZ + OuterZ) * 0.5f));
             // Stand in the clear pane beside the central door mullion.
@@ -804,13 +803,15 @@ namespace NO404.Gameplay
             var half = HalfOf(ZoneIds.Elevator);        // 0.75 x 0.75
             float panelX = half.x - 0.1f;
 
-            Box(root, "Handrail", new Vector3(0f, 0.9f, half.y - 0.06f),
+            // In front of the back wall's inner face (half - 0.1), not inside it.
+            Box(root, "Handrail", new Vector3(0f, 0.9f, half.y - 0.14f),
                 new Vector3(1.2f, 0.05f, 0.05f), new Color(0.40f, 0.41f, 0.42f));
 
             // Turned to face into the car. It had been printing into the back wall.
-            var display = BuildWorldLabel(root, "Indicator", new Vector3(0f, 2.05f, half.y - 0.08f),
-                                          0.6f, 0.3f, 96, 180f);
+            var display = BuildWorldLabel(root, "Indicator", new Vector3(0f, 2.05f, half.y - 0.12f),
+                                          0.6f, 0.3f, 96, 0f);
             display.text = "1";
+            display.color = LedRed;
             display.alignment = TextAnchor.MiddleCenter;
 
             for (int i = 0; i < ElevatorController.Panel.Length; i++)
@@ -821,9 +822,8 @@ namespace NO404.Gameplay
                 var button = Box(root, "Btn_" + entry.FloorId, new Vector3(panelX, y, 0.2f),
                                  new Vector3(0.06f, 0.13f, 0.13f), new Color(0.44f, 0.46f, 0.46f));
 
-                // The two basements are staff-only; every resident floor is not.
-                var access = entry.FloorId == FloorPlan.B1 || entry.FloorId == FloorPlan.B2
-                    ? AccessLevel.Staff2 : AccessLevel.Staff1;
+                // The basement is staff-only; every resident floor is not.
+                var access = entry.FloorId == FloorPlan.B1 ? AccessLevel.Staff2 : AccessLevel.Staff1;
                 button.AddComponent<ElevatorButton>()
                       .Setup(Elevator, entry.FloorId, entry.ZoneId, entry.LabelKey, access);
             }
@@ -900,8 +900,8 @@ namespace NO404.Gameplay
 
             // ---- the flights, alternating lanes the way a switchback does -----
             //
-            // One flight between each pair of adjacent floors, B2 to the roof: eight of them,
-            // and no gaps. This is the physical half of spec 0.8 - climbing out of the 4F
+            // One flight between each pair of adjacent floors, B1 to 6F: six of them, and no
+            // gaps. This is the physical half of spec 0.8 - climbing out of the 4F
             // landing reaches 5F because there is a flight there and no other way up.
             //
             // Consecutive flights swap lanes so nothing shares a lane with anything less than
@@ -933,7 +933,7 @@ namespace NO404.Gameplay
                 var light = lightGo.AddComponent<Light>();
                 light.type = LightType.Point;
                 light.range = 7f;
-                light.intensity = 0.75f;
+                light.intensity = 1.5f;
                 light.color = new Color(1f, 0.96f, 0.88f);
                 light.shadows = LightShadows.None;
                 lightGo.AddComponent<CircuitLight>().Setup(CircuitIds.CorridorLights);
@@ -949,11 +949,13 @@ namespace NO404.Gameplay
                 bool north = sign.LandingZ > 0f;
                 float wallZ = north ? half.y - 0.12f : -half.y + 0.12f;
 
+                // Over the landing door (2.05m), not across it.
                 var label = BuildWorldLabel(root, "Sign_" + sign.Name,
-                                            new Vector3(0f, sign.Height + 1.9f, wallZ),
-                                            1.9f, 0.5f, 120,
-                                            north ? 180f : 0f);
+                                            new Vector3(0f, sign.Height + 2.33f, wallZ),
+                                            1.9f, 0.34f, 90,
+                                            north ? 0f : 180f);
                 label.text = Loc.T(sign.LabelKey);
+                label.color = StencilPaint;
                 label.alignment = TextAnchor.MiddleCenter;
                 // Spec 0.10.4: from 25 a glyph on it can deform for a moment.
                 label.gameObject.AddComponent<Anomalies.DistortedLabel>().Setup(sign.LabelKey);
@@ -963,6 +965,7 @@ namespace NO404.Gameplay
                                                 new Vector3(0f, sign.Height + 0.02f, sign.LandingZ),
                                                 1.6f, 0.8f, 130, 0f, true);
                 floorMark.text = Loc.T(sign.ShortKey);
+                floorMark.color = FloorPaint;
                 floorMark.alignment = TextAnchor.MiddleCenter;
                 // And from 50 the number itself can be a neighbour's. Only the paint lies -
                 // StairNavigator still computes the next landing from FloorPlan (spec 0.8.1).
@@ -975,13 +978,15 @@ namespace NO404.Gameplay
             // in lane B. The arrows go on the walls those lanes run against.
             var upArrow = BuildWorldLabel(root, "Sign_Up",
                                           new Vector3(half.x - 0.12f, StairShaft.Ground + 1.9f, 2.0f),
-                                          1.6f, 0.4f, 96, -90f);
+                                          1.6f, 0.4f, 96, 90f);
             upArrow.text = Loc.T("world.stairs.up");
+            upArrow.color = StencilPaint;
 
             var downArrow = BuildWorldLabel(root, "Sign_Down",
                                             new Vector3(-half.x + 0.12f, StairShaft.Ground + 1.9f, 2.0f),
-                                            1.6f, 0.4f, 96, 90f);
+                                            1.6f, 0.4f, 96, -90f);
             downArrow.text = Loc.T("world.stairs.down");
+            downArrow.color = StencilPaint;
 
             // On the ground landing, against the wall. It used to be at zone y - which is now
             // three metres of open shaft above the slab.
@@ -1046,21 +1051,23 @@ namespace NO404.Gameplay
         {
             // v2.1 spec 0.11 moved the residents down: Seon-ja from 303 to 303, the vacant
             // unit from 304 to 304, the complainant from 305 to 305, Ji-woo from 602 to 602.
-            AddCorridorDoors(ZoneIds.Floor02, new[] { "201", "202", "203", "205", "206" },
+            // v5.1 3.1: 201~205 and the shared utility cupboard.
+            AddCorridorDoors(ZoneIds.Floor02, new[] { "201", "202", "203", "204", "205" },
                              BuildingSpec.StandardDoorX);
             // 304 is sealed, not locked (GDD 9.2).
-            AddCorridorDoors(ZoneIds.Floor03, new[] { "301", "302", "303", "304", "305" },
+            // v5.1 3.1 and the 3F reference sheet: 303, 304 and 305 only. The first two
+            // places on the corridor are the pipe shaft and a stretch of wall (WorldBuilder.Reference).
+            AddCorridorDoors(ZoneIds.Floor03, new[] { null, null, "303", "304", "305" },
                              BuildingSpec.StandardDoorX, "304");
-            AddCorridorDoors(ZoneIds.Floor04, new[] { "401", "402", "403", "405", "406" },
+            // v5.1 3.1: 401~403, the wall where 404 is, 405, and the sealed service door.
+            AddCorridorDoors(ZoneIds.Floor04, new[] { "401", "402", "403", "405" },
                              BuildingSpec.Floor04DoorX);
             // 504 was structurally removed years ago; its plate is still on the patched wall
             // and there has never been a door (spec 22 M17). Deliberately a different thing
             // from 404, which is a room the drawings deny (spec 32).
             AddCorridorDoors(ZoneIds.Floor05, new[] { "501", "502", "503", "504", "505" },
                              BuildingSpec.StandardDoorX, "504");
-            AddCorridorDoors(ZoneIds.Floor06, new[] { "601", "602", "603", "605", "606" },
-                             BuildingSpec.StandardDoorX);
-            AddCorridorDoors(ZoneIds.PhantomFloor13, new[] { "1301", "602", "1303", "1304", "1305" },
+            AddCorridorDoors(ZoneIds.Floor06, new[] { "601", "602", "603", "604", "605" },
                              BuildingSpec.StandardDoorX);
 
             BuildFloor04Extras();
@@ -1089,6 +1096,7 @@ namespace NO404.Gameplay
 
             for (int i = 0; i < units.Length && i < doorX.Length; i++)
             {
+                if (units[i] == null) continue;
                 if (units[i] == sealedUnit) { SealedUnitWall(root, units[i], doorX[i], doorZ); continue; }
 
                 var frame = Box(root, "Door_" + units[i], new Vector3(doorX[i], DoorY, doorZ),
@@ -1108,9 +1116,40 @@ namespace NO404.Gameplay
                     new Vector3(0.11f, 0.04f, 0.06f), new Color(0.58f, 0.56f, 0.48f));
 
                 UnitNumberPlate(root, units[i], doorX[i], doorZ);
+                DoorFurniture(root, doorX[i], doorZ);
             }
 
             CorridorFloorSigns(root, zoneId);
+        }
+
+        /// <summary>
+        /// A steel 현관문 is not a flat panel: it sits in a casing, has a peephole, and since
+        /// the 2000s nearly every one has a digital lock fitted above the handle.
+        /// </summary>
+        void DoorFurniture(Transform root, float x, float doorZ)
+        {
+            float face = doorZ - 0.05f;
+            var casing = new Color(0.20f, 0.20f, 0.20f);
+            float w = BuildingSpec.UnitDoorWidth, h = BuildingSpec.UnitDoorHeight;
+            Trim(root, "Casing_L_" + x, new Vector3(x - w * 0.5f - 0.03f, h * 0.5f, face), new Vector3(0.06f, h + 0.06f, 0.03f), casing);
+            Trim(root, "Casing_R_" + x, new Vector3(x + w * 0.5f + 0.03f, h * 0.5f, face), new Vector3(0.06f, h + 0.06f, 0.03f), casing);
+            Trim(root, "Casing_T_" + x, new Vector3(x, h + 0.03f, face), new Vector3(w + 0.12f, 0.06f, 0.03f), casing);
+
+            float lockX = x + w * 0.35f;
+            Trim(root, "DoorLock_" + x, new Vector3(lockX, 1.32f, doorZ - 0.075f), new Vector3(0.075f, 0.17f, 0.035f), new Color(0.16f, 0.16f, 0.17f));
+            var keypad = Trim(root, "DoorLockPad_" + x, new Vector3(lockX, 1.34f, doorZ - 0.094f), new Vector3(0.05f, 0.08f, 0.004f), Color.black);
+            SurfaceArt.ApplyGlow(keypad, new Color(0.10f, 0.25f, 0.45f) * 0.6f);
+            Part(root, PrimitiveType.Cylinder, "Peephole_" + x, new Vector3(x, 1.55f, doorZ - 0.065f),
+                 new Vector3(0.025f, 0.012f, 0.025f), new Color(0.6f, 0.58f, 0.5f), false).transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+
+            // And on the other side from the number, the unit's meter cabinet.
+            MeterBox(root, x - w * 0.5f - 0.42f, doorZ);
+        }
+
+        static bool IsShell(string name)
+        {
+            return name == "Floor" || name == "Ceiling" || name.StartsWith("Wall_") ||
+                   name.StartsWith("WindowView") || name == "StreetView";
         }
 
         /// <summary>The lit name plate beside a unit door, with the unit number on it.</summary>
@@ -1118,13 +1157,16 @@ namespace NO404.Gameplay
         {
             float plateX = x + BuildingSpec.UnitDoorWidth * 0.5f + 0.22f;
 
-            Box(root, "Plate_" + unit, new Vector3(plateX, 1.85f, doorZ),
-                new Vector3(0.34f, 0.18f, 0.02f), new Color(0.55f, 0.55f, 0.52f));
+            // Proud of the wall. The wall's inner face is 4cm in front of doorZ, and the plate
+            // used to sit inside it - so no unit number in the building had ever been visible.
+            Box(root, "Plate_" + unit, new Vector3(plateX, 1.85f, doorZ - 0.07f),
+                new Vector3(0.34f, 0.18f, 0.02f), new Color(0.14f, 0.15f, 0.16f));
 
             var label = BuildWorldLabel(root, "PlateText_" + unit,
-                                        new Vector3(plateX, 1.85f, doorZ - 0.03f),
-                                        0.34f, 0.18f, 64, 180f);
+                                        new Vector3(plateX, 1.85f, doorZ - 0.085f),
+                                        0.34f, 0.18f, 64, 0f);
             label.text = unit;
+            label.color = PlateInk;
             label.alignment = TextAnchor.MiddleCenter;
         }
 
@@ -1137,7 +1179,7 @@ namespace NO404.Gameplay
         {
             // Wallpaper over the opening. Very slightly proud of the wall and a shade off it,
             // so it reads as a covered door rather than as blank corridor.
-            Box(root, "Papered_" + unit, new Vector3(x, DoorY, doorZ + 0.02f),
+            Box(root, "Papered_" + unit, new Vector3(x, DoorY, doorZ - 0.06f),
                 new Vector3(BuildingSpec.UnitDoorWidth + 0.12f, BuildingSpec.UnitDoorHeight + 0.1f, 0.04f),
                 new Color(0.30f, 0.29f, 0.27f));
 
@@ -1157,21 +1199,23 @@ namespace NO404.Gameplay
 
             var half = HalfOf(zoneId);
 
-            var west = BuildWorldLabel(root, "FloorSign_W",
-                                       new Vector3(-half.x + 0.14f, 2.05f, 0f), 1.4f, 0.5f, 110, -90f);
+            // Painted on the wall over the end doors. They used to be centred at 2.05m, which is
+            // the top edge of the doors under them. The fourth floor's west end is boarded up
+            // (WorldBuilder.Reference), so its number goes over the lift door's new place.
+            var west = zoneId == ZoneIds.Floor04
+                ? BuildWorldLabel(root, "FloorSign_W", new Vector3(Floor04LiftX, 2.22f, -half.y + 0.12f), 0.9f, 0.26f, 80, 180f)
+                : BuildWorldLabel(root, "FloorSign_W", new Vector3(-half.x + 0.14f, 2.38f, 0f), 1.2f, 0.36f, 110, -90f);
             west.text = Loc.T(key);
+            west.color = StencilPaint;
 
             var east = BuildWorldLabel(root, "FloorSign_E",
-                                       new Vector3(half.x - 0.14f, 2.05f, 0f), 1.4f, 0.5f, 110, 90f);
+                                       new Vector3(half.x - 0.14f, 2.38f, 0f), 1.2f, 0.36f, 110, 90f);
             east.text = Loc.T(key);
+            east.color = StencilPaint;
         }
 
         static string FloorSignKeyFor(string zoneId)
         {
-            // The phantom floor has no FloorPlan row on purpose (spec 0.7.1), so its sign is
-            // the one that has to be named outright. Every real corridor derives its own.
-            if (zoneId == ZoneIds.PhantomFloor13) return "world.stairs.f13.short";
-
             string floorId = FloorPlan.FloorOfZone(zoneId);
             return floorId == null ? null : "world.stairs." + floorId.ToLowerInvariant() + ".short";
         }
@@ -1189,6 +1233,19 @@ namespace NO404.Gameplay
             Box(root, "BlankWall404",
                 new Vector3(BuildingSpec.HiddenWallCentreX, 1.05f, half - 0.04f),
                 new Vector3(BuildingSpec.HiddenWallExtra, 2.1f, 0.05f), new Color(0.19f, 0.19f, 0.21f));
+
+            // v5.1 3.1: the sealed 4F-SERVICE door. It does not open; the passage behind it
+            // is reached the way N3-M01 says, through the lift.
+            float sealX = BuildingSpec.Floor04DoorX[4];
+            Box(root, "SealedServiceDoor", new Vector3(sealX, BuildingSpec.FireDoorHeight * 0.5f, half - 0.07f),
+                new Vector3(BuildingSpec.FireDoorWidth, BuildingSpec.FireDoorHeight, 0.08f), new Color(0.30f, 0.27f, 0.24f));
+            Trim(root, "SealedServiceDoor_Tape", new Vector3(sealX, 1.2f, half - 0.12f),
+                new Vector3(BuildingSpec.FireDoorWidth + 0.1f, 0.08f, 0.02f), new Color(0.70f, 0.58f, 0.18f));
+            var sealLabel = BuildWorldLabel(root, "SealedServiceDoor_Sign", new Vector3(sealX, 2.25f, half - 0.09f),
+                                            1.2f, 0.22f, 64, 0f);
+            sealLabel.text = Loc.T("world.sign.service_sealed");
+            sealLabel.color = WarningRed;
+            sealLabel.alignment = TextAnchor.MiddleCenter;
 
             // The fire door control panel used during the night-5 replay (GDD 9.6).
             var panel = Box(root, "FireDoorPanel", new Vector3(-9f, 1.3f, -half + 0.06f),
@@ -1263,9 +1320,9 @@ namespace NO404.Gameplay
                 Box(root, "Pipe" + i, new Vector3(-5f + i * 2f, 2f, wall), new Vector3(1.8f, 0.12f, 0.12f),
                     new Color(0.27f, 0.25f, 0.22f));
 
-            // Pencil marks at child height: 서우 123 / 하린 117 (GDD 9.4).
+            // v5.1: pencil marks say 언니 123 / 동생 117; no personal names.
             Pickup(root, "ChildHeightMarks", new Vector3(-2f, 1.2f, wall), new Vector3(0.5f, 0.5f, 0.03f),
-                   new Color(0.42f, 0.40f, 0.36f), "E08_CHILD_HEIGHT_MARKS", "ui.prompt.inspect_marks");
+                   new Color(0.42f, 0.40f, 0.36f), "EV_HEIGHT_MARKS", "ui.prompt.inspect_marks", null, 3);
 
             Pickup(root, "OldExtinguisher", new Vector3(2f, 0.45f, wall), new Vector3(0.18f, 0.55f, 0.18f),
                    new Color(0.46f, 0.20f, 0.18f), "E09_OLD_FIRE_EXTINGUISHER_SERIAL",
@@ -1361,7 +1418,10 @@ namespace NO404.Gameplay
                 if (floor.ElevatorAccessible)
                     ElevatorDoor(zoneId, lobby
                         ? new Vector3(2f, DoorY, zoneHalf.y - 0.06f)
-                        : new Vector3(-zoneHalf.x + 0.06f, DoorY, 0f));
+                        : zoneId == ZoneIds.Floor04
+                            // The west end is boarded over (WorldBuilder.Reference).
+                            ? new Vector3(Floor04LiftX, DoorY, -zoneHalf.y + 0.06f)
+                            : new Vector3(-zoneHalf.x + 0.06f, DoorY, 0f));
 
                 StairDoor(zoneId, floor.FloorId, lobby
                     ? new Vector3(4.5f, DoorY, zoneHalf.y - 0.06f)
@@ -1374,14 +1434,13 @@ namespace NO404.Gameplay
                             "ui.prompt.stairs_" + floor.FloorId.ToLowerInvariant());
             }
 
-            Transition(ZoneIds.Rooftop, "RooftopBack", new Vector3(0f, DoorY, -HalfOf(ZoneIds.Rooftop).y + 0.06f),
-                       ZoneIds.Stairwell, AccessLevel.Staff1, "ui.prompt.go_back", DoorSize);
-
-            // ---- B2, off the plant room (spec 0.11: the records room moved down) ---
-            Transition(ZoneIds.Machinery, "ArchiveDoor", new Vector3(0f, DoorY, HalfOf(ZoneIds.Machinery).y - 0.06f),
-                       ZoneIds.Archive, AccessLevel.Archive, "ui.prompt.go_archive", DoorSize);
+            // ---- B1 records room, off the parking level (v5.1 3.1) -------------
+            // A caretaker's own records room is staff space from night 1: v5.1 sends them
+            // there on night 3 (N3-R06) and it is never a story-gated door.
+            Transition(ZoneIds.Parking, "ArchiveDoor", new Vector3(2f, DoorY, -HalfOf(ZoneIds.Parking).y + 0.06f),
+                       ZoneIds.Archive, AccessLevel.Staff2, "ui.prompt.go_archive", DoorSize);
             Transition(ZoneIds.Archive, "ArchiveBack", new Vector3(0f, DoorY, -HalfOf(ZoneIds.Archive).y + 0.06f),
-                       ZoneIds.Machinery, AccessLevel.Staff1, "ui.prompt.go_back", DoorSize);
+                       ZoneIds.Parking, AccessLevel.Staff1, "ui.prompt.go_back", DoorSize);
 
             BuildFloorSideRooms();
 
@@ -1545,13 +1604,12 @@ namespace NO404.Gameplay
         /// </summary>
         void BuildFloorSideRooms()
         {
-            // B2 plant rooms, off the electrical room.
-            SideRoom(ZoneIds.Machinery, ZoneIds.PumpRoom, "ui.prompt.go_pump_room", -6f);
-            SideRoom(ZoneIds.Machinery, ZoneIds.PipeRoom, "ui.prompt.go_pipe_room", -2f);
-            SideRoom(ZoneIds.Machinery, ZoneIds.Toolroom, "ui.prompt.go_toolroom", 2f);
-
-            // B1.
+            // B1 (v5.1 3.1): the electrical room off the parking level, the plant off that.
             SideRoom(ZoneIds.Parking, ZoneIds.RecyclingYard, "ui.prompt.go_recycling", 8f);
+            SideRoom(ZoneIds.Parking, ZoneIds.Machinery, "ui.prompt.go_electrical", -8f);
+            SideRoom(ZoneIds.Machinery, ZoneIds.PumpRoom, "ui.prompt.go_pump_room", -3f);
+            SideRoom(ZoneIds.Machinery, ZoneIds.PipeRoom, "ui.prompt.go_pipe_room", 1.5f);
+            SideRoom(ZoneIds.Machinery, ZoneIds.Toolroom, "ui.prompt.go_toolroom", 3.5f);
 
             // 1F, all off the lobby.
             SideRoom(ZoneIds.Lobby, ZoneIds.Laundry, "ui.prompt.go_laundry", -4f);
@@ -1623,9 +1681,11 @@ namespace NO404.Gameplay
         /// <summary>
         /// A piece of world-space signage.
         ///
-        /// <paramref name="yaw"/> turns the face towards whoever is meant to read it: a canvas
-        /// faces its own +z, so a sign hung on the north wall of a room has to be turned 180
-        /// degrees or it prints into the wall. Every label in this greybox was built without
+        /// <paramref name="yaw"/> is the direction the reader looks in: 0 for a sign on a north
+        /// wall, 180 on a south wall, 90 on an east wall, -90 on a west wall. Text is drawn
+        /// from both sides, so the wrong yaw does not hide a sign - it mirrors it, which is how
+        /// every north-wall plate in the building came to read backwards until a screenshot
+        /// of the lobby's entrance sign showed it. Every label in this greybox was built without
         /// one until a playtester reported not being able to find unit 304 - which had a name
         /// plate beside its door the whole time, blank and facing the concrete.
         ///
@@ -1653,6 +1713,15 @@ namespace NO404.Gameplay
             var text = UI.UiFactory.CreateText("Value", go.transform, string.Empty, fontSize,
                                                TextAnchor.MiddleCenter, UI.UiFactory.Accent);
             UI.UiFactory.Stretch(text.rectTransform, 0f, 0f);
+
+            // fontSize is in canvas units at 0.01 scale, so 64 meant 0.64m glyphs on an 18cm
+            // plate: "304" wrapped one digit per line. Fit the text to its plate instead, with
+            // the requested size as the ceiling.
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 1;
+            text.resizeTextMaxSize = fontSize;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
 
             return text;
         }

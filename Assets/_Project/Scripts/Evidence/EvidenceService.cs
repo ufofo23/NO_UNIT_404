@@ -98,6 +98,9 @@ namespace NO404.Evidence
 
             ServiceHub.Cases.NotifyObjective(Cases.ObjectiveType.AcquireEvidence, evidenceId);
 
+            Cases.SelectedMainQuestRules.EvidenceRead(evidenceId);
+            Cases.SubquestRules.EvidenceRead(evidenceId);
+
             // Acquiring key evidence is an autosave point (GDD 20.17).
             ServiceHub.Save.RequestAutosave(Save.SaveReason.EvidenceAcquired);
 
