@@ -59,6 +59,16 @@ namespace NO404.Save
         public bool IsBusy { get; private set; }
         public event Action<SaveReason> OnSaved;
 
+        /// <summary>
+        /// True while this sitting must not write a save file (the developer start, GDD 20.21).
+        ///
+        /// A shift opened on night 4 with the earlier nights filled in by hand is not a
+        /// campaign anybody played, and its autosaves would rotate through the same three
+        /// slots a real one lives in. Loading is untouched: the switch stops this sitting
+        /// leaving anything behind, not reading what is already there.
+        /// </summary>
+        public bool WritesSuspended { get; set; }
+
         static string Dir { get { return Path.Combine(Application.persistentDataPath, "saves"); } }
         static string PathForSlot(int slot) { return Path.Combine(Dir, "slot" + slot + ".json"); }
 
@@ -79,6 +89,8 @@ namespace NO404.Save
         /// </summary>
         public void RequestAutosave(SaveReason reason)
         {
+            if (WritesSuspended) return;
+
             _autosaveQueued = true;
             _queuedReason = reason;
         }
@@ -120,6 +132,16 @@ namespace NO404.Save
 
         public async Task<SaveResult> SaveToSlotAsync(int slot, SaveReason reason, CancellationToken ct)
         {
+            if (WritesSuspended)
+            {
+                // Said out loud for the one caller that is a person pressing a button.
+                if (reason == SaveReason.Manual)
+                    EventBus.Publish(new NotificationEvent("ui.dev.notify.saves_off",
+                                                           NotificationSeverity.Warning));
+                Log.Info("Save", "skipped (" + reason + "): writes are suspended for this sitting");
+                return new SaveResult { Success = false, Slot = slot, Error = "suspended" };
+            }
+
             if (IsBusy) return new SaveResult { Success = false, Slot = slot, Error = "busy" };
             IsBusy = true;
 

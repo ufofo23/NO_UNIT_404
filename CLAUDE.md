@@ -8,11 +8,21 @@
 
 ## Source of truth
 
-- Design: `NO_UNIT_404_GDD_v5.1.md` in this folder is **the current top of the stack**
-  (solo first, 15-quest night pools, B1~6F, single ending). Where it disagrees with anything
-  below, v5.1 wins. What of it is built for nights 1/3/5 is in `Docs/NIGHTS_1_3_5_V51.md`
-  and `Docs/MAIN_QUESTS_1_3_5.md`. The older documents below are no longer in the working
-  tree; they are described here for the systems that were built against them.
+- **Where the documents are.** Design documents live under `Docs/GDD/` and the narrative
+  canon under `Docs/Scenario/`. In each, the file directly in the folder is the current one
+  and `archive/` holds the versions it replaced; the folder's README lists them.
+  - `Docs/GDD/NO_UNIT_404_GDD_v5.1.md` — **the current top of the stack** (solo first,
+    15-quest night pools, B1~6F, single ending). Where it disagrees with anything below,
+    v5.1 wins. `Docs/GDD/archive/NO_UNIT_404_GDD_v5.0.md` is the version before it.
+  - `Docs/Scenario/NO_UNIT_404_SCENARIO_BOOK_v2_0.md` — the scenario book. GDD v5.1 embeds
+    scenario v2.1 in its section 1.1 and that section wins where the two differ.
+  - `Docs/NIGHTS_1_3_5_V51.md` and `Docs/MAIN_QUESTS_1_3_5.md` — what of v5.1 is built for
+    nights 1/3/5.
+  - `Docs/V5_STATUS.md` — what of v5 is built and what is not.
+  The older documents below were never brought into this repository; they are described
+  here for the systems that were built against them. Where that description disagrees with
+  v5.1, v5.1 is the design.
+- Design (pre-v5): three documents that stack, newest wins.
   - `NO_UNIT_404_MASTER_IMPLEMENTATION_GDD_v3.0.md` — **the top of the stack.** Where anything
     disagrees with it, v3.0 wins. It re-aims the product at **1–4 player co-op** and rewrites
     the visitor system into Access & Pursuit (sections V3-G and 38): the door grants one of
@@ -25,7 +35,7 @@
   - `NO_UNIT_404_GDD_v1.0.md` — the base design. The file name still says v1.0; the document
     inside is at v2.3 and carries its own changelog in section 0.3. The GDD calls for
     `Docs/GDD/NO_UNIT_404_GDD.md`; the file has not been duplicated so that there is exactly
-    one copy to keep in sync. Update the path here if it ever moves.
+    one copy to keep in sync.
 
 ### What of v3.0 is built, and what is not
 

@@ -3307,3 +3307,16 @@ evidence.ev_paper_ledger.name,종이 주민 장부,Paper resident ledger
 evidence.ev_paper_ledger.desc,전산 이전의 장부에도 404호 줄이 있다.,The ledger from before the computers has a line for 404 as well.
 evidence.ev_original_ledger.name,원본 장부,The original ledger
 evidence.ev_original_ledger.desc,404호에 남아 있던 원본. 지워진 이름들이 그대로 적혀 있다.,"The original, left in 404. The deleted names are all still written in it."
+ui.menu.dev_start,개발자 모드,Developer mode
+ui.dev.title,개발자 모드 — 근무일을 골라 시작,Developer mode - start on a chosen night
+ui.dev.hint,개발 빌드 전용입니다. 새 게임 상태에서 선택한 근무일로 바로 들어갑니다.,Development builds only. Opens a fresh game directly on the chosen night.
+ui.dev.night_label,근무일,Night
+ui.dev.night_button,{0}일차,Night {0}
+ui.dev.prior_label,이전 근무 결과 — 선택한 날보다 앞선 메인 사건을 어떻게 처리했다고 볼지,Earlier nights - how the main cases before the chosen night are assumed to have gone
+ui.dev.prior.untouched,초기 상태,Untouched
+ui.dev.prior.well,잘 처리함,Handled well
+ui.dev.prior.badly,잘못 처리함,Handled badly
+ui.dev.main_only,메인 사건만 진행 (랜덤 사건 · 일반 방문자 · 전화 끔),"Main case only (no random cases, routine callers or calls)"
+ui.dev.allow_saves,저장 허용 (끄면 이 세션은 세이브 파일을 건드리지 않음),Allow saving (off: this session never touches the save files)
+ui.dev.start,시작,Start
+ui.dev.notify.saves_off,개발자 모드: 이 세션은 저장이 꺼져 있습니다.,Developer mode: saving is off for this session.

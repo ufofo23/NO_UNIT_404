@@ -10,6 +10,7 @@ namespace NO404.UI
         public System.Action OnContinue;
         public System.Action OnNewGame;
         public System.Action OnEndless;
+        public System.Action OnDevStart;
         public System.Action OnGallery;
         public System.Action OnCredits;
         public System.Action OnQuit;
@@ -17,6 +18,7 @@ namespace NO404.UI
         Button _continueButton;
         Button _newGameButton;
         Button _endlessButton;
+        Button _devStartButton;
         Button _galleryButton;
         Text _title;
         Text _footer;
@@ -200,6 +202,7 @@ namespace NO404.UI
             _continueButton.interactable = !guest && ServiceHub.Save.HasSave;
             _newGameButton.interactable = !guest;
             _endlessButton.interactable = !guest;
+            if (_devStartButton != null) _devStartButton.interactable = !guest;
         }
 
         static string StatusLine(Net.MultiplayerSessionService.Status state, bool inSession, bool working)
@@ -243,7 +246,7 @@ namespace NO404.UI
 
             var menu = UiFactory.CreateRect("Menu", root);
             UiFactory.Pin(menu, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
-                          new Vector2(120f, -60f), new Vector2(420f, 316f));
+                          new Vector2(120f, -60f), new Vector2(420f, DevConsole.Enabled ? 372f : 316f));
             UiFactory.AddVerticalLayout(menu, 8f);
 
             BuildCoopPanel(root);
@@ -262,6 +265,16 @@ namespace NO404.UI
             _endlessButton = UiFactory.CreateButton("Endless", menu, Loc.T("ui.menu.endless"), 20,
                 () => { var cb = OnEndless; if (cb != null) cb(); });
             UiFactory.SetHeight(_endlessButton.gameObject, 48f);
+
+            // The developer start (GDD 20.21). Not built at all outside the editor and
+            // development builds, rather than built and hidden: a button that does not exist
+            // cannot be reached by a release binary however the menu is driven.
+            if (DevConsole.Enabled)
+            {
+                _devStartButton = UiFactory.CreateButton("DevStart", menu, Loc.T("ui.menu.dev_start"), 20,
+                    () => { var cb = OnDevStart; if (cb != null) cb(); });
+                UiFactory.SetHeight(_devStartButton.gameObject, 48f);
+            }
 
             _galleryButton = UiFactory.CreateButton("Gallery", menu, Loc.T("ui.menu.gallery"), 20,
                 () => { var cb = OnGallery; if (cb != null) cb(); });
