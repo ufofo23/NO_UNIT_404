@@ -40,6 +40,23 @@ namespace NO404.Residents
         public bool safetyCritical;
     }
 
+    /// <summary>
+    /// Something the caretaker can do to a record from the database screen (v5.1 13).
+    ///
+    /// Printing, exporting and deleting a row are things done to the row, at the row, and
+    /// they are done once: the report filed afterwards is the log entry for which of them
+    /// happened, not the place it is decided.
+    /// </summary>
+    [Serializable]
+    public sealed class ResidentRecordAction
+    {
+        public string actionId;
+        public string labelKey;
+        [Tooltip("All must hold for the button to be on the screen at all.")]
+        public Cases.ConditionDefinition[] availability = new Cases.ConditionDefinition[0];
+        public Cases.ConsequenceDefinition[] consequences = new Cases.ConsequenceDefinition[0];
+    }
+
     [CreateAssetMenu(menuName = "NO404/Residents/Resident", fileName = "RES_")]
     public sealed class ResidentDefinition : ScriptableObject
     {
@@ -63,5 +80,21 @@ namespace NO404.Residents
         public string revealFlagId;
         [Tooltip("Evidence granted the first time this record is opened (e.g. the 404 row).")]
         public string evidenceOnView;
+
+        [Tooltip("Shown in place of the name while the row is only a glimpse and has not been " +
+                 "revealed. Empty = the name itself.")]
+        public string glimpseNameKey;
+        [Tooltip("Once this flag is set the row is gone from the database for good.")]
+        public string hideFlagId;
+        [Tooltip("What can be done to this row from the database screen.")]
+        public ResidentRecordAction[] actions = new ResidentRecordAction[0];
+
+        public ResidentRecordAction FindAction(string actionId)
+        {
+            if (actions == null) return null;
+            for (int i = 0; i < actions.Length; i++)
+                if (actions[i] != null && actions[i].actionId == actionId) return actions[i];
+            return null;
+        }
     }
 }

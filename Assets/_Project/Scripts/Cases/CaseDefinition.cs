@@ -61,6 +61,9 @@ namespace NO404.Cases
         public ObjectiveDefinition[] objectives = new ObjectiveDefinition[0];
         public DecisionDefinition[] decisions = new DecisionDefinition[0];
         public ConsequenceDefinition[] consequences = new ConsequenceDefinition[0];
+        [Tooltip("Applied once, the moment the case is handed out. For what the case's first " +
+                 "beat does to the building - a record appearing, a door coming unsealed.")]
+        public ConsequenceDefinition[] onStart = new ConsequenceDefinition[0];
         public FailSafeDefinition failSafe = new FailSafeDefinition();
 
         [Header("Analytics")]

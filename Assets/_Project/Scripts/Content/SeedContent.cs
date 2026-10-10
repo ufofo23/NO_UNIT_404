@@ -139,18 +139,76 @@ namespace NO404.ContentData
             };
         }
 
+        /// <summary>
+        /// The household that is not on any list (v5.1 13, scenario "NIGHT 4 - 이름").
+        ///
+        /// Three names and a move-in date, on a row the sync made tonight and whose fields
+        /// were last touched in 2009. This is the one screen in the game where the younger
+        /// daughter's full name is written out (v5.1 0.16): before the row is revealed the
+        /// list shows the masked surname the night-1 bill used and nothing else.
+        ///
+        /// What is done about the row is done here, on the row. Print, export and delete are
+        /// each offered once, while the case is open and nothing has been done yet; leaving
+        /// all three alone is the fourth answer.
+        /// </summary>
         static ResidentDefinition Hidden404()
         {
             var resident = Resident("res_404", "404", "resident.404.name", "1107", "RES-404",
                 ResidentStatus.Unregistered, null, null,
-                Notes(Note("resident.404.note.overdue", false)));
+                Notes(Note("resident.404.note.members", false),
+                      Note("resident.404.note.move_in", false),
+                      Note("resident.404.note.modified", false),
+                      Note("resident.404.note.overdue", false)));
 
             resident.lastSyncDate = "2009-11-07";
             resident.hiddenUntilSync = true;
             resident.revealFlagId = FlagIds.Knows404;
+            resident.glimpseNameKey = "resident.404.name_masked";
+            resident.hideFlagId = FlagIds.Db404Deleted;
             resident.cardStatus = AccessCardStatus.None;
             // Opening the row is how the player takes a copy of it (case C07).
             resident.evidenceOnView = "E11_404_RESIDENT_DATABASE";
+
+            var undecided = new[]
+            {
+                ConditionDefinition.CaseActive("N4-M01"),
+                ConditionDefinition.ChoiceUnset(ChoiceIds.Db404Action)
+            };
+
+            resident.actions = new[]
+            {
+                new ResidentRecordAction
+                {
+                    actionId = "print", labelKey = "ui.residents.action.print", availability = undecided,
+                    consequences = new[]
+                    {
+                        ConsequenceDefinition.Choice(ChoiceIds.Db404Action, "PRINT"),
+                        ConsequenceDefinition.Evidence("EV_DB404_PRINT")
+                    }
+                },
+                new ResidentRecordAction
+                {
+                    actionId = "export", labelKey = "ui.residents.action.export", availability = undecided,
+                    consequences = new[]
+                    {
+                        ConsequenceDefinition.Choice(ChoiceIds.Db404Action, "EXPORT"),
+                        ConsequenceDefinition.Flag(FlagIds.Db404Exported, true)
+                    }
+                },
+                // Cannot be taken back, and takes effect now rather than when it is reported:
+                // the row is gone from the screen the moment the button is pressed.
+                new ResidentRecordAction
+                {
+                    actionId = "delete", labelKey = "ui.residents.action.delete", availability = undecided,
+                    consequences = new[]
+                    {
+                        ConsequenceDefinition.Choice(ChoiceIds.Db404Action, "DELETE"),
+                        ConsequenceDefinition.Flag(FlagIds.HarinRecordPreserved, false),
+                        ConsequenceDefinition.Flag(FlagIds.Db404Deleted, true)
+                    }
+                }
+            };
+
             return resident;
         }
 

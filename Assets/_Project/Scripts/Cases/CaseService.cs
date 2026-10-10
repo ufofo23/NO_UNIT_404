@@ -600,6 +600,7 @@ namespace NO404.Cases
                         runtime.CompleteObjective(objective.objectiveId);
             SelectedMainQuestRules.Started(caseId);
             SubquestRules.Started(caseId);
+            ApplyConsequences(runtime.Definition.onStart);
             EventBus.Publish(new CaseStartedEvent(caseId));
             EventBus.Publish(new NotificationEvent("ui.notify.new_task", NotificationSeverity.Task));
 
@@ -897,6 +898,10 @@ namespace NO404.Cases
                 case ConsequenceType.San:
                     if (c.amount < 0) ServiceHub.Vitals.Strain(-c.amount, c.reasonKey ?? "reason.strain");
                     else ServiceHub.Vitals.Calm(c.amount, c.reasonKey ?? "reason.steadied");
+                    break;
+
+                case ConsequenceType.PlayCinematic:
+                    EventBus.Publish(new CinematicRequestedEvent(c.targetId));
                     break;
 
                 case ConsequenceType.AddToolDebt:

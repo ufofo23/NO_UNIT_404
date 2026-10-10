@@ -88,10 +88,75 @@ namespace NO404.Residents
         public bool IsVisible(ResidentDefinition resident)
         {
             if (resident == null) return false;
+
+            // Deleted is deleted. This comes before everything else, the glimpse included: a
+            // row somebody removed does not flicker back because the sync once showed it.
+            if (!string.IsNullOrEmpty(resident.hideFlagId) && ServiceHub.State.GetFlag(resident.hideFlagId))
+                return false;
+
             if (!resident.hiddenUntilSync) return true;
             if (_glimpsingResidentId == resident.residentId && GlimpseShowing) return true;
             if (string.IsNullOrEmpty(resident.revealFlagId)) return false;
             return ServiceHub.State.GetFlag(resident.revealFlagId);
+        }
+
+        /// <summary>
+        /// The name to put on the list. A row that is only on screen because the sync let it
+        /// slip for three seconds shows its masked form - the list is not where anybody gets
+        /// to read a name the campaign has not given them yet (v5.1 0.16).
+        /// </summary>
+        public string DisplayNameKey(ResidentDefinition resident)
+        {
+            if (resident == null) return string.Empty;
+
+            bool revealed = !resident.hiddenUntilSync ||
+                            (!string.IsNullOrEmpty(resident.revealFlagId) &&
+                             ServiceHub.State.GetFlag(resident.revealFlagId));
+
+            return revealed || string.IsNullOrEmpty(resident.glimpseNameKey)
+                ? resident.nameKey
+                : resident.glimpseNameKey;
+        }
+
+        /// <summary>What can be done to this row right now.</summary>
+        public List<ResidentRecordAction> AvailableActions(ResidentDefinition resident)
+        {
+            var available = new List<ResidentRecordAction>();
+            if (resident == null || resident.actions == null || !IsVisible(resident)) return available;
+
+            for (int i = 0; i < resident.actions.Length; i++)
+            {
+                var action = resident.actions[i];
+                if (action == null) continue;
+
+                string unmet;
+                if (Cases.ConditionEvaluator.EvaluateAll(action.availability, out unmet)) available.Add(action);
+            }
+
+            return available;
+        }
+
+        /// <summary>
+        /// Does it. Host side: reached through NetShift's action funnel, so the row changes
+        /// once for the whole shift whoever pressed the button.
+        /// </summary>
+        public bool Perform(string residentId, string actionId)
+        {
+            var resident = _content.FindResident(residentId);
+            var action = resident != null ? resident.FindAction(actionId) : null;
+            if (action == null || !IsVisible(resident)) return false;
+
+            string unmet;
+            if (!Cases.ConditionEvaluator.EvaluateAll(action.availability, out unmet))
+            {
+                Log.Info("Residents", actionId + " refused on " + residentId + ": " + unmet);
+                return false;
+            }
+
+            ServiceHub.Cases.ApplyConsequences(action.consequences);
+            Log.Info("Residents", actionId + " on " + residentId);
+            ServiceHub.Save.RequestAutosave(Save.SaveReason.MajorChoice);
+            return true;
         }
 
         public ResidentStatus StatusOf(ResidentDefinition resident)

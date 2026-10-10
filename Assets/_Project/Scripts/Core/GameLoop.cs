@@ -47,6 +47,7 @@ namespace NO404.Core
 
         DialogueView _dialogue;
         IntroSequenceView _intro;
+        StorySequenceView _story;
         AnomalyToolView _toolMenu;
         PauseView _pause;
         MainMenuView _menu;
@@ -99,6 +100,7 @@ namespace NO404.Core
             EventBus.Subscribe<CaseStateChangedEvent>(OnCaseStateChanged);
             EventBus.Subscribe<AnomalyToolSessionEvent>(OnToolSessionChanged);
             EventBus.Subscribe<ObjectiveChangedEvent>(OnObjectiveDone);
+            EventBus.Subscribe<CinematicRequestedEvent>(OnCinematicRequested);
         }
 
         void OnDisable()
@@ -111,6 +113,20 @@ namespace NO404.Core
             EventBus.Unsubscribe<CaseStateChangedEvent>(OnCaseStateChanged);
             EventBus.Unsubscribe<AnomalyToolSessionEvent>(OnToolSessionChanged);
             EventBus.Unsubscribe<ObjectiveChangedEvent>(OnObjectiveDone);
+            EventBus.Unsubscribe<CinematicRequestedEvent>(OnCinematicRequested);
+        }
+
+        /// <summary>
+        /// A story sequence was asked for (v5.1 8.5).
+        ///
+        /// Only on a shift that is actually being played: what the sequence is about has
+        /// already been applied by whoever asked, so declining to show it over a menu or a
+        /// summary costs the picture and nothing else.
+        /// </summary>
+        void OnCinematicRequested(CinematicRequestedEvent evt)
+        {
+            if (_story == null || _mode != GameMode.Playing) return;
+            if (_story.Play(evt.CinematicId)) RefreshPlayerControl();
         }
 
         /// <summary>
@@ -250,6 +266,8 @@ namespace NO404.Core
             _credits = CreditsView.Create(persistentRoot);
             _devStart = DevStartView.Create(persistentRoot);
             _intro = IntroSequenceView.Create(persistentRoot);
+            _story = StorySequenceView.Create(persistentRoot);
+            _story.OnFinished = RefreshPlayerControl;
 
             _pause.OnResume = () => SetMode(GameMode.Playing);
             _pause.OnQuitToMenu = ReturnToMenu;
@@ -542,6 +560,7 @@ namespace NO404.Core
             // out of one night into the next. A conversation that outlived its night would
             // hold player control off for the whole of the next one.
             ServiceHub.Dialogue.End();
+            if (_story != null) _story.Stop();
 
             ServiceHub.Clock.SetGameSecond(GameClock.ShiftStartSecond);
             ServiceHub.State.BeginNight(nightIndex);
@@ -874,8 +893,11 @@ namespace NO404.Core
                 ServiceHub.Dialogue.Start("D_PROLOGUE_RADIO");
             }
 
-            // Night 4, 22:00: the database sync makes unit 404 searchable (GDD 9.5).
-            if (nightIndex >= 4) state.SetFlag(FlagIds.Knows404, true);
+            // Unit 404 becomes searchable when night 4's main is handed out (v5.1 13: the row
+            // appears after the sync, mid-shift), so night 4 itself does not open with it.
+            // From night 5 on it is simply known - including for a shift opened directly on a
+            // later night, where night 4 was never played.
+            if (nightIndex >= 5) state.SetFlag(FlagIds.Knows404, true);
 
             // Night 5: the overload puts every major system on one budget (GDD 9.6).
             if (nightIndex == 5)
@@ -1341,6 +1363,10 @@ namespace NO404.Core
             if (!playing && previous == GameMode.Playing && Net.NetSession.Authoritative)
                 Net.NetShift.ClearNight();
 
+            // A sequence belongs to the shift it interrupted. Leaving the shift ends it; the
+            // pause menu does not, so it is still there to come back to.
+            if (_story != null && !playing && mode != GameMode.Paused) _story.Stop();
+
             _menu.SetOpen(mode == GameMode.Menu);
             _pause.SetOpen(mode == GameMode.Paused);
             _summary.SetOpen(mode == GameMode.NightSummary);
@@ -1380,7 +1406,8 @@ namespace NO404.Core
 
             if (_player != null)
                 _player.SetControlEnabled(playing && !_pc.IsOpen && !_tablet.IsOpen &&
-                                          !dialogueBlocking && !_toolMenu.IsOpen);
+                                          !dialogueBlocking && !_toolMenu.IsOpen &&
+                                          (_story == null || !_story.IsRunning));
 
             ApplyCursor();
         }

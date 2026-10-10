@@ -147,6 +147,27 @@ namespace NO404.Cases
                     return false;
                 }
 
+                case ConditionType.ChoiceEquals:
+                {
+                    string actual = state.GetChoice(condition.keyA);
+                    bool matches = string.IsNullOrEmpty(condition.keyB)
+                        ? !string.IsNullOrEmpty(actual)
+                        : string.Equals(actual, condition.keyB, System.StringComparison.Ordinal);
+
+                    if (matches == condition.boolValue) return true;
+                    reason = "choice " + condition.keyA + " is " + (actual ?? "(unset)");
+                    return false;
+                }
+
+                case ConditionType.CaseActive:
+                {
+                    var runtime = ServiceHub.Cases.Find(condition.keyA);
+                    bool active = runtime != null && runtime.State.IsActive();
+                    if (active == condition.boolValue) return true;
+                    reason = "case " + condition.keyA + " active=" + active;
+                    return false;
+                }
+
                 case ConditionType.EvidenceTagCount:
                 {
                     int count = 0;

@@ -1171,6 +1171,9 @@ namespace NO404.UI
         RectTransform _results;
         Text _detail;
         ResidentPortrait _portrait;
+        RectTransform _actions;
+        ResidentDefinition _shown;
+        string _actionSignature;
         string _lastQuery;   // null forces the first rebuild
         int _lastResultCount = -1;
 
@@ -1200,6 +1203,13 @@ namespace NO404.UI
             _detail = UiFactory.CreateText("DetailText", detailPanel.transform, string.Empty, 16, TextAnchor.UpperLeft);
             UiFactory.SetAnchoredRect(_detail.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f),
                                       new Vector2(146f, 12f), new Vector2(-14f, -12f));
+
+            // What can be done to the open record (v5.1 13). Almost every row has nothing
+            // here; the bar only exists for the one that can be printed, sent out or removed.
+            _actions = UiFactory.CreateRect("RecordActions", detailPanel.transform);
+            UiFactory.SetAnchoredRect(_actions, new Vector2(0f, 0f), new Vector2(1f, 0f),
+                                      new Vector2(14f, 12f), new Vector2(-14f, 54f));
+            UiFactory.AddHorizontalLayout(_actions, 6f);
         }
 
         public override void OnOpen()
@@ -1222,6 +1232,8 @@ namespace NO404.UI
             // then disappear, so the cache below is exactly the right trigger - except on the
             // frame the row expires with the same result count it arrived with, which cannot
             // happen: it is the only thing changing.
+            RefreshRecordActions();
+
             if (query == _lastQuery && results.Count == _lastResultCount) return;
             _lastQuery = query;
             _lastResultCount = results.Count;
@@ -1231,7 +1243,8 @@ namespace NO404.UI
             for (int i = 0; i < results.Count; i++)
             {
                 var resident = results[i];
-                var label = resident.unitNumber + "   " + Loc.T(resident.nameKey) + "   " +
+                var label = resident.unitNumber + "   " +
+                            Loc.T(ServiceHub.Residents.DisplayNameKey(resident)) + "   " +
                             Loc.T("ui.residents.status." + ServiceHub.Residents.StatusOf(resident));
 
                 // A framed panel with the button inset inside it: the list is layout-driven,
@@ -1247,8 +1260,44 @@ namespace NO404.UI
             }
         }
 
+        /// <summary>
+        /// Keeps the action bar, and the detail pane itself, true to the row.
+        ///
+        /// Rebuilt off a signature rather than every frame, and checked every frame because
+        /// what is on offer changes under the screen: a row that has been printed cannot be
+        /// printed again, and a row that has been deleted is not there to be looked at.
+        /// </summary>
+        void RefreshRecordActions()
+        {
+            if (_shown != null && !ServiceHub.Residents.IsVisible(_shown))
+            {
+                _shown = null;
+                _detail.text = string.Empty;
+                if (_portrait != null) _portrait.ResetToProfile();
+            }
+
+            var available = ServiceHub.Residents.AvailableActions(_shown);
+
+            string signature = _shown == null ? string.Empty : _shown.residentId;
+            for (int i = 0; i < available.Count; i++) signature += "|" + available[i].actionId;
+            if (signature == _actionSignature) return;
+            _actionSignature = signature;
+
+            UiFactory.ClearChildren(_actions);
+            if (_shown == null) return;
+
+            for (int i = 0; i < available.Count; i++)
+            {
+                var action = available[i];
+                var residentId = _shown.residentId;
+                UiFactory.CreateButton("Action_" + action.actionId, _actions, Loc.T(action.labelKey), 14,
+                    () => Net.NetShift.Request(Net.NetShift.ShiftAct.RecordAction, residentId, action.actionId));
+            }
+        }
+
         void ShowDetail(ResidentDefinition resident)
         {
+            _shown = resident;
             ServiceHub.Player.ViewRecord(resident.residentId);
             Net.NetShift.Request(Net.NetShift.ShiftAct.ViewRecord, resident.residentId);
             Net.NetShift.RequestMarkChecked("residents." + resident.residentId);
