@@ -181,7 +181,18 @@ namespace NO404.UI
             if (open)
             {
                 if (_active == null) Open(AppIds.Home);
-                else { _active.OnOpen(); ServiceHub.Player.OpenApp(_active.AppId); }
+                else
+                {
+                    _active.OnOpen();
+                    ServiceHub.Player.OpenApp(_active.AppId);
+
+                    // Sitting back down at an app that was left open is opening it, as far
+                    // as the shift is concerned. Open() says so; this path did not, so a case
+                    // whose first step is "open the resident database" never saw it done by
+                    // a caretaker who already had that screen up when they last stood - and
+                    // the only way to move the case was to click away and back.
+                    Net.NetShift.Request(Net.NetShift.ShiftAct.OpenApp, _active.AppId);
+                }
             }
             else if (_active != null)
             {

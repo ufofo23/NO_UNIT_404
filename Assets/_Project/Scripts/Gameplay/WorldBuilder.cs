@@ -1066,6 +1066,14 @@ namespace NO404.Gameplay
                    new Vector3(0.3f, 0.02f, 0.4f), new Color(0.76f, 0.74f, 0.66f),
                    "E20_2009_MAINTENANCE_BILL", "ui.prompt.read_bill", null, 4);
 
+            // Night 4, N4-M01 (v5.1 13): what is left of the paper resident ledger. It is
+            // read, not taken - it is the building's copy, and it has to still be here for a
+            // caretaker who deleted the row upstairs and comes down afterwards.
+            Observation(root, "PaperResidentLedger", new Vector3(-1.3f, 1.16f, half.y - 0.7f),
+                        new Vector3(0.34f, 0.05f, 0.46f), new Color(0.62f, 0.56f, 0.44f),
+                        "EV_PAPER_LEDGER", "ui.prompt.read_ledger", 4)
+                .GetComponent<EvidencePickup>().SetAvailability(null, 4);
+
             Pickup(root, "ChairmanLog", new Vector3(half.x - 0.8f, 1.15f, -1f),
                    new Vector3(0.3f, 0.02f, 0.4f), new Color(0.74f, 0.72f, 0.64f),
                    "E16_CHAIRMAN_ACCESS_LOG", "ui.prompt.read_access_log", null, 5);

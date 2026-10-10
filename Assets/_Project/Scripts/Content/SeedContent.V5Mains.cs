@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NO404.Cases;
 using NO404.Core;
 using NO404.Evidence;
@@ -57,6 +58,7 @@ namespace NO404.ContentData
                 // N4: the row that should not exist, and the paper that says it should.
                 Evidence_("EV_DB404_ROW", EvidenceType.Document, "N4-M01", true),
                 Evidence_("EV_PAPER_LEDGER", EvidenceType.Document, "N4-M01", true),
+                Evidence_("EV_DB404_PRINT", EvidenceType.Document, "N4-M01", true),
 
                 // N5: the night of the fire, and the man still behind the wall.
                 Evidence_("EV_FIRE_TAPE_2009", EvidenceType.AudioRecording, "N5-M01", true),
@@ -320,6 +322,45 @@ namespace NO404.ContentData
             return c;
         }
 
+        /// <summary>Set by N3-M01 when the caretaker held her own height against the wall's.</summary>
+        const string HeightMatchNotedFlag = "N3_HEIGHT_MATCH_NOTED";
+
+        /// <summary>The id v5.1 8.5 gives the night-4 sequence.</summary>
+        public const string CinematicN4 = "CIN-N4";
+
+        /// <summary>
+        /// CIN-N4: the name on the row and the name on her staff card are the same name, and
+        /// part of the night of the fire comes back (v5.1 8.5, 13: SAN -4).
+        ///
+        /// Once, whenever it is reached. Normally that is after the report; for a caretaker
+        /// who made the connection on night 3 it is the moment the row is read, and the
+        /// report then finds it already spent. The flag goes last so the two before it are
+        /// still looking at "not yet".
+        /// </summary>
+        static ConsequenceDefinition[] MemoryFlash(params ConditionDefinition[] alsoNeeds)
+        {
+            var notYet = new List<ConditionDefinition>
+            {
+                ConditionDefinition.Flag(FlagIds.MemoryOfTheFireRestored, false)
+            };
+            if (alsoNeeds != null) notYet.AddRange(alsoNeeds);
+            var when = notYet.ToArray();
+
+            return new[]
+            {
+                ConsequenceDefinition.Sanity(-4, "reason.memory_of_the_fire").When(when),
+                ConsequenceDefinition.Cinematic(CinematicN4).When(when),
+                ConsequenceDefinition.Flag(FlagIds.MemoryOfTheFireRestored, true).When(alsoNeeds)
+            };
+        }
+
+        static ConsequenceDefinition[] Join(ConsequenceDefinition[] first, ConsequenceDefinition[] second)
+        {
+            var all = new List<ConsequenceDefinition>(first);
+            all.AddRange(second);
+            return all.ToArray();
+        }
+
         static ConsequenceDefinition VerifiedEchoRule(ConditionDefinition twoInvariants)
         {
             return ConsequenceDefinition.Flag(FlagIds.EchoRuleConfirmed, true).When(twoInvariants);
@@ -418,63 +459,118 @@ namespace NO404.ContentData
         static CaseDefinition BuildN4Main()
         {
             var c = Main("N4-M01", 4, AnomalyFamily.Record, 18f);
-            c.evidenceIds = new[] { "EV_DB404_ROW", "EV_PAPER_LEDGER" };
+
+            // v5.1 19.2: three channels that can disagree - the screen, the paper in the
+            // basement, and the man on the phone telling her which of them to believe.
+            c.evidenceIds = new[] { "EV_DB404_ROW", "EV_PAPER_LEDGER", "EV_DB404_PRINT" };
+
+            // The row does not exist until the case does. v5.1 13 has it appear straight
+            // after the sync, mid-shift; this night is paced by the caretaker rather than the
+            // clock, so "after the sync" is "when this case is handed out".
+            c.onStart = new[]
+            {
+                ConsequenceDefinition.Flag(FlagIds.Knows404, true),
+                ConsequenceDefinition.Notify("ui.notify.db_sync_new_record")
+            };
+
+            // Reading the row is where it lands (v5.1 13: SAN -8 on seeing her own name), and
+            // it is also where everything she has kept from earlier nights lines up with it.
+            var readTheRow = Objective("obj_view_404", "case.n4m01.objective.view_404",
+                                       ObjectiveType.ViewRecord, "res_404");
+            readTheRow.onComplete = Join(
+                new[]
+                {
+                    ConsequenceDefinition.Evidence("EV_DB404_ROW"),
+                    ConsequenceDefinition.Sanity(-8, "reason.read_her_own_name"),
+                    // v5.1 13: the night-1 bill, if it was kept - unit, surname, three people.
+                    ConsequenceDefinition.Notify("ui.memo.n4_bill_match")
+                        .When(ConditionDefinition.Flag(FlagIds.BillPreserved404)),
+                    // v5.1 13: the two heights on the night-3 wall, and two sisters on the row.
+                    ConsequenceDefinition.Notify("ui.memo.n4_height_match")
+                        .When(ConditionDefinition.Evidence("EV_HEIGHT_MARKS"))
+                },
+                // v5.1 13: somebody who noticed on night 3 that 123 was her own height gets
+                // there a step sooner - the memory comes back at the screen, not after the
+                // report.
+                MemoryFlash(ConditionDefinition.Flag(HeightMatchNotedFlag)));
+
+            // v5.1 13: SAN +3 for settling it on paper. Only once there is something for the
+            // paper to settle - a ledger read before the row has been seen confirms nothing.
+            var readTheLedger = Objective("obj_paper_ledger", "case.n4m01.objective.paper_ledger",
+                                          ObjectiveType.AcquireEvidence, "EV_PAPER_LEDGER");
+            readTheLedger.onComplete = new[]
+            {
+                ConsequenceDefinition.Sanity(3, "reason.confirmed_on_paper")
+                    .When(ConditionDefinition.Evidence("EV_DB404_ROW"))
+            };
 
             c.objectives = new[]
             {
                 Objective("obj_open_residents", "case.n4m01.objective.open_residents",
                           ObjectiveType.OpenApp, AppIds.Residents),
-                Objective("obj_view_404", "case.n4m01.objective.view_404",
-                          ObjectiveType.ViewRecord, "res_404"),
-                Objective("obj_paper_ledger", "case.n4m01.objective.paper_ledger",
-                          ObjectiveType.AcquireEvidence, "EV_PAPER_LEDGER")
+                readTheRow,
+                readTheLedger
             };
 
+            // The report is the log entry for what was done to the row, not where it is
+            // decided: print, export and delete are buttons on the record itself, and each of
+            // these is only on the form when the database agrees with it. Doing none of the
+            // three is "kept", which is the one answer that is recorded here.
             c.decisions = new[]
             {
-                // v5.0 13: paper plus keeping the row is the strongest archive outcome.
+                // v5.1 13: paper plus keeping the row is the strongest archive outcome.
                 Decision("dec_print_and_keep", "case.n4m01.decision.print",
                     "case.n4m01.result.print", DecisionQuality.Correct,
-                    null, null,
-                    ConsequenceDefinition.Choice(ChoiceIds.Db404Action, "PRINT"),
-                    ConsequenceDefinition.Flag(FlagIds.HarinRecordPreserved, true),
-                    ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, 15, "reason.correct_report"),
-                    ConsequenceDefinition.Stat(StatIds.ChairmanAlert, 15, "reason.defied_the_chairman"),
-                    ConsequenceDefinition.Stat(StatIds.HarinResonance, 10, "reason.noticed_contradiction"),
-                    ConsequenceDefinition.Sanity(-8, "reason.read_her_brothers_name")),
+                    null, new[] { ConditionDefinition.Choice(ChoiceIds.Db404Action, "PRINT") },
+                    Join(new[]
+                    {
+                        ConsequenceDefinition.Flag(FlagIds.HarinRecordPreserved, true),
+                        ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, 15, "reason.correct_report"),
+                        ConsequenceDefinition.Stat(StatIds.ChairmanAlert, 15, "reason.defied_the_chairman"),
+                        ConsequenceDefinition.Stat(StatIds.HarinResonance, 10, "reason.noticed_contradiction")
+                    }, MemoryFlash())),
 
+                // v5.1 13: the strongest backup, and the one the chairman cannot fail to see.
                 Decision("dec_export", "case.n4m01.decision.export",
                     "case.n4m01.result.export", DecisionQuality.Correct,
-                    null, null,
-                    ConsequenceDefinition.Choice(ChoiceIds.Db404Action, "EXPORT"),
-                    ConsequenceDefinition.Flag(FlagIds.HarinRecordPreserved, true),
-                    ConsequenceDefinition.Flag(FlagIds.Db404Exported, true),
-                    ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, 12, "reason.correct_report"),
-                    ConsequenceDefinition.Stat(StatIds.ChairmanAlert, 25, "reason.defied_the_chairman"),
-                    ConsequenceDefinition.Sanity(-8, "reason.read_her_brothers_name")),
+                    null, new[] { ConditionDefinition.Choice(ChoiceIds.Db404Action, "EXPORT") },
+                    Join(new[]
+                    {
+                        ConsequenceDefinition.Flag(FlagIds.HarinRecordPreserved, true),
+                        ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, 12, "reason.correct_report"),
+                        ConsequenceDefinition.Stat(StatIds.ChairmanAlert, 25, "reason.defied_the_chairman"),
+                        ConsequenceDefinition.Stat(StatIds.HarinResonance, 10, "reason.noticed_contradiction")
+                    }, MemoryFlash())),
 
+                // v5.1 13: neutral. Nothing was done to the row, and that is now on record.
                 Decision("dec_keep_quiet", "case.n4m01.decision.keep",
                     "case.n4m01.result.keep", DecisionQuality.Partial,
-                    null, null,
-                    ConsequenceDefinition.Choice(ChoiceIds.Db404Action, "KEEP"),
-                    ConsequenceDefinition.Flag(FlagIds.HarinRecordPreserved, true),
-                    ConsequenceDefinition.Stat(StatIds.HarinResonance, 10, "reason.noticed_contradiction"),
-                    ConsequenceDefinition.Sanity(-4, "reason.read_her_brothers_name")),
+                    null, new[] { ConditionDefinition.ChoiceUnset(ChoiceIds.Db404Action) },
+                    Join(new[]
+                    {
+                        ConsequenceDefinition.Choice(ChoiceIds.Db404Action, "KEEP"),
+                        ConsequenceDefinition.Flag(FlagIds.HarinRecordPreserved, true),
+                        ConsequenceDefinition.Stat(StatIds.ChairmanAlert, 5, "reason.chairman_checked_the_list"),
+                        ConsequenceDefinition.Stat(StatIds.HarinResonance, 10, "reason.noticed_contradiction")
+                    }, MemoryFlash())),
 
-                // v5.0 13: deleting costs two record debts and the name itself.
+                // v5.1 13: deleting costs two record debts and the name itself. The row went
+                // when the button was pressed; this is what that is worth.
                 Decision("dec_delete", "case.n4m01.decision.delete",
                     "case.n4m01.result.delete", DecisionQuality.Wrong,
-                    null, null,
-                    ConsequenceDefinition.Choice(ChoiceIds.Db404Action, "DELETE"),
-                    ConsequenceDefinition.Flag(FlagIds.HarinRecordPreserved, false),
-                    ConsequenceDefinition.Flag(FlagIds.Db404Deleted, true),
-                    ConsequenceDefinition.Debt(DebtIds.Record, 2, "reason.deleted_the_record"),
-                    ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, -15, "reason.wrong_report"),
-                    // v5.0 13 fail-safe: the truth route survives on paper.
-                    new ConsequenceDefinition
+                    null, new[] { ConditionDefinition.Choice(ChoiceIds.Db404Action, "DELETE") },
+                    Join(new[]
                     {
-                        type = ConsequenceType.GrantEvidence, targetId = "EV_PAPER_LEDGER", nextNight = true
-                    })
+                        ConsequenceDefinition.Debt(DebtIds.Record, 2, "reason.deleted_the_record"),
+                        ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, -15, "reason.wrong_report"),
+                        ConsequenceDefinition.Stat(StatIds.ChairmanAlert, 5, "reason.chairman_checked_the_list"),
+                        ConsequenceDefinition.Stat(StatIds.HarinResonance, 10, "reason.noticed_contradiction"),
+                        // v5.1 13 fail-safe: the truth route survives on paper.
+                        new ConsequenceDefinition
+                        {
+                            type = ConsequenceType.GrantEvidence, targetId = "EV_PAPER_LEDGER", nextNight = true
+                        }
+                    }, MemoryFlash()))
             };
 
             c.failSafe = FailSafe(T0300, "EV_DB404_ROW", "case.n4m01.failsafe.notify");

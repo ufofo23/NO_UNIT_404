@@ -275,7 +275,7 @@ resident.202.name,김민서,Kim Min-seo
 resident.602.name,최지우,Choi Ji-woo
 resident.1501.name,최경태,Choi Gyeong-tae
 resident.dongsik.name,박동식,Park Dong-sik
-resident.404.name,윤하린,Yun Ha-rin
+resident.404.name,윤미정,Yun Mi-jeong
 resident.101.household,1인,1 person
 resident.403.household,-,-
 resident.405.household,2인,2 people
@@ -285,7 +285,7 @@ resident.202.household,1인,1 person
 resident.602.household,3인,3 people
 resident.1501.household,2인,2 people
 resident.B01.household,직원,Staff
-resident.404.household,2인,2 people
+resident.404.household,3인,3 people
 resident.101.note.night_shift,야간 근무자. 새벽 귀가가 잦음,Night-shift worker; returns before dawn
 resident.403.note.vacant_since_2009,2009년 화재 이후 공실,Vacant since the 2009 fire
 resident.303.note.heart_condition,심장 질환. 응급 시 즉시 119,Heart condition; call emergency services immediately
@@ -3276,14 +3276,14 @@ case.n4-m01.title,404 주민 DB 침투,404 in the resident database
 case.n4-m01.summary,"존재하지 않는 세대가 주민 DB에 나타났다. 입주일 2008-12-19, 세대원 3명. 최경태는 동기화 오류라며 지우라고 한다.","A household that does not exist has appeared in the resident database: moved in 2008-12-19, three members. Choi calls it a sync error and says delete it."
 case.n4m01.objective.open_residents,주민 DB 열기,Open the resident database
 case.n4m01.objective.view_404,404호 기록 확인,Look at the 404 record
-case.n4m01.objective.paper_ledger,종이 장부와 대조,Check it against the paper ledger
-case.n4m01.decision.print,출력하고 기록 유지,Print it and keep the record
+case.n4m01.objective.paper_ledger,B1 기록실의 종이 주민대장과 대조,Check it against the paper ledger in the B1 records room
+case.n4m01.decision.print,종이로 출력하고 레코드를 유지했다고 보고,Report: printed it and kept the record
 case.n4m01.result.print,종이로 남겼다. 지워져도 이제 사라지지 않는다.,It is on paper now. Deleting it will not make it go away.
-case.n4m01.decision.export,외부로 내보내기,Export it
+case.n4m01.decision.export,레코드를 외부로 내보냈다고 보고,Report: exported the record off-site
 case.n4m01.result.export,기록을 건물 밖으로 내보냈다. 최경태가 알게 될 것이다.,Sent the record out of the building. Choi will find out.
-case.n4m01.decision.keep,조용히 유지,"Keep it, quietly"
+case.n4m01.decision.keep,아무 조치 없이 레코드를 유지했다고 보고,Report: left the record as it is
 case.n4m01.result.keep,아무에게도 말하지 않고 남겨 두었다.,Left it there and told no one.
-case.n4m01.decision.delete,삭제,Delete it
+case.n4m01.decision.delete,지시대로 레코드를 삭제했다고 보고,Report: deleted the record as instructed
 case.n4m01.result.delete,행을 지웠다. 종이 장부에는 아직 남아 있다.,Deleted the row. The paper ledger still has it.
 case.n6-m01.title,404호는 있었습니다,There was a unit 404
 case.n6-m01.summary,건물이 봉인되기 전 마지막 근무. 404에 들어가 무엇을 가지고 나올지 정한다.,The last shift before the building is sealed. Go into 404 and decide what to bring out.
@@ -3302,9 +3302,9 @@ evidence.ev_cam02_double.desc,들여보낸 서준호가 로비에서 상자를 �
 evidence.ev_waybill_order.name,송장 번호 순서,Waybill number order
 evidence.ev_waybill_order.desc,처음 호출한 서준호가 보여 준 송장. 지금은 쓰지 않는 양식이고 발행 연도가 2009년이다.,"The waybills the first Seo Jun-ho held up. A form no longer in use, issued in 2009."
 evidence.ev_db404_row.name,404호 주민 DB 행,The 404 database row
-evidence.ev_db404_row.desc,4동 404호. 입주일 2008-12-19. 세대원 3명.,"Building 4, unit 404. Moved in 2008-12-19. Three household members."
+evidence.ev_db404_row.desc,4동 404호. 입주 2008-12-19. 세대원 3명. 레코드는 오늘 만들어졌고 일부 항목은 2009년에 마지막으로 수정됐다.,"Building 4, unit 404. Moved in 2008-12-19. Three household members. The record was created today; some fields were last modified in 2009."
 evidence.ev_paper_ledger.name,종이 주민 장부,Paper resident ledger
-evidence.ev_paper_ledger.desc,전산 이전의 장부에도 404호 줄이 있다.,The ledger from before the computers has a line for 404 as well.
+evidence.ev_paper_ledger.desc,전산 이전의 종이 주민대장 잔존분. 404호 줄이 남아 있고 세대원은 셋이다.,"What is left of the paper resident ledger from before the computers. The line for 404 is there, with three in the household."
 evidence.ev_original_ledger.name,원본 장부,The original ledger
 evidence.ev_original_ledger.desc,404호에 남아 있던 원본. 지워진 이름들이 그대로 적혀 있다.,"The original, left in 404. The deleted names are all still written in it."
 ui.menu.dev_start,개발자 모드,Developer mode
@@ -3345,3 +3345,29 @@ visitor.check.value.no_van_logged,오늘 차량 진입 기록 없음,No van entr
 ui.memo.n2_nobody_upstairs,4층에는 아무도 없다. 화면에서도 그가 사라졌다.,There is nobody on the fourth floor. He is gone from the screen as well.
 reason.followed_the_screen_upstairs,화면 속 그를 따라 4층까지 올라갔다,Followed the one on the screen up to 4F
 dlg.n2.junho2.choice.just_left,방금 돌아가시지 않았습니까,Didn't you just leave?
+# ================================================================ case N4-M01 (record, actions, CIN-N4)
+resident.404.name_masked,윤***,Yun ***
+resident.404.note.members,세대원 3: 윤미정 · 윤서우 · 윤하린,Household of 3: Yun Mi-jeong / Yun Seo-woo / Yun Ha-rin
+resident.404.note.move_in,입주 2008-12-19,Moved in 2008-12-19
+resident.404.note.modified,레코드 생성: 오늘 · 일부 항목 수정일 2009-11-07,Record created: today / some fields last modified 2009-11-07
+ui.residents.action.print,종이로 출력,Print to paper
+ui.residents.action.export,외부로 내보내기,Export off-site
+ui.residents.action.delete,레코드 삭제 (되돌릴 수 없음),Delete the record (cannot be undone)
+ui.prompt.read_ledger,주민대장 확인,Read the resident ledger
+evidence.ev_db404_print.name,404호 레코드 출력본,Printout of the 404 record
+evidence.ev_db404_print.desc,관리실 프린터로 뽑은 404호 주민 레코드. 화면에서 지워져도 이 종이는 남는다.,"The 404 resident record, run off on the office printer. This sheet stays whatever happens to the screen."
+reason.read_her_own_name,화면에서 자기 이름을 봤다,Read her own name on the screen
+reason.confirmed_on_paper,종이 기록으로 사실을 확인했다,Settled it against the paper record
+reason.memory_of_the_fire,그날 밤의 기억이 돌아왔다,A memory of that night came back
+reason.chairman_checked_the_list,최경태가 명단의 이름을 대조했다,Choi checked the name on the list
+ui.memo.n4_bill_match,"메모: 1일차의 고지서와 같다. 404호, 윤씨, 세대원 3.","Note to self: it matches the bill from the first night. Unit 404, Yun, three in the household."
+ui.memo.n4_height_match,메모: 4층 벽의 「언니 123 / 동생 117」. 이 세대에는 자매가 둘이다.,"Note to self: ""elder 123 / younger 117"" on the fourth-floor wall. This household has two sisters."
+cin.n4.staff_card,임시 직원증 — 야간 관리원  윤서우,Temporary staff card - night caretaker Yun Seo-woo
+cin.n4.db_row,404호 세대원 — 윤서우,"Unit 404, household member - Yun Seo-woo"
+cin.n4.line.01,같은 이름이다.,It is the same name.
+cin.n4.line.02,연기. 계단. 누군가 나를 안고 뛰고 있었다.,"Smoke. Stairs. Somebody was carrying me, running."
+cin.n4.line.03,뒤에서 작은 손이 내 옷을 잡고 있었다.,Behind me a small hand had hold of my clothes.
+cin.n4.line.04,지어낸 이야기가 아니었다.,I did not make it up.
+reason.defied_the_chairman,최경태의 지시를 따르지 않았다,Did not do what Choi instructed
+reason.deleted_the_record,기록을 삭제했다,Deleted the record
+case.n4m01.failsafe.notify,주민 DB 동기화 로그에 404호 레코드 생성이 자동 기록되었습니다.,The resident database sync log has automatically recorded a new record for unit 404.

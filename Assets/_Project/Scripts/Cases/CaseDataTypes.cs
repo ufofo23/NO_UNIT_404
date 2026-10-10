@@ -139,7 +139,15 @@ namespace NO404.Cases
         /// How much evidence of a kind is in the tray. keyA = tag, keyB = owner case id
         /// (empty = any case), valueA = how many. boolValue = false inverts it to "fewer than".
         /// </summary>
-        EvidenceTagCount = 14
+        EvidenceTagCount = 14,
+        /// <summary>
+        /// A recorded choice (v5.1 5.4). keyA = choice id, keyB = the value it must have.
+        /// An empty keyB asks whether the choice has been made at all, so boolValue = false
+        /// with no keyB reads "not decided yet".
+        /// </summary>
+        ChoiceEquals = 15,
+        /// <summary>keyA = case id. True while that case is running (boolValue = false: it is not).</summary>
+        CaseActive = 16
     }
 
     /// <summary>
@@ -229,6 +237,22 @@ namespace NO404.Cases
             {
                 type = ConditionType.EvidenceTagCount, keyA = tag, keyB = ownerCaseId, valueA = count
             };
+        }
+
+        public static ConditionDefinition Choice(string choiceId, string value)
+        {
+            return new ConditionDefinition { type = ConditionType.ChoiceEquals, keyA = choiceId, keyB = value };
+        }
+
+        /// <summary>Nothing has been recorded for this choice yet.</summary>
+        public static ConditionDefinition ChoiceUnset(string choiceId)
+        {
+            return new ConditionDefinition { type = ConditionType.ChoiceEquals, keyA = choiceId, boolValue = false };
+        }
+
+        public static ConditionDefinition CaseActive(string caseId, bool active = true)
+        {
+            return new ConditionDefinition { type = ConditionType.CaseActive, keyA = caseId, boolValue = active };
         }
 
         public static ConditionDefinition Night(int atLeast)
@@ -345,7 +369,13 @@ namespace NO404.Cases
         Hp = 15,
 
         /// <summary>amount = SAN delta, reasonKey = why (v5.0 7).</summary>
-        San = 16
+        San = 16,
+
+        /// <summary>
+        /// targetId = cinematic id (v5.1 8.5, e.g. "CIN-N4"). Asks for a story sequence to be
+        /// played; whatever is listening decides how, and nothing here waits for it.
+        /// </summary>
+        PlayCinematic = 17
     }
 
     [Serializable]
@@ -439,6 +469,11 @@ namespace NO404.Cases
             {
                 type = ConsequenceType.Hp, amount = delta, reasonKey = reasonKey
             };
+        }
+
+        public static ConsequenceDefinition Cinematic(string cinematicId)
+        {
+            return new ConsequenceDefinition { type = ConsequenceType.PlayCinematic, targetId = cinematicId };
         }
 
         /// <summary>What this cost their nerve (v5.0 7). Negative strains.</summary>

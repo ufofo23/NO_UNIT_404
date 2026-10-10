@@ -26,6 +26,17 @@ namespace NO404.Core
         public NightEndedEvent(int nightIndex) { NightIndex = nightIndex; }
     }
 
+    /// <summary>
+    /// A story sequence has been asked for (v5.1 8.5). Carries the id and nothing else: the
+    /// game state it follows from has already been applied, so a listener that is not there
+    /// - a test, a client - loses the picture and none of the consequences.
+    /// </summary>
+    public readonly struct CinematicRequestedEvent
+    {
+        public readonly string CinematicId;
+        public CinematicRequestedEvent(string cinematicId) { CinematicId = cinematicId; }
+    }
+
     public readonly struct CaseStartedEvent
     {
         public readonly string CaseId;

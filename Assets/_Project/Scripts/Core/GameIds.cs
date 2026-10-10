@@ -181,6 +181,14 @@ namespace NO404.Core
         /// quest that would read it does not exist yet - this is the hook for that quest.
         /// </summary>
         public const string JunhoPackageLost = "N2_PACKAGE_LOST";
+        /// <summary>
+        /// N4-M01: CIN-N4 has played - the name on the 404 row and the name on her staff card
+        /// are the same name, and part of the night of the fire has come back.
+        ///
+        /// ASSUMPTION: not in v5.1 5.4's flag list. It exists so the sequence and its SAN
+        /// cost happen once, whichever of the two moments reaches it first.
+        /// </summary>
+        public const string MemoryOfTheFireRestored = "N4_MEMORY_OF_THE_FIRE_RESTORED";
         /// <summary>N3-M01: the seal, the stairs and the analogue gauge were checked first.</summary>
         public const string SpaceRuleConfirmed = "SPACE_RULE_CONFIRMED";
         /// <summary>N4-M01: the 404 household record survived the chairman's instruction.</summary>

@@ -553,7 +553,8 @@ namespace NO404.Net
             ElevatorRide = 21,
             Peephole = 22,
             LinkEvidence = 23,     // a = evidenceId, b = evidenceId, n = EvidenceRelation
-            EndShift = 24
+            EndShift = 24,
+            RecordAction = 25      // a = residentId, b = actionId
         }
 
         /// <summary>
@@ -695,6 +696,10 @@ namespace NO404.Net
 
                 case ShiftAct.EndShift:
                     if (GameLoop.Instance != null) GameLoop.Instance.RequestEndShift();
+                    break;
+
+                case ShiftAct.RecordAction:
+                    ServiceHub.Residents.Perform(a, b);
                     break;
             }
         }
