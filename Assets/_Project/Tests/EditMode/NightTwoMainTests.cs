@@ -520,6 +520,48 @@ namespace NO404.Tests
             Assert.IsTrue(ServiceHub.Evidence.Has("EV_WAYBILL_ORDER"), "the waybills are read either way");
         }
 
+        // ---- save and load (GDD v5.1 21) ----------------------------------------
+
+        /// <summary>
+        /// A shift saved in the middle of the quest comes back in the middle of the quest.
+        ///
+        /// Everything the report depends on has to survive: what was seen, what is in the
+        /// tray, what the door gave and that he was kept waiting first. If any one of them is
+        /// lost the form offers a different report after a reload than it did before - which
+        /// is a save that changes the answer.
+        /// </summary>
+        [Test]
+        public void AShiftSavedHalfwayComesBackOfferingTheSameReport()
+        {
+            OpenTheQuest();
+            Assert.IsTrue(ServiceHub.Cases.TryAdvanceObjective(CaseId, "obj_watch_cam02"));
+            Find(2);
+            TheDoorGave(VisitorAccessLevel.LobbyOnly, VisitorAccessLevel.LobbyOnly, true);
+
+            int san = ServiceHub.Vitals.San;
+            CollectionAssert.AreEqual(new[] { "dec_wait_outside" }, OnTheReportForm());
+
+            // Through the file format and back, not just through memory.
+            var saved = ServiceHub.Save.Capture(0, SaveReason.Manual);
+            var reloaded = UnityEngine.JsonUtility.FromJson<SaveData>(UnityEngine.JsonUtility.ToJson(saved));
+            ServiceHub.Save.Restore(reloaded);
+
+            var runtime = ServiceHub.Cases.Find(CaseId);
+            Assert.IsTrue(runtime.State.IsActive(), "the quest did not come back running");
+            Assert.IsTrue(runtime.IsObjectiveComplete("obj_watch_cam02"));
+            Assert.AreEqual(san, ServiceHub.Vitals.San);
+            CollectionAssert.AreEqual(new[] { "dec_wait_outside" }, OnTheReportForm(),
+                                      "the form offers a different report after a reload");
+
+            // The sighting is not charged again for having been reloaded.
+            Assert.IsFalse(ServiceHub.Cases.TryAdvanceObjective(CaseId, "obj_watch_cam02"));
+            Assert.AreEqual(san, ServiceHub.Vitals.San);
+
+            Assert.IsTrue(File("dec_wait_outside").Accepted);
+            Assert.IsTrue(ServiceHub.State.GetFlag(FlagIds.EchoRuleConfirmed),
+                          "the two invariants found before the save did not count after it");
+        }
+
         static void AddReasons(ConsequenceDefinition[] consequences, List<string> keys)
         {
             if (consequences == null) return;
