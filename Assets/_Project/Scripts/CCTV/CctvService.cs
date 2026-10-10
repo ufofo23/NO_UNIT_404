@@ -262,6 +262,11 @@ namespace NO404.CCTV
                 // channel the next time the shift runs without the switch on.
                 if (MainOnlyMode.Suppresses(anomaly.caseId)) continue;
 
+                // Some anomalies are the result of something the caretaker did, and have no
+                // business on the wall until they have done it.
+                string unmet;
+                if (!Cases.ConditionEvaluator.EvaluateAll(anomaly.conditions, out unmet)) continue;
+
                 // Time the wall was dark is time the window did not spend.
                 int windowEnd = anomaly.windowEnd > 0 ? anomaly.windowEnd + _blackoutSeconds : 0;
 

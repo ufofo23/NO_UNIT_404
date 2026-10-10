@@ -679,7 +679,15 @@ namespace NO404.UI
         RectTransform _observeRoot;
         RectTransform _tacticRoot;
         Text _observeHeader;
-        string _builtForNode;
+        /// <summary>
+        /// The line the choice buttons on screen were built for.
+        ///
+        /// The line itself, not its node id. Every caller's conversation opens on a node
+        /// called "start", so a panel that remembered only the id kept the last caller's
+        /// questions up for the next one whenever both were sitting on their first line - a
+        /// first visit offering "did you not just go in?".
+        /// </summary>
+        Dialogue.DialogueLine _builtForLine;
         string _observeSignature;
         string _tacticSignature;
         string _ladderSignature;
@@ -809,7 +817,7 @@ namespace NO404.UI
                 ClearTactics();
                 UiFactory.ClearChildren(_visitorActions);
                 _ladderSignature = null;
-                _builtForNode = null;
+                _builtForLine = null;
                 return;
             }
 
@@ -1059,12 +1067,12 @@ namespace NO404.UI
                 ? ServiceHub.Dialogue.CurrentLine
                 : null;
 
-            if (line == null) { _dialogue.text = string.Empty; ClearChoices(); _builtForNode = null; return; }
+            if (line == null) { _dialogue.text = string.Empty; ClearChoices(); _builtForLine = null; return; }
 
             _dialogue.text = Loc.T(line.SpeakerKey) + ": " + Loc.T(line.TextKey);
 
-            if (_builtForNode == line.NodeId) return;
-            _builtForNode = line.NodeId;
+            if (ReferenceEquals(_builtForLine, line)) return;
+            _builtForLine = line;
             ClearChoices();
 
             for (int i = 0; i < line.Choices.Count; i++)
@@ -1113,14 +1121,14 @@ namespace NO404.UI
             {
                 _dialogue.text = string.Empty;
                 ClearChoices();
-                _builtForNode = null;
+                _builtForLine = null;
                 return;
             }
 
             _dialogue.text = Loc.T(line.SpeakerKey) + ": " + Loc.T(line.TextKey);
 
-            if (_builtForNode == line.NodeId) return;
-            _builtForNode = line.NodeId;
+            if (ReferenceEquals(_builtForLine, line)) return;
+            _builtForLine = line;
             ClearChoices();
 
             for (int i = 0; i < line.Choices.Count; i++)
@@ -2069,11 +2077,17 @@ namespace NO404.UI
                 Loc.T("ui.report.submit_for", Loc.T(tracked.Definition.titleKey)), 13, TextAnchor.UpperLeft);
             UiFactory.SetHeight(header.gameObject, 22f);
 
+            // Only what can actually be filed. A decision whose conditions are not met is not
+            // a choice the caretaker has, and listing it only to refuse it when pressed is the
+            // dead button this project keeps removing (v5.1 19.1 Availability).
             var decisions = tracked.Definition.decisions;
             for (int i = 0; i < decisions.Length; i++)
             {
                 var decision = decisions[i];
                 var caseId = tracked.CaseId;
+
+                string unmet;
+                if (!ConditionEvaluator.EvaluateAll(decision.availability, out unmet)) continue;
 
                 var button = UiFactory.CreateButton("Decision_" + decision.decisionId, _reportRoot,
                     Loc.T(decision.labelKey), 13, () => Submit(caseId, decision.decisionId));

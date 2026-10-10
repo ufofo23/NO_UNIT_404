@@ -16,6 +16,8 @@ namespace NO404.Interaction
         [SerializeField] protected string _requiredFlagId;
         [Tooltip("Earliest night this object is usable. -1 = any night.")]
         [SerializeField] protected int _fromNight = -1;
+        [Tooltip("Last night this object is usable. -1 = no end.")]
+        [SerializeField] protected int _untilNight = -1;
 
         protected bool _used;
 
@@ -43,15 +45,17 @@ namespace NO404.Interaction
         /// the world but are inert and show no prompt, so the greybox layout never changes
         /// shape between nights.
         /// </summary>
-        public void SetAvailability(string requiredFlagId, int fromNight)
+        public void SetAvailability(string requiredFlagId, int fromNight, int untilNight = -1)
         {
             _requiredFlagId = requiredFlagId;
             _fromNight = fromNight;
+            _untilNight = untilNight;
         }
 
         protected bool IsAvailable()
         {
             if (_fromNight >= 0 && ServiceHub.State.NightIndex < _fromNight) return false;
+            if (_untilNight >= 0 && ServiceHub.State.NightIndex > _untilNight) return false;
             if (!string.IsNullOrEmpty(_requiredFlagId) && !ServiceHub.State.GetFlag(_requiredFlagId)) return false;
             return true;
         }
@@ -98,6 +102,8 @@ namespace NO404.Interaction
     {
         [SerializeField] string _evidenceId;
         [SerializeField] bool _hideOnPickup = true;
+
+        public string EvidenceId { get { return _evidenceId; } }
         [Tooltip("Hide the object entirely until its gate opens, instead of leaving it inert.")]
         [SerializeField] bool _hiddenUntilAvailable;
 

@@ -514,7 +514,7 @@ namespace NO404.Cases
             if (objectives != null)
                 for (int i = 0; i < objectives.Length; i++)
                     if (objectives[i] != null && !objectives[i].optional)
-                        runtime.CompleteObjective(objectives[i].objectiveId);
+                        Complete(runtime, objectives[i]);
 
             // GDD 15.4: a deadline that came and went is the building doing the caretaker's
             // job for them, and the corridor notices. 11.5 already removed the credit; this
@@ -581,6 +581,9 @@ namespace NO404.Cases
             return true;
         }
 
+        /// <summary>The note a caretaker who confirmed the ECHO rule gets on later ECHO cases.</summary>
+        public const string EchoRuleMemoKey = "ui.memo.echo_rule";
+
         void StartInternal(string caseId)
         {
             var runtime = Find(caseId);
@@ -599,6 +602,14 @@ namespace NO404.Cases
             SubquestRules.Started(caseId);
             EventBus.Publish(new CaseStartedEvent(caseId));
             EventBus.Publish(new NotificationEvent("ui.notify.new_task", NotificationSeverity.Task));
+
+            // v5.1 11: once the ECHO rule has been confirmed, every later ECHO case opens with
+            // one line of the caretaker's own note. It says what they worked out, not what
+            // this case's answer is.
+            if (runtime.Definition.family == AnomalyFamily.Echo &&
+                _state.GetFlag(FlagIds.EchoRuleConfirmed))
+                EventBus.Publish(new NotificationEvent(EchoRuleMemoKey, NotificationSeverity.Info));
+
             ServiceHub.Analytics.Track(AnalyticsService.Events.CaseStarted, caseId);
             Log.Info("Cases", "started " + caseId);
         }
@@ -642,7 +653,7 @@ namespace NO404.Cases
                     if (!string.IsNullOrEmpty(obj.targetId) && obj.targetId != targetId) continue;
                     if (runtime.IsObjectiveComplete(obj.objectiveId)) continue;
 
-                    runtime.CompleteObjective(obj.objectiveId);
+                    Complete(runtime, obj);
                     Log.Info("Cases", runtime.CaseId + " objective done: " + obj.objectiveId);
                 }
             }
@@ -652,7 +663,23 @@ namespace NO404.Cases
         {
             var runtime = Find(caseId);
             if (runtime == null || !runtime.State.IsActive()) return false;
-            return runtime.CompleteObjective(objectiveId);
+            return Complete(runtime, runtime.Definition.FindObjective(objectiveId));
+        }
+
+        /// <summary>
+        /// Completes an objective and applies what completing it costs or gives.
+        ///
+        /// Some things happen to the caretaker when they find something out, not when they
+        /// file the report about it: v5.1 11 charges SAN for first seeing the same man in two
+        /// places, whatever is decided afterwards. That belongs to the step, so it is authored
+        /// on the step and applied exactly once, however the step came to be completed.
+        /// </summary>
+        bool Complete(CaseRuntime runtime, ObjectiveDefinition objective)
+        {
+            if (objective == null || !runtime.CompleteObjective(objective.objectiveId)) return false;
+
+            ApplyConsequences(objective.onComplete);
+            return true;
         }
 
         // ---- decisions ---------------------------------------------------
@@ -795,6 +822,9 @@ namespace NO404.Cases
 
         void ApplyConsequence(ConsequenceDefinition c)
         {
+            string unmet;
+            if (!ConditionEvaluator.EvaluateAll(c.when, out unmet)) return;
+
             switch (c.type)
             {
                 case ConsequenceType.StatDelta:

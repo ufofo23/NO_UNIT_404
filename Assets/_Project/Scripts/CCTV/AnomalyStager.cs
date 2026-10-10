@@ -108,7 +108,7 @@ namespace NO404.CCTV
             if (string.IsNullOrEmpty(anomalyId) || _staged.ContainsKey(anomalyId)) return;
 
             var anomaly = _content != null ? _content.FindAnomaly(anomalyId) : null;
-            if (anomaly == null) return;
+            if (anomaly == null || anomaly.unstaged) return;
 
             // No camera means the floor is streamed out, so nothing is watching this feed
             // anyway. The anomaly still runs in the service; it just has no stage tonight.

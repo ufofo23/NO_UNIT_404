@@ -1,3 +1,4 @@
+using NO404.Visitors;
 using System.Collections.Generic;
 using NO404.CCTV;
 using NO404.Core;
@@ -45,10 +46,29 @@ namespace NO404.ContentData
             list.Add(Anomaly(4, "CAM-08", 1, At(1, 0), At(3, 0), 7f, instanceSuffix: "TEASE"));
 
             // ---- night 2: the couriers ----
-            list.Add(Anomaly(9, "CAM-02", 2, At(22, 18), At(22, 40), 10f,
-                             caseId: "N2-M01"));
-            list.Add(Anomaly(17, "CAM-02", 2, At(22, 45), At(23, 30), 8f,
-                             evidenceId: "E06_CCTV_WEATHER_MISMATCH", caseId: "N2-M01"));
+            //
+            // Both of these are what the lobby feed shows once the first Seo Jun-ho has been
+            // let in, and neither exists before that: while he is still at the door asking,
+            // the lobby is an empty lobby. So they wait on the door rather than on the clock,
+            // and their windows are the whole shift because the night is paced by the
+            // caretaker and there is no knowing when that mistake will be made.
+            //
+            // Type 9 stages nothing of its own. The man on the feed is the admitted replay's
+            // own body, on the camera-only layer; a second pair of figures beside him would
+            // be three couriers.
+            var echoLetIn = Cases.ConditionDefinition.VisitorAccess(
+                "vis_junho_echo", VisitorAccessLevel.Vestibule, VisitorAccessLevel.FullTemporary);
+
+            var manInTheLobby = Anomaly(9, "CAM-02", 2, At(22, 0), At(3, 0), 10f,
+                                        evidenceId: "EV_CAM02_DOUBLE", caseId: "N2-M01");
+            manInTheLobby.conditions = new[] { echoLetIn };
+            manInTheLobby.unstaged = true;
+            list.Add(manInTheLobby);
+
+            var dryNightOnTheFeed = Anomaly(17, "CAM-02", 2, At(22, 0), At(3, 0), 8f,
+                                            evidenceId: "E06_CCTV_WEATHER_MISMATCH", caseId: "N2-M01");
+            dryNightOnTheFeed.conditions = new[] { echoLetIn };
+            list.Add(dryNightOnTheFeed);
             list.Add(Anomaly(2, "CAM-02", 2, At(23, 40), At(0, 40), 6f));
             list.Add(Anomaly(8, "CAM-09", 2, At(0, 20), At(1, 20), 7f));
             list.Add(Anomaly(6, "CAM-03", 2, At(1, 30), At(3, 0), 5f));

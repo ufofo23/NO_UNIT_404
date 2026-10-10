@@ -120,7 +120,26 @@ namespace NO404.Cases
         NightIndexAtLeast = 9,
         StatLessOrEqual = 10,
         /// <summary>Night-5 power budget: is this circuit still switched on (GDD 9.6)?</summary>
-        CircuitOn = 11
+        CircuitOn = 11,
+
+        // ---- v5.1 --------------------------------------------------------------
+
+        /// <summary>
+        /// What the door actually gave somebody. keyA = one visitor id, or several joined
+        /// with '|' when the same person rings more than once; the furthest any of them was
+        /// let in is what counts. valueA..valueB = the inclusive VisitorAccess.RiskRank range.
+        /// </summary>
+        VisitorAccessRank = 12,
+        /// <summary>
+        /// keyA = visitor id(s), as above. True when any of them was left on hold at least
+        /// once (boolValue = false: none of them was).
+        /// </summary>
+        VisitorWasHeld = 13,
+        /// <summary>
+        /// How much evidence of a kind is in the tray. keyA = tag, keyB = owner case id
+        /// (empty = any case), valueA = how many. boolValue = false inverts it to "fewer than".
+        /// </summary>
+        EvidenceTagCount = 14
     }
 
     /// <summary>
@@ -185,6 +204,33 @@ namespace NO404.Cases
             return new ConditionDefinition { type = ConditionType.CircuitOn, keyA = circuitId, boolValue = on };
         }
 
+        /// <summary>The door gave these callers something between the two levels, by risk.</summary>
+        public static ConditionDefinition VisitorAccess(string visitorIds,
+                                                        Visitors.VisitorAccessLevel least,
+                                                        Visitors.VisitorAccessLevel most)
+        {
+            return new ConditionDefinition
+            {
+                type = ConditionType.VisitorAccessRank, keyA = visitorIds,
+                valueA = Visitors.VisitorAccess.RiskRank(least),
+                valueB = Visitors.VisitorAccess.RiskRank(most)
+            };
+        }
+
+        public static ConditionDefinition VisitorHeld(string visitorIds, bool held = true)
+        {
+            return new ConditionDefinition { type = ConditionType.VisitorWasHeld, keyA = visitorIds, boolValue = held };
+        }
+
+        /// <summary>At least <paramref name="count"/> pieces of this case's evidence carry the tag.</summary>
+        public static ConditionDefinition EvidenceTagged(string tag, string ownerCaseId, int count)
+        {
+            return new ConditionDefinition
+            {
+                type = ConditionType.EvidenceTagCount, keyA = tag, keyB = ownerCaseId, valueA = count
+            };
+        }
+
         public static ConditionDefinition Night(int atLeast)
         {
             return new ConditionDefinition { type = ConditionType.NightIndexAtLeast, valueA = atLeast };
@@ -234,6 +280,8 @@ namespace NO404.Cases
         public bool optional;
         [Tooltip("Hidden objectives track progress without appearing in the HUD.")]
         public bool hidden;
+        [Tooltip("Applied once, the moment this objective is completed.")]
+        public ConsequenceDefinition[] onComplete = new ConsequenceDefinition[0];
     }
 
     // ---- decisions and consequences --------------------------------------
@@ -312,6 +360,20 @@ namespace NO404.Cases
         [Tooltip("Deferred to the start of the next night instead of applying immediately.")]
         public bool nextNight;
         public string reasonKey;
+        [Tooltip("All must hold when this is applied, or it is skipped. Empty = always.")]
+        public ConditionDefinition[] when = new ConditionDefinition[0];
+
+        /// <summary>
+        /// Makes this consequence conditional (v5.1 11: "ECHO_RULE_CONFIRMED if two or more
+        /// invariants"). One decision the player sees, with an outcome that depends on what
+        /// they had in hand - rather than two decisions with the same label, one of them
+        /// silently unavailable.
+        /// </summary>
+        public ConsequenceDefinition When(params ConditionDefinition[] conditions)
+        {
+            when = conditions ?? new ConditionDefinition[0];
+            return this;
+        }
 
         public static ConsequenceDefinition Stat(string statId, int delta, string reasonKey = null)
         {

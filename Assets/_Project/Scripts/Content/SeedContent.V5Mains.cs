@@ -1,6 +1,7 @@
 using NO404.Cases;
 using NO404.Core;
 using NO404.Evidence;
+using NO404.Visitors;
 
 namespace NO404.ContentData
 {
@@ -41,9 +42,13 @@ namespace NO404.ContentData
                 Evidence_("EV_404_BILL", EvidenceType.Document, "N1-M01", false),
                 Evidence_("EV_404_BILL_PHOTO", EvidenceType.Photo, "N1-M01", false),
 
-                // N2: two channels that disagree about one man.
+                // N2: the sighting itself, then the invariants it has to be checked against.
+                // The fourth invariant, the weather on the lobby feed, is the older
+                // E06_CCTV_WEATHER_MISMATCH (BuildLateEvidence) rather than a second copy.
                 Evidence_("EV_CAM02_DOUBLE", EvidenceType.CctvSnapshot, "N2-M01", false),
-                Evidence_("EV_WAYBILL_ORDER", EvidenceType.Document, "N2-M01", false),
+                Invariant(Evidence_("EV_WAYBILL_ORDER", EvidenceType.Document, "N2-M01", false)),
+                Invariant(Evidence_("EV_LOBBY_CLOCK", EvidenceType.Photo, "N2-M01", false)),
+                Invariant(Evidence_("EV_LOBBY_FOOTPRINTS", EvidenceType.Photo, "N2-M01", false)),
 
                 // N3: a number stamped on a seal, and two heights scratched on a wall.
                 Evidence_("EV_SEAL_NUMBER", EvidenceType.Photo, "N3-M01", false),
@@ -68,6 +73,13 @@ namespace NO404.ContentData
                 // N6: what 404 was actually for.
                 Evidence_("EV_ORIGINAL_LEDGER", EvidenceType.Document, "N6-M01", true)
             };
+        }
+
+        /// <summary>Marks evidence as an invariant (see <see cref="EvidenceTags.Invariant"/>).</summary>
+        static EvidenceDefinition Invariant(EvidenceDefinition definition)
+        {
+            definition.tags = new[] { EvidenceTags.Invariant };
+            return definition;
         }
 
         public static CaseDefinition[] BuildV5Mains()
@@ -167,12 +179,19 @@ namespace NO404.ContentData
         // =================================================================
 
         /// <summary>
-        /// The courier is at the entrance on the interphone. He is also already in the lobby
-        /// on CAM-02, sorting boxes.
+        /// The courier rings at the entrance twice. The first call is a replay of him at this
+        /// door years ago; the second is the man, who has been standing in the rain the whole
+        /// time. The right answer is nobody in for the first and the lobby for the second.
         ///
-        /// v5.0 11 wants the answer to come from invariants rather than from the face: it is
-        /// raining outside, and the weather, the wall clock and the order of the waybills are
-        /// what disagree. Getting it right off two of those is what sets ECHO_RULE_CONFIRMED.
+        /// v5.1 11 wants the answer to come from invariants rather than from the face: it is
+        /// raining outside and not behind the first caller, his waybills are a 2009 form, and
+        /// nobody is standing at the door. Getting it right off two of those is what sets
+        /// ECHO_RULE_CONFIRMED.
+        ///
+        /// This departs from v5.1 11's own description, which has the present-day courier on
+        /// the interphone and the replay already in the lobby on CAM-02 at the same moment.
+        /// Here the lobby feed is empty until the first call is let in - a replay cannot be
+        /// asking at the door and sorting boxes inside it. Docs/GDD/CHANGE_PROPOSALS.md.
         /// </summary>
         static CaseDefinition BuildN2Main()
         {
@@ -184,55 +203,145 @@ namespace NO404.ContentData
             // pacing it, nothing to hang its callers on, and no last case to close. The
             // courier still arrives with the quest: GameLoop files him against this beat.
             c.startWindowBegin = At(22, 20);
-            c.evidenceIds = new[] { "EV_CAM02_DOUBLE", "EV_WAYBILL_ORDER" };
+
+            // v5.1 19.2: a main needs at least three channels and an answer no one screen
+            // can settle. Two invariants come from asking at the door (weather, waybills) and
+            // two from the lobby itself (clock, floor); the camera wall only has something to
+            // say once the first call has been let in, which is the mistake.
+            c.evidenceIds = new[]
+            {
+                "EV_CAM02_DOUBLE",
+                "E06_CCTV_WEATHER_MISMATCH", "EV_WAYBILL_ORDER", "EV_LOBBY_CLOCK", "EV_LOBBY_FOOTPRINTS"
+            };
+
+            // He rings twice, and it is two decisions: the first call is a replay and the
+            // second is the man. The second objective is hidden until it happens - a task list
+            // that says "the Seo Jun-ho who rang again" before he has is the twist, printed.
+            var judgeAgain = Objective("obj_judge_junho_again", "case.n2m01.objective.judge_again",
+                                       ObjectiveType.JudgeVisitor, "vis_junho_real");
+            judgeAgain.hidden = true;
 
             c.objectives = new[]
             {
-                Objective("obj_watch_cam02", "case.n2m01.objective.watch_cam02",
-                          ObjectiveType.ViewCctvChannel, "CAM-02"),
+                Objective("obj_judge_junho", "case.n2m01.objective.judge",
+                          ObjectiveType.JudgeVisitor, "vis_junho_echo"),
+                judgeAgain,
                 Objective("obj_check_lobby", "case.n2m01.objective.check_lobby",
                           ObjectiveType.EnterZone, ZoneIds.Lobby),
-                Objective("obj_judge_junho", "case.n2m01.objective.judge",
-                          ObjectiveType.JudgeVisitor, "vis_junho_real")
+                // Optional: the lobby feed has nothing on it unless the first call was let in.
+                Objective("obj_watch_cam02", "case.n2m01.objective.watch_cam02",
+                          ObjectiveType.ViewCctvChannel, "CAM-02", true)
             };
+
+            // The report is the log entry for what was done at the door, not a second chance
+            // to decide it. Each option is only on the form when the door log agrees with it,
+            // so exactly one of the five is ever offered.
+            const string Echo = "vis_junho_echo";
+            const string Real = "vis_junho_real";
+            const string Either = Echo + "|" + Real;
+
+            var echoTurnedAway = ConditionDefinition.VisitorAccess(Echo, VisitorAccessLevel.Reject,
+                                                                   VisitorAccessLevel.Reject);
+            var echoInTheLobby = ConditionDefinition.VisitorAccess(Echo, VisitorAccessLevel.Vestibule,
+                                                                   VisitorAccessLevel.Escorted);
+            var echoNoFurther = ConditionDefinition.VisitorAccess(Echo, VisitorAccessLevel.Reject,
+                                                                  VisitorAccessLevel.Escorted);
+            var realInTheLobby = ConditionDefinition.VisitorAccess(Real, VisitorAccessLevel.Vestibule,
+                                                                   VisitorAccessLevel.Escorted);
+            var realTurnedAway = ConditionDefinition.VisitorAccess(Real, VisitorAccessLevel.Reject,
+                                                                   VisitorAccessLevel.Reject);
+            var somebodyPastTheLobby = ConditionDefinition.VisitorAccess(Either, VisitorAccessLevel.FloorPass,
+                                                                         VisitorAccessLevel.FullTemporary);
+
+            // v5.1 11: "ECHO_RULE_CONFIRMED = TRUE if 2 or more invariants", on the right
+            // answer. Applies to either way of reaching it - what confirms the rule is how it
+            // was checked, not how long anybody stood in the rain.
+            var twoInvariants = ConditionDefinition.EvidenceTagged(EvidenceTags.Invariant, c.caseId, 2);
 
             c.decisions = new[]
             {
+                // The whole of the right answer: nobody for the first call, the lobby for him.
                 Decision("dec_verified_lobby_only", "case.n2m01.decision.lobby_only",
                     "case.n2m01.result.lobby_only", DecisionQuality.Correct,
-                    null, null,
-                    ConsequenceDefinition.Flag(FlagIds.EchoRuleConfirmed, true),
+                    null, new[] { echoTurnedAway, realInTheLobby, ConditionDefinition.VisitorHeld(Either, false) },
                     ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "TRUSTED"),
-                    ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, 5, "reason.correct_report"),
-                    ConsequenceDefinition.Sanity(-5, "reason.saw_the_same_man_twice"),
-                    ConsequenceDefinition.Sanity(3, "reason.read_correctly")),
+                    VerifiedEchoRule(twoInvariants),
+                    VerifiedCalm(twoInvariants),
+                    WaybillKept()),
 
+                // v5.1 11 "wait outside + check in person": the same answer, reached by
+                // leaving somebody on the step while it was checked. Safest, and slow.
                 Decision("dec_wait_outside", "case.n2m01.decision.wait_outside",
                     "case.n2m01.result.wait_outside", DecisionQuality.Partial,
-                    null, null,
+                    null, new[] { echoTurnedAway, realInTheLobby, ConditionDefinition.VisitorHeld(Either) },
                     ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "NEUTRAL"),
                     ConsequenceDefinition.Stat(StatIds.CommunityTrust, -3, "reason.delivery_delayed"),
-                    ConsequenceDefinition.Sanity(-5, "reason.saw_the_same_man_twice")),
+                    VerifiedEchoRule(twoInvariants),
+                    VerifiedCalm(twoInvariants),
+                    WaybillKept()),
 
-                // v5.0 11: an unverified full pass is the access debt this campaign bills for.
+                // Both calls as far as the lobby. v5.1 11's LobbyOnly on an ECHO: nothing is
+                // lost - the delivery happens, nobody is loose - and nothing is learned. The
+                // log has him in twice and the rule stays unconfirmed however much was checked,
+                // because the check did not change what was done.
+                Decision("dec_both_in", "case.n2m01.decision.both_in",
+                    "case.n2m01.result.both_in", DecisionQuality.Partial,
+                    null, new[] { echoInTheLobby, realInTheLobby },
+                    ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "TRUSTED")),
+
+                // v5.1 11: a pass past the lobby, to either of them, is the access debt this
+                // campaign bills for. What following it upstairs costs is charged upstairs.
                 Decision("dec_full_pass", "case.n2m01.decision.full_pass",
                     "case.n2m01.result.full_pass", DecisionQuality.Wrong,
-                    null, null,
+                    null, new[] { somebodyPastTheLobby },
                     ConsequenceDefinition.Debt(DebtIds.Access, 1, "reason.unverified_pass"),
-                    ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "NEUTRAL"),
-                    ConsequenceDefinition.Sanity(-8, "reason.followed_the_wrong_one")),
+                    ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "NEUTRAL")),
 
+                // The real courier turned away, whatever was done about the first call.
                 Decision("dec_reject", "case.n2m01.decision.reject",
                     "case.n2m01.result.reject", DecisionQuality.Wrong,
-                    null, null,
+                    null, new[] { realTurnedAway, echoNoFurther },
                     ConsequenceDefinition.Choice(ChoiceIds.JunhoStatus, "REJECTED"),
                     ConsequenceDefinition.Debt(DebtIds.Trust, 1, "reason.turned_away_a_real_caller"),
-                    ConsequenceDefinition.Stat(StatIds.CommunityTrust, -5, "reason.wrong_report"))
+                    ConsequenceDefinition.Stat(StatIds.CommunityTrust, -5, "reason.wrong_report"),
+                    // v5.1 11: refusing the real courier leads to a lost-package follow-up.
+                    // The flag is what that follow-up will read; the line the next evening is
+                    // the least of it the caretaker should see until it exists.
+                    ConsequenceDefinition.Flag(FlagIds.JunhoPackageLost, true),
+                    new ConsequenceDefinition
+                    {
+                        type = ConsequenceType.Notify, targetId = "ui.memo.n2_package_complaint",
+                        nextNight = true
+                    })
             };
 
             c.failSafe = FailSafe(T0300, null, "case.n2m01.failsafe.notify");
             c.analyticsName = "n2_main_two_junho";
             return c;
+        }
+
+        static ConsequenceDefinition VerifiedEchoRule(ConditionDefinition twoInvariants)
+        {
+            return ConsequenceDefinition.Flag(FlagIds.EchoRuleConfirmed, true).When(twoInvariants);
+        }
+
+        /// <summary>v5.1 11: SAN +3 for a physical check that came out right.</summary>
+        static ConsequenceDefinition VerifiedCalm(ConditionDefinition twoInvariants)
+        {
+            return ConsequenceDefinition.Sanity(3, "reason.read_correctly").When(twoInvariants);
+        }
+
+        /// <summary>
+        /// v5.1 11: ArchiveIntegrity +5 "if the 2009 box / waybill is preserved".
+        ///
+        /// ASSUMPTION: read as the waybill numbers having been written down tonight. The 2009
+        /// box itself belongs to N2-R05, which is not built yet, and v5.1 does not say which
+        /// of the two the main is meant to check.
+        /// </summary>
+        static ConsequenceDefinition WaybillKept()
+        {
+            return ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, 5, "reason.correct_report")
+                                        .When(ConditionDefinition.Evidence("EV_WAYBILL_ORDER"));
         }
 
         // =================================================================

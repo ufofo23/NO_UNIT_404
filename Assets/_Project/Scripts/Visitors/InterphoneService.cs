@@ -82,6 +82,7 @@ namespace NO404.Visitors
 
             EventBus.Publish(new NotificationEvent("ui.notify.interphone", NotificationSeverity.Urgent));
             ServiceHub.Cases.NotifyInterphone(Active.visitorId);
+            ServiceHub.Cases.ApplyConsequences(Active.onArrive);
 
             var cb = OnVisitorArrived;
             if (cb != null) cb(Active);
@@ -144,6 +145,15 @@ namespace NO404.Visitors
             get { return _consultedSources.Count + Read.EstablishedFactCount; }
         }
 
+        /// <summary>
+        /// The flag that remembers a caller was left waiting outside.
+        ///
+        /// The final decision overwrites the hold in the decision table, and a report that
+        /// says "kept him outside while I checked" needs to know it happened. A flag, because
+        /// flags are already saved and already readable by a condition.
+        /// </summary>
+        public static string HeldFlag(string visitorId) { return visitorId + ".held"; }
+
         public VisitorAccessLevel DecisionFor(string visitorId)
         {
             VisitorAccessLevel level;
@@ -196,6 +206,7 @@ namespace NO404.Visitors
                 // Holding costs time and keeps them standing there (GDD 13.3). It is not a
                 // resolution: the caller stays at the panel and the queue does not move.
                 ServiceHub.Cases.ApplyConsequences(visitor.onHold);
+                ServiceHub.State.SetFlag(HeldFlag(visitor.visitorId), true);
                 ServiceHub.Clock.AdvanceSeconds(120);
                 Log.Info("Interphone", visitor.visitorId + " held outside");
 
@@ -334,6 +345,12 @@ namespace NO404.Visitors
                     return;
 
                 case GrantJudgement.OverPermissive:
+                    // Nobody came in. A replay that was let through the door walked in on a
+                    // screen and nowhere else, so there is no one inside for the ladder to
+                    // charge for and no intruder for the corridors to carry (v5.1 11: letting
+                    // an ECHO as far as the lobby produces a trail to follow, not a penalty).
+                    if (visitor.isHistoricalReplay) return;
+
                     pressure.NoteWrongAdmit(visitor.visitorId);
 
                     // Somebody who should never have been through the front door at all is not

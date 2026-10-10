@@ -89,6 +89,11 @@ namespace NO404.CCTV
         public int windowEnd;
         [Tooltip("Feed state forced while the anomaly runs.")]
         public FeedState feedState = FeedState.Live;
+        [Tooltip("All must hold before this may fire. Empty = the window alone decides.")]
+        public Cases.ConditionDefinition[] conditions = new Cases.ConditionDefinition[0];
+        [Tooltip("True when what is on the feed is already put there by something else - a " +
+                 "visitor's own body - so the stager adds nothing of its own.")]
+        public bool unstaged;
     }
 
     /// <summary>Result of the player naming what they think they just saw on a channel.</summary>
