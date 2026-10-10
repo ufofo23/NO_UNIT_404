@@ -664,7 +664,7 @@ dlg.n2.junho2.choice.weather,지금 그쪽 비 옵니까,Is it raining where you
 dlg.n2.junho2.denies,아니요. 저 계속 여기 서 있었는데요.,No. I have been standing right here.
 dlg.n2.junho2.number,H2611-0407입니다. 오늘 날짜로 찍힌 송장이에요.,H2611-0407. It's stamped with today's date.
 dlg.n2.junho2.weather,예. 십 분째 쏟아집니다. 우산도 없어요.,Yes. Ten minutes now. I do not even have an umbrella.
-dlg.n2.junho2.await,...안에 누가 들어가 있는 겁니까?,...is there someone in there already?
+dlg.n2.junho2.await,...아까부터 누구랑 얘기하고 계셨던 겁니까?,...who have you been talking to all this time?
 # ================================================================ dialogue night 3
 dlg.n3.chairman.start,나야. 엘리베이터 경보 봤지.,It's me. You have seen the elevator alert.
 dlg.n3.chairman.order,센서 오류다. 재부팅하고 운행 기록은 지워라.,Sensor fault. Reboot it and wipe the service log.
@@ -2308,16 +2308,16 @@ visitor.engineer.reply.show_me,(지시서를 렌즈에 댄다) 여기 접수번�
 visitor.engineer.reply.reassure,괜찮습니다. 확인하는 게 일이시니까.,It's fine. Checking is your job.
 visitor.junho.purpose.afraid,303호 배송 — 로비에서 더 못 들어가겠다고 함,Delivery for 303 - he will not come past the lobby
 visitor.junho.hidden,"...4층에요. 지난번에요. 401호랑 405호 사이에, 벽이 있는데요. 거기 문이 있었습니다. 지금은 없고요. 저 미친 거 아닙니다.",...The fourth floor. Last time. Between 401 and 405 there is a wall. There was a door there. There isn't now. I am not out of my mind.
-visitor.junho.hidden_second,"...저 안 들어갔습니다. 진짜로요. 화면에 뭐가 보이시는지 모르겠는데, 그거 저 아닙니다.","...I did not go in. I swear. I don't know what you are looking at, but that is not me."
+visitor.junho.hidden_second,"...저 방금까지 아무하고도 얘기 안 했습니다. 화면에 뭐가 보이셨는지 모르겠는데, 그거 저 아닙니다.","...I had not spoken to anybody until just now. I don't know what you saw on that screen, but it was not me."
 visitor.junho.reply.ask_again,303호요. 늘 오던 데요. 아시잖아요.,303. Same as always. You know me.
 visitor.junho.reply.confront,"기록에 뭐라고 돼 있든, 저는 로비까지만 갔습니다.","Whatever the record says, I only ever got as far as the lobby."
 visitor.junho.reply.silence,(숨소리) ...저기요. 거기 계시죠?,"(breathing) ...Hello. You're still there, right?"
 visitor.junho.reply.show_me,(송장을 든다) 여기요. 303호 맞죠.,"(he holds up the invoice) Here. 303, right?"
 visitor.junho.reply.reassure,...예. 예. 고맙습니다.,...Yeah. Thanks.
-visitor.junho.reply.ask_again_second,그러니까 저 안 들어갔다니까요. 방금 왔습니다.,I'm telling you I never went in. I just got here.
+visitor.junho.reply.ask_again_second,그러니까 저는 지금 처음 말씀드리는 겁니다. 계속 여기 서 있었어요.,"I'm telling you, this is the first thing I have said to you. I have been standing right here."
 visitor.junho.reply.confront_second,그 기록이 틀린 겁니다. 저는 지금 온 겁니다.,Then the record is wrong. I have just arrived.
 visitor.junho.reply.silence_second,(오래 조용하다) ...화면에 뭐가 보이시는데요.,(a long quiet) ...What are you looking at in there.
-visitor.junho.reply.show_me_second,(같은 송장을 든다) 같은 번호잖아요. 하나뿐입니다.,(he holds up the same invoice) Same number. There is only one of it.
+visitor.junho.reply.show_me_second,(송장을 든다) 오늘 날짜입니다. 보이시죠.,(he holds up the waybill) Today's date. You can see that.
 visitor.junho.reply.reassure_second,"...예. 예, 알겠습니다. 천천히 말씀드릴게요.",...All right. All right. Let me start again.
 visitor.food.name,야간 배달원,Late-night delivery
 visitor.food.purpose,602호 주문 배달,Order for 602
@@ -3362,3 +3362,4 @@ dlg.n2.junho.weather,비요? 안 오는데요. 오늘 밤은 맑습니다.,Rain?
 visitor.check.value.no_van_logged,오늘 차량 진입 기록 없음,No van entry logged tonight
 ui.memo.n2_nobody_upstairs,4층에는 아무도 없다. 화면에서도 그가 사라졌다.,There is nobody on the fourth floor. He is gone from the screen as well.
 reason.followed_the_screen_upstairs,화면 속 그를 따라 4층까지 올라갔다,Followed the one on the screen up to 4F
+dlg.n2.junho2.choice.just_left,방금 돌아가시지 않았습니까,Didn't you just leave?

@@ -511,6 +511,33 @@ namespace NO404.Tests
         }
 
         /// <summary>
+        /// What the caretaker can put to the man depends on what they did about the first
+        /// call. Somebody who turned it away cannot ask "did you not just go in?" - nobody
+        /// went in - and somebody who opened the door did not watch him leave.
+        /// </summary>
+        [TestCase(VisitorAccessLevel.Reject, "just_left", "already_inside")]
+        [TestCase(VisitorAccessLevel.LobbyOnly, "already_inside", "just_left")]
+        [TestCase(VisitorAccessLevel.FloorPass, "already_inside", "just_left")]
+        public void TheManIsAskedAboutWhatActuallyHappenedAtTheDoor(VisitorAccessLevel toTheReplay,
+                                                                   string offered, string notOffered)
+        {
+            OpenTheQuest();
+            ServiceHub.Interphone.LoadFrom(new[]
+            {
+                new VisitorSaveEntry { visitorId = Echo, decision = (int)toTheReplay }
+            });
+
+            Assert.IsTrue(ServiceHub.Dialogue.Start("D_N2_JUNHO_SECOND"));
+
+            var questions = new List<string>();
+            foreach (var choice in ServiceHub.Dialogue.CurrentLine.Choices) questions.Add(choice.choiceId);
+            ServiceHub.Dialogue.End();
+
+            CollectionAssert.Contains(questions, offered);
+            CollectionAssert.DoesNotContain(questions, notOffered);
+        }
+
+        /// <summary>
         /// Letting a replay in must not put anybody loose in the building. The intruder the
         /// door normally injects for a caller who should have been refused is a person in a
         /// corridor, and this caller is not a person in anything.

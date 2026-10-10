@@ -369,13 +369,25 @@ namespace NO404.ContentData
         /// The second call. His answers are the ones tonight would give - it is raining, the
         /// waybill is dated today - and they are not evidence of anything except that he is
         /// here, which is the point.
+        ///
+        /// What the caretaker can put to him depends on what they did a minute ago. "Did you
+        /// not just go in?" is only a question for somebody who opened the door the first
+        /// time; one who turned the first call away saw him leave, and asks about that.
         /// </summary>
         static DialogueDefinition JunhoSecond()
         {
+            var firstCallLetIn = ConditionDefinition.VisitorAccess(
+                "vis_junho_echo", VisitorAccessLevel.Vestibule, VisitorAccessLevel.FullTemporary);
+            var firstCallTurnedAway = ConditionDefinition.VisitorAccess(
+                "vis_junho_echo", VisitorAccessLevel.Reject, VisitorAccessLevel.Reject);
+
             return Conversation("D_N2_JUNHO_SECOND", DialogueChannel.Interphone, 0.25f, 12f,
                 Node("start", "speaker.junho", "dlg.n2.junho2.start", null,
                     Choices(
-                        Choice("already_inside", "dlg.n2.junho2.choice.already_inside", "denies"),
+                        Choice("already_inside", "dlg.n2.junho2.choice.already_inside", "denies")
+                            .Only(firstCallLetIn),
+                        Choice("just_left", "dlg.n2.junho2.choice.just_left", "denies")
+                            .Only(firstCallTurnedAway),
                         Choice("ask_invoice_number", "dlg.n2.junho2.choice.invoice_number", "number"),
                         Choice("ask_weather", "dlg.n2.junho2.choice.weather", "weather"))),
                 Node("denies", "speaker.junho", "dlg.n2.junho2.denies", "await"),

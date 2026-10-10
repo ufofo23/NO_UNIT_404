@@ -215,6 +215,61 @@ namespace NO404.Tests
                             "the main is closed and the shift still cannot be clocked off");
         }
 
+        /// <summary>The questions the door panel is showing right now, by choice id.</summary>
+        static List<string> QuestionsOnThePanel(UI.PcShellView shell)
+        {
+            var questions = new List<string>();
+            foreach (var button in shell.GetComponentsInChildren<UnityEngine.UI.Button>(false))
+                if (button.name.StartsWith("Choice_")) questions.Add(button.name.Substring("Choice_".Length));
+            return questions;
+        }
+
+        /// <summary>
+        /// Each caller gets their own questions on the door panel.
+        ///
+        /// The panel used to remember which buttons it had built by the dialogue node's name,
+        /// and every caller's conversation opens on a node called "start". Judge the first
+        /// caller without asking anything and the second one arrived with the first one's
+        /// questions still up - or, after a restart, the first with the second's.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator TheDoorPanelShowsEachCallersOwnQuestions()
+        {
+            var loop = GameLoop.Instance;
+            Assert.IsNotNull(loop);
+
+            yield return OpenNightTwo(loop);
+            yield return WaitForCaller(Echo);
+
+            loop.OpenPc(true);
+            UI.PcShellView shell = null;
+            foreach (var candidate in Object.FindObjectsByType<UI.PcShellView>(FindObjectsSortMode.None))
+                shell = candidate;
+            Assert.IsNotNull(shell, "the facility PC is open and has no screen");
+
+            shell.Open(AppIds.Phone);
+            for (int i = 0; i < 5; i++) yield return null;
+
+            var first = QuestionsOnThePanel(shell);
+            CollectionAssert.Contains(first, "check_invoice", "the first caller cannot be asked for his waybills");
+            CollectionAssert.DoesNotContain(first, "already_inside");
+            CollectionAssert.DoesNotContain(first, "just_left");
+
+            // Turned away without a single question, so both conversations are on "start".
+            ServiceHub.Interphone.Grant(VisitorAccessLevel.Reject);
+            yield return WaitForCaller(Real);
+            for (int i = 0; i < 5; i++) yield return null;
+
+            var second = QuestionsOnThePanel(shell);
+            CollectionAssert.Contains(second, "just_left", "the second caller has the first one's questions");
+            CollectionAssert.DoesNotContain(second, "check_invoice");
+            CollectionAssert.DoesNotContain(second, "already_inside",
+                "he is asked whether he just went in, by somebody who turned the first call away");
+
+            ServiceHub.Interphone.Grant(VisitorAccessLevel.LobbyOnly);
+            loop.OpenPc(false);
+        }
+
         /// <summary>
         /// The other way through: the first call let in unchecked. The door releases, the log
         /// and the lobby camera have him inside, the lobby has nobody in it - and then he
