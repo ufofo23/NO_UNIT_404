@@ -12,9 +12,6 @@ EditorBuildSettings:
     path: Assets/_Project/Scenes/SCN_Core.unity
     guid: 7788636f14a683841ae720705a74f039
   - enabled: 1
-    path: Assets/_Project/Scenes/SCN_B2.unity
-    guid: a79ee388fda260048bc4cf2ce87833d7
-  - enabled: 1
     path: Assets/_Project/Scenes/SCN_B1.unity
     guid: 90ed8305ba06e6a49b2a134d02134736
   - enabled: 1
@@ -32,12 +29,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Project/Scenes/SCN_Floor06.unity
     guid: 0f8eaa77795bff74f9aef769173807b8
-  - enabled: 1
-    path: Assets/_Project/Scenes/SCN_Rooftop.unity
-    guid: 0124432a617a5d3449811ee11cbcdb2f
-  - enabled: 1
-    path: Assets/_Project/Scenes/SCN_PhantomFloor13.unity
-    guid: 8da66ad6547d262438a94a4a7e52eac6
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

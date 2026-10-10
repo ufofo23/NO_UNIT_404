@@ -76,7 +76,7 @@ namespace NO404.Tests
         [Test]
         public void RiskFollowsTheZoneToItsFloor()
         {
-            _risk.AddFloorRisk(FloorPlan.B2, 3);
+            _risk.AddFloorRisk(FloorPlan.B1, 3);
             Assert.AreEqual(3, _risk.RiskOfZone(ZoneIds.PumpRoom));
             Assert.AreEqual(3, _risk.RiskOfZone(ZoneIds.Archive));
             Assert.AreEqual(0, _risk.RiskOfZone(ZoneIds.Lobby));
@@ -241,13 +241,13 @@ namespace NO404.Tests
         [Test]
         public void TheLoopNeverTrapsThePlayerAgainstAnEndOfTheShaft()
         {
-            // Descending from B2 has nowhere to go anyway; holding them there would be a wall
+            // Descending from B1 has nowhere to go anyway; holding them there would be a wall
             // rather than a loop, and the player would read it as the game being broken.
-            _stairs.EnterFrom(FloorPlan.B2);
+            _stairs.EnterFrom(FloorPlan.B1);
             Publish(ManualEventState.Active);
 
             Assert.IsNull(_stairs.Descend());
-            Assert.AreEqual(FloorPlan.B2, _stairs.CurrentLanding);
+            Assert.AreEqual(FloorPlan.B1, _stairs.CurrentLanding);
         }
     }
 

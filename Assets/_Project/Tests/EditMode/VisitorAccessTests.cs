@@ -214,14 +214,13 @@ namespace NO404.Tests
         [Test]
         public void ACardThatNothingHasUpdatedStopsClaimingToKnowWhereTheyAre()
         {
-            // Min-seo is going to the second floor, which has no camera on it. She is not
-            // doing anything wrong; she is simply somewhere the building cannot see, and after
-            // three minutes the card has to admit that rather than go on showing a stale room
-            // as though it were live. That admission is the whole difference between this and
-            // a minimap (v3.0 38.4).
+            // Min-seo is going up to 303 (v5.1 N1-R01). She is not doing anything wrong; nobody
+            // is watching her floor, and after three minutes the card has to admit that rather
+            // than go on showing a stale room as though it were live. That admission is the
+            // whole difference between this and a minimap (v3.0 38.4).
             Grant("vis_minseo", VisitorAccessLevel.FloorPass);
             var tracked = ServiceHub.ActiveVisitors.Find("vis_minseo");
-            Assert.AreEqual(ZoneIds.Floor02, tracked.Definition.destinationZone);
+            Assert.AreEqual(ZoneIds.Floor03, tracked.Definition.destinationZone);
 
             WalkToDestination("vis_minseo");
             Assert.AreEqual(0, (int)(tracked.Flags & VisitorFlags.Untracked));

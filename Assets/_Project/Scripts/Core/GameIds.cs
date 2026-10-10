@@ -165,6 +165,15 @@ namespace NO404.Core
         public const string SpaceRuleConfirmed = "SPACE_RULE_CONFIRMED";
         /// <summary>N4-M01: the 404 household record survived the chairman's instruction.</summary>
         public const string HarinRecordPreserved = "HARIN_RECORD_PRESERVED";
+
+        // ---- v5.1 5.4: ending presentation. Only fixed story quests may write these. ----
+
+        /// <summary>N1-R01: Seon-ja's care went ahead (escort or floor pass).</summary>
+        public const string EndSunjaTrusted = "END_SUNJA_TRUSTED";
+        /// <summary>N3-R12: the child's cup and blanket survived, as objects or as photographs.</summary>
+        public const string EndChildItemsPreserved = "END_CHILD_ITEMS_PRESERVED";
+        /// <summary>N5-R13: the last broadcast was matched to a place and a second witness.</summary>
+        public const string EndDongsikBroadcastVerified = "END_DONGSIK_LAST_BROADCAST_VERIFIED";
         //
         // Two of v5.0 5.4's flags were already here under other names and mean exactly what
         // v5.0 means by them, so they are not written twice: DONGSIK_SIGNAL_FOUND is
@@ -340,8 +349,8 @@ namespace NO404.Core
             Parking, RecyclingYard,
             Office, Lobby, Laundry, ConvenienceStore, Playground,
             Floor02, Lounge, FitnessRoom, Terrace,
-            Floor03, Floor04, ServicePassage, Unit404, Floor05, Floor06, Rooftop,
-            Elevator, Stairwell, PhantomFloor13
+            Floor03, Floor04, ServicePassage, Unit404, Floor05, Floor06,
+            Elevator, Stairwell
         };
     }
 

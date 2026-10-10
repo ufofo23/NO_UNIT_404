@@ -28,6 +28,7 @@ namespace NO404.Tests
         public IEnumerator SetUp()
         {
             while (!ServiceHub.Ready) yield return null;
+            MainOnlyMode.Set(false);
             ServiceHub.ResetPlaythrough();
 
             // DebugStartNight refuses unless the console is enabled, which it is in the editor
@@ -61,11 +62,21 @@ namespace NO404.Tests
             }
         }
 
+        [UnityTearDown]
+        public IEnumerator TearDown()
+        {
+            MainOnlyMode.Set(false);
+            yield return null;
+        }
+
         /// <summary>
-        /// Closes every case the night drew, by picking each one's first decision.
+        /// Closes every case the night drew, by picking the first decision the night allows.
         ///
         /// Deliberately the first rather than the best: a campaign that can only be completed
-        /// by playing well is a campaign with a dead end in it for everybody else.
+        /// by playing well is a campaign with a dead end in it for everybody else. "Allows"
+        /// matters since v5.1: a report row can depend on what was done at the door, and a
+        /// looping corridor has to be walked out of before it can be reported - which the walk
+        /// does the way a player would, by reading the marker.
         /// </summary>
         static void ResolveEverythingDrawn(int night, List<string> log)
         {
@@ -99,12 +110,16 @@ namespace NO404.Tests
                 var attached = new List<string>();
                 foreach (var pair in ServiceHub.Evidence.Owned) attached.Add(pair.Key);
 
-                var result = ServiceHub.Cases.SubmitDecision(definition.caseId,
-                                                             definition.decisions[0].decisionId,
-                                                             attached);
+                if (SubquestRules.ReportBlockedKey(definition.caseId) != null)
+                    SubquestRules.Act(definition.caseId == "N3-R08" ? "n3r08_marker" : "n5r10_marker");
+
+                var result = DecisionResult.Rejected("no decisions");
+                for (int d = 0; d < definition.decisions.Length && !result.Accepted; d++)
+                    result = ServiceHub.Cases.SubmitDecision(definition.caseId,
+                                                             definition.decisions[d].decisionId, attached);
 
                 Assert.IsTrue(result.Accepted,
-                    "night " + night + ": " + definition.caseId + " refused its own first decision (" +
+                    "night " + night + ": " + definition.caseId + " refused every decision (" +
                     result.RejectReason + ")");
 
                 log.Add(definition.caseId);
@@ -130,12 +145,17 @@ namespace NO404.Tests
             Assert.IsTrue(loop.WorldBuilt, "the world never finished building");
         }
 
+        /// <summary>
+        /// The spine alone, so the arithmetic below measures the mains and nothing the draw
+        /// added on top. The whole nights are walked in the test after this one.
+        /// </summary>
         [UnityTest]
         public IEnumerator EveryNightCanBeFinishedAndTheCampaignReachesAnEnding()
         {
             var loop = GameLoop.Instance;
             Assert.IsNotNull(loop, "no GameLoop - the test scene did not boot");
 
+            MainOnlyMode.Set(true);
             yield return BuildTheWorld(loop);
 
             var resolved = new List<string>();
@@ -190,20 +210,57 @@ namespace NO404.Tests
             Assert.AreEqual(100, hp,
                             "no first-choice decision on any night costs health, so HP should be full");
 
-            // Six mains, first decision each, cost -3 -2 -2 -8 -8 -5 by v5.0 10-15's own
-            // tables. Night 6 then ends the moment its main closes, and a shift that ends
-            // gives seven back (v5.0 7.3) - so 100 - 28 + 7.
+            // Six mains, first decision each, cost -3 -2 -2 -8 -13 -5. v5.1 adds
+            // five SAN when Park's final rescue is cross-verified. Night 6 closes, and the shift
+            // gives seven back (v5.0 7.3) - so 100 - 33 + 7.
             //
             // Only one recovery lands here because this walk jumps between nights rather than
             // clocking off each one; a played campaign collects five more. Which is the point
             // worth keeping: even the harshest reading of the current content leaves a
             // caretaker who takes no physical risk comfortably above the gate.
-            CollectionAssert.AreEqual(new[] { "N1:-3", "N2:-2", "N3:-2", "N4:-8", "N5:-8", "N6:-5" },
+            CollectionAssert.AreEqual(new[] { "N1:-3", "N2:-2", "N3:-2", "N4:-8", "N5:-13", "N6:-5" },
                                       sanByNight,
                                       "the SAN cost of a night's main changed");
 
-            Assert.AreEqual(100 - 28 + VitalService.NightEndCalm, san,
+            Assert.AreEqual(100 - 33 + VitalService.NightEndCalm, san,
                             "the six mains and one end-of-shift recovery should leave SAN here");
+        }
+
+        /// <summary>
+        /// v5.1 4.1: nights 1, 3 and 5 played with their whole draw - main, story subquest and
+        /// three or four randoms - and every one of them closes.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator EveryWholeNightCanBeFinished()
+        {
+            var loop = GameLoop.Instance;
+            yield return BuildTheWorld(loop);
+
+            var resolved = new List<string>();
+            foreach (int night in new[] { 1, 2, 3, 4, 5, 6 })
+            {
+                Assert.IsTrue(loop.DebugStartNight(night), "night " + night + " would not start");
+                yield return null;
+                ListenToWhateverIsTalking();
+
+                var drawn = new List<string>(ServiceHub.Cases.DrawnTonight);
+                if (night % 2 == 1)
+                    Assert.That(drawn.Count, Is.InRange(5, 6), "night " + night + " is not a v5.1 night: " +
+                                                                  string.Join(",", drawn.ToArray()));
+
+                ResolveEverythingDrawn(night, resolved);
+                yield return null;
+
+                foreach (var id in drawn)
+                    CollectionAssert.Contains(resolved, id, "night " + night + " left " + id + " open");
+                Assert.AreNotEqual(GameLoop.ShiftBlocker.CaseOpen, loop.CurrentShiftBlocker,
+                                   "night " + night + " cannot be clocked off");
+            }
+
+            CollectionAssert.Contains(resolved, "N1-R01");
+            CollectionAssert.Contains(resolved, "N3-R12");
+            CollectionAssert.Contains(resolved, "N5-R13");
+            Assert.Greater(ServiceHub.Vitals.Hp, 0, "the walk took no risks it could not survive");
         }
 
         /// <summary>

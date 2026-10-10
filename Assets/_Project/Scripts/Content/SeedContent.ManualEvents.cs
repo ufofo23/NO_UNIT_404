@@ -316,7 +316,7 @@ namespace NO404.ContentData
 
             // M18 옥상 난간 인물. The one event permitted to end a shift, and only on a repeat
             // of a prohibition the manual prints as lethal (spec 0.10.5).
-            var roof = Event(ManualEventIds.M18_RoofFigure, 3, FloorPlan.Roof, ZoneIds.Rooftop, 0,
+            var roof = Event(ManualEventIds.M18_RoofFigure, 3, FloorPlan.F6, ZoneIds.Floor06, 0,
                 ManualEventTrigger.AfterEvent, ManualEventIds.M05_NotRecyclable,
                 objectives: new[]
                 {
@@ -337,13 +337,13 @@ namespace NO404.ContentData
                 // quietly remove a whole machine from the rest of the game.
                 onCorrect: new[]
                 {
-                    ConsequenceDefinition.FloorRisk(FloorPlan.Roof, -1),
+                    ConsequenceDefinition.FloorRisk(FloorPlan.F6, -1),
                     ConsequenceDefinition.Flag(ItemIds.BlackTape)
                 },
                 onWrong: new[]
                 {
                     ConsequenceDefinition.Distortion(15),
-                    ConsequenceDefinition.FloorRisk(FloorPlan.Roof, 1),
+                    ConsequenceDefinition.FloorRisk(FloorPlan.F6, 1),
                     ConsequenceDefinition.Flag(ItemIds.BlackTape)
                 },
                 failSafe: ManualFailSafe(2, "MARK_BROADCAST_PANEL", "manual.m18.failsafe"));
@@ -484,7 +484,7 @@ namespace NO404.ContentData
 
             // M09 검은 물. The red emergency-stop button works, and using it is how the
             // building loses its water supply for the evacuation (spec 30.3).
-            events.Add(Event(ManualEventIds.M09_BlackWater, 5, FloorPlan.B2, ZoneIds.PumpRoom, 0,
+            events.Add(Event(ManualEventIds.M09_BlackWater, 5, FloorPlan.B1, ZoneIds.PumpRoom, 0,
                 ManualEventTrigger.NightStart, null,
                 objectives: new[]
                 {
@@ -505,7 +505,7 @@ namespace NO404.ContentData
                 onCorrect: new[]
                 {
                     ConsequenceDefinition.Stat(StatIds.BuildingSafety, 3, "reason.routine_correct"),
-                    ConsequenceDefinition.FloorRisk(FloorPlan.B2, -1)
+                    ConsequenceDefinition.FloorRisk(FloorPlan.B1, -1)
                 },
                 onWrong: new[]
                 {
@@ -517,7 +517,7 @@ namespace NO404.ContentData
 
             // M10 비등록 배관. Five valves, one pulse at 0.8Hz. Closing everything is the
             // instinct and costs the most.
-            events.Add(Event(ManualEventIds.M10_PipeGrowth, 5, FloorPlan.B2, ZoneIds.PipeRoom, 0,
+            events.Add(Event(ManualEventIds.M10_PipeGrowth, 5, FloorPlan.B1, ZoneIds.PipeRoom, 0,
                 ManualEventTrigger.AfterEvent, ManualEventIds.M09_BlackWater,
                 objectives: new[]
                 {
@@ -540,7 +540,7 @@ namespace NO404.ContentData
                 onWrong: new[]
                 {
                     ConsequenceDefinition.Stat(StatIds.BuildingSafety, -2, "reason.wrong_procedure"),
-                    ConsequenceDefinition.FloorRisk(FloorPlan.B2, 1)
+                    ConsequenceDefinition.FloorRisk(FloorPlan.B1, 1)
                 },
                 failSafe: ManualFailSafe(2, "SHOW_PULSE_OVERLAY", "manual.m10.failsafe")));
 

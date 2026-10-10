@@ -4,11 +4,12 @@ using NO404.Core;
 namespace NO404.Gameplay
 {
     /// <summary>
-    /// The compressed building (v2.1 spec 0.7.1 and 27).
+    /// The building (v5.1 3.1).
     ///
-    /// Nine spaces, bottom to top: B2, B1, 1F..6F, ROOF. Nothing else is a floor. The
-    /// pre-v2.1 layout had normal residents on 8, 12, 13 and 15; those floors are gone and
-    /// their content was relocated by the table in spec 0.11.
+    /// Seven floors, bottom to top: B1, 1F..6F. Nothing else is a floor - v5.1 removed the
+    /// second basement and the roof, and folded the plant and records rooms into B1. The
+    /// SPACE anomalies happen inside these seven floors (the 4F service passage, the 5F
+    /// loop), never on an extra one.
     ///
     /// The single most important property of this table is what it does *not* contain: there
     /// is no thirteenth floor. 13 is a number the elevator can display and an anomaly the
@@ -21,7 +22,6 @@ namespace NO404.Gameplay
     {
         // ---- floor ids (spec 27 uses exactly these strings) -----------------
 
-        public const string B2 = "B2";
         public const string B1 = "B1";
         public const string F1 = "F1";
         public const string F2 = "F2";
@@ -29,7 +29,6 @@ namespace NO404.Gameplay
         public const string F4 = "F4";
         public const string F5 = "F5";
         public const string F6 = "F6";
-        public const string Roof = "ROOF";
 
         /// <summary>
         /// The floor number the building does not have (spec 0.7.1). Present as a constant so
@@ -39,7 +38,7 @@ namespace NO404.Gameplay
         public const string PhantomF13 = "F13";
 
         /// <summary>Every real floor, bottom to top. Index order is the adjacency order.</summary>
-        public static readonly string[] Order = { B2, B1, F1, F2, F3, F4, F5, F6, Roof };
+        public static readonly string[] Order = { B1, F1, F2, F3, F4, F5, F6 };
 
         public enum Direction { Down = -1, Up = 1 }
 
@@ -73,20 +72,22 @@ namespace NO404.Gameplay
                 ConditionalZones = conditionalZones ?? new string[0];
             }
 
-            /// <summary>Floor above on the stairs, or null at the roof (spec 27).</summary>
+            /// <summary>Floor above on the stairs, or null at 6F (v5.1 3.1).</summary>
             public string StairUp { get { return Neighbour(FloorId, Direction.Up); } }
-            /// <summary>Floor below on the stairs, or null at B2 (spec 27).</summary>
+            /// <summary>Floor below on the stairs, or null at B1 (v5.1 3.1).</summary>
             public string StairDown { get { return Neighbour(FloorId, Direction.Down); } }
         }
 
         static readonly FloorDefinition[] Definitions =
         {
-            new FloorDefinition(B2, "world.floor.b2", "B2", true, ZoneIds.Machinery,
-                new[] { ZoneIds.Machinery, ZoneIds.PumpRoom, ZoneIds.PipeRoom, ZoneIds.Toolroom },
-                new[] { ZoneIds.Archive }),
-
+            // v5.1 3.1: parking, the electrical room, pump and tank plant, the records room
+            // and the lift pit access. One basement.
             new FloorDefinition(B1, "world.floor.b1", "B1", true, ZoneIds.Parking,
-                new[] { ZoneIds.Parking, ZoneIds.RecyclingYard },
+                new[]
+                {
+                    ZoneIds.Parking, ZoneIds.RecyclingYard, ZoneIds.Machinery, ZoneIds.PumpRoom,
+                    ZoneIds.PipeRoom, ZoneIds.Toolroom, ZoneIds.Archive
+                },
                 new string[0]),
 
             new FloorDefinition(F1, "world.floor.f1", "1F", true, ZoneIds.Lobby,
@@ -112,11 +113,6 @@ namespace NO404.Gameplay
 
             new FloorDefinition(F6, "world.floor.f6", "6F", true, ZoneIds.Floor06,
                 new[] { ZoneIds.Floor06 },
-                new string[0]),
-
-            // Spec 27: the roof has no lift. It is reached by one more stair run above 6F.
-            new FloorDefinition(Roof, "world.floor.roof", "R", false, ZoneIds.Rooftop,
-                new[] { ZoneIds.Rooftop },
                 new string[0])
         };
 
@@ -223,7 +219,7 @@ namespace NO404.Gameplay
             return def == null ? null : def.PrimaryZoneId;
         }
 
-        /// <summary>Sign text for a landing, e.g. "B2", "4F", "R".</summary>
+        /// <summary>Sign text for a landing, e.g. "B1", "4F".</summary>
         public static string SignOf(string floorId)
         {
             var def = Find(floorId);

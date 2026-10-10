@@ -81,8 +81,13 @@ namespace NO404.Gameplay
             const string m06 = ManualEventIds.M06_LostParcel;
 
             // The locker bank is ordinary furniture; only P-04 belongs to the event.
-            Prop(root, "ParcelLockers", new Vector3(-half.x + 0.5f, 1.0f, 2.5f),
-                 new Vector3(0.6f, 2.0f, 3.0f), PropColour);
+            //
+            // On the east wall, north of the parcel shelf. It used to stand on the west wall
+            // at z 1..4: in front of the mailbox bank - with the 404 key and N1-M01's bill
+            // inside its collider - and out through the entrance glass into the street.
+            float lockerZ = 3.25f, lockerX = half.x - 0.4f;
+            Prop(root, "ParcelLockers", new Vector3(lockerX, 1.0f, lockerZ),
+                 new Vector3(0.6f, 2.0f, 1.3f), PropColour);
 
             // Checking the recipient happens at the desk, in the apps that already exist.
             Marker(root, "M06_RecordWatcher", new Vector3(0f, 1f, 0f))
@@ -91,7 +96,7 @@ namespace NO404.Gameplay
                        new[] { AppIds.Residents, AppIds.Access, AppIds.Facility },
                        "obj_verify", 2);
 
-            var parcel = Prop(root, "M06_Parcel", new Vector3(-half.x + 0.95f, 1.15f, 2.5f),
+            var parcel = Prop(root, "M06_Parcel", new Vector3(lockerX - 0.45f, 1.15f, lockerZ),
                               new Vector3(0.35f, 0.3f, 0.4f), PropColour);
             parcel.AddComponent<ManualActionProp>()
                   .Setup(m06, "ui.prompt.m06.stamp", "stamped", "obj_stamp")
@@ -99,11 +104,11 @@ namespace NO404.Gameplay
                   .AlwaysVisible();
 
             // Both prohibitions are one press, on the box the player is already holding.
-            var lid = Prop(root, "M06_Lid", new Vector3(-half.x + 0.95f, 1.38f, 2.5f),
+            var lid = Prop(root, "M06_Lid", new Vector3(lockerX - 0.45f, 1.38f, lockerZ),
                            new Vector3(0.35f, 0.06f, 0.4f), PropColour);
             lid.AddComponent<ManualForbiddenProp>().Setup(m06, "ui.prompt.m06.open", "opened");
 
-            var shake = Prop(root, "M06_Shake", new Vector3(-half.x + 0.95f, 0.92f, 2.5f),
+            var shake = Prop(root, "M06_Shake", new Vector3(lockerX - 0.45f, 0.92f, lockerZ),
                              new Vector3(0.35f, 0.15f, 0.4f), PropColour);
             shake.AddComponent<ManualForbiddenProp>().Setup(m06, "ui.prompt.m06.shake", "shaken");
 
@@ -127,27 +132,29 @@ namespace NO404.Gameplay
             // ---- M13, the postcards --------------------------------------
             const string m13 = ManualEventIds.M13_Postcards;
 
-            Prop(root, "Mailboxes", new Vector3(-half.x + 0.5f, 1.2f, -2.5f),
-                 new Vector3(0.4f, 1.6f, 2.4f), PropColour);
+            // The postcards are the lobby's own mailbox bank's (WorldBuilder.BuildLobbyInterior).
+            // A second bank stood here, across the door back to the office, and the event only
+            // ever needed somewhere to lay a card down: the 관리사무소 window ledge is that.
+            float ledgeX = -half.x + BuildingSpec.WallThickness * 0.5f + 0.15f;
 
-            var shred = Prop(root, "M13_Shredder", new Vector3(-half.x + 1.1f, 0.5f, -3.4f),
+            var shred = Prop(root, "M13_Shredder", new Vector3(-half.x + 0.62f, 0.45f, -0.72f),
                              new Vector3(0.4f, 0.9f, 0.4f), PropColour);
             shred.AddComponent<ManualActionProp>()
                  .Setup(m13, "ui.prompt.m13.shred", "shredded", "obj_decide")
                  .AlwaysVisible();
 
-            var read = Prop(root, "M13_Postcard", new Vector3(-half.x + 1.0f, 1.25f, -2.5f),
+            var read = Prop(root, "M13_Postcard", new Vector3(ledgeX, 0.96f, -3.2f),
                             new Vector3(0.25f, 0.02f, 0.18f), PropColour);
             read.AddComponent<ManualActionProp>().Setup(m13, "ui.prompt.m13.read", "read");
 
             // The log has two columns, and the temptation is to file a claim as a fact.
-            var logFact = Prop(root, "M13_LogFact", new Vector3(-half.x + 1.6f, 1.05f, -2.2f),
+            var logFact = Prop(root, "M13_LogFact", new Vector3(ledgeX, 0.975f, -3.65f),
                                new Vector3(0.3f, 0.05f, 0.25f), PropColour);
             logFact.AddComponent<ManualActionProp>()
                    .Setup(m13, "ui.prompt.m13.log_separated", "logged", "obj_decide")
                    .RequiresCounter("read", "ui.prompt.m13.unread");
 
-            var logGuess = Prop(root, "M13_LogGuess", new Vector3(-half.x + 1.6f, 1.05f, -2.8f),
+            var logGuess = Prop(root, "M13_LogGuess", new Vector3(ledgeX, 0.975f, -2.75f),
                                 new Vector3(0.3f, 0.05f, 0.25f), PropColour);
             logGuess.AddComponent<ManualForbiddenProp>()
                     .Setup(m13, "ui.prompt.m13.log_guess", "guessedAsFact", "obj_decide");
@@ -844,16 +851,19 @@ namespace NO404.Gameplay
                 .Setup(m18, "crossedThreshold", ZoneIds.Rooftop);
         }
 
-        /// <summary>M18 continued: the five metres the manual will not let the player cross.</summary>
+        /// <summary>
+        /// M18 continued: the five metres the manual will not let the player cross. v5.1 3.1
+        /// has no roof, so the figure stands at the far end of the top floor instead.
+        /// </summary>
         void StageRooftop()
         {
-            var root = OwnedRoot(ZoneIds.Rooftop);
+            var root = OwnedRoot(ZoneIds.Floor06);
             if (root == null) return;
 
-            var half = HalfOf(ZoneIds.Rooftop);
+            var half = HalfOf(ZoneIds.Floor06);
             const string m18 = ManualEventIds.M18_RoofFigure;
 
-            var figure = Prop(root, "M18_Figure", new Vector3(0f, 1.4f, half.y - 0.6f),
+            var figure = Prop(root, "M18_Figure", new Vector3(-half.x + 0.6f, 0.9f, -half.y + 0.35f),
                               new Vector3(0.4f, 1.8f, 0.3f), FigureColour);
 
             Marker(root, "M18_Distance", figure.transform.localPosition)

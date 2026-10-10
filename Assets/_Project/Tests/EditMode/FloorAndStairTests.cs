@@ -16,10 +16,11 @@ namespace NO404.Tests
     public sealed class FloorPlanTests
     {
         [Test]
-        public void BuildingIsTheNineCompressedSpaces()
+        public void BuildingIsB1ToSixF()
         {
+            // v5.1 3.1: seven floors and nothing else.
             CollectionAssert.AreEqual(
-                new[] { "B2", "B1", "F1", "F2", "F3", "F4", "F5", "F6", "ROOF" },
+                new[] { "B1", "F1", "F2", "F3", "F4", "F5", "F6" },
                 FloorPlan.Order);
         }
 
@@ -47,19 +48,22 @@ namespace NO404.Tests
         }
 
         [Test]
-        public void RoofHasNoLiftAndNothingAboveIt()
+        public void SixthFloorIsTheTop()
         {
-            // Spec 27: the roof is reached by one more stair run above 6F, never by the car.
-            Assert.IsFalse(FloorPlan.IsElevatorDestination(FloorPlan.Roof));
-            Assert.IsNull(FloorPlan.Up(FloorPlan.Roof));
-            Assert.AreEqual(FloorPlan.F6, FloorPlan.Down(FloorPlan.Roof));
+            // v5.1 3.1: nothing is built above 6F.
+            Assert.IsTrue(FloorPlan.IsElevatorDestination(FloorPlan.F6));
+            Assert.IsNull(FloorPlan.Up(FloorPlan.F6));
+            Assert.AreEqual(FloorPlan.F5, FloorPlan.Down(FloorPlan.F6));
         }
 
         [Test]
-        public void SubBasementIsTheBottom()
+        public void B1IsTheBottomAndHoldsThePlantAndRecords()
         {
-            Assert.IsNull(FloorPlan.Down(FloorPlan.B2));
-            Assert.AreEqual(FloorPlan.B1, FloorPlan.Up(FloorPlan.B2));
+            Assert.IsNull(FloorPlan.Down(FloorPlan.B1));
+            Assert.AreEqual(FloorPlan.F1, FloorPlan.Up(FloorPlan.B1));
+
+            foreach (var zone in new[] { ZoneIds.Machinery, ZoneIds.PumpRoom, ZoneIds.Archive, ZoneIds.Parking })
+                Assert.AreEqual(FloorPlan.B1, FloorPlan.FloorOfZone(zone), zone);
         }
 
         [Test]
@@ -150,9 +154,9 @@ namespace NO404.Tests
         [Test]
         public void WalksTheWholeSpec301Matrix()
         {
-            // B2 -> up -> B1 -> ... -> ROOF, then all the way back down. Every rung of the
-            // ladder, in both directions, from a single entry.
-            _stairs.EnterFrom(FloorPlan.B2);
+            // B1 -> up -> ... -> 6F, then all the way back down. Every rung of the ladder, in
+            // both directions, from a single entry.
+            _stairs.EnterFrom(FloorPlan.B1);
             for (int i = 1; i < FloorPlan.Order.Length; i++)
                 Assert.AreEqual(FloorPlan.Order[i], _stairs.Ascend(),
                                 "climbing from " + FloorPlan.Order[i - 1]);
@@ -165,13 +169,13 @@ namespace NO404.Tests
         [Test]
         public void ShaftEndsAreDeadEnds()
         {
-            _stairs.EnterFrom(FloorPlan.B2);
+            _stairs.EnterFrom(FloorPlan.B1);
             Assert.IsNull(_stairs.Descend());
-            Assert.AreEqual(FloorPlan.B2, _stairs.CurrentLanding);
+            Assert.AreEqual(FloorPlan.B1, _stairs.CurrentLanding);
 
-            _stairs.EnterFrom(FloorPlan.Roof);
+            _stairs.EnterFrom(FloorPlan.F6);
             Assert.IsNull(_stairs.Ascend());
-            Assert.AreEqual(FloorPlan.Roof, _stairs.CurrentLanding);
+            Assert.AreEqual(FloorPlan.F6, _stairs.CurrentLanding);
         }
 
         [Test]
@@ -233,7 +237,7 @@ namespace NO404.Tests
             UnityEngine.TestTools.LogAssert.ignoreFailingMessages = true;
             try
             {
-                _stairs.SetOverride("M01", (f, d, n, c) => FloorPlan.B2);
+                _stairs.SetOverride("M01", (f, d, n, c) => FloorPlan.B1);
             }
             finally
             {
@@ -266,7 +270,7 @@ namespace NO404.Tests
             CollectionAssert.Contains(groups, ZoneGroups.Floor04);
             CollectionAssert.Contains(groups, ZoneGroups.Floor03);
             CollectionAssert.Contains(groups, ZoneGroups.Floor05);
-            CollectionAssert.DoesNotContain(groups, ZoneGroups.B2);
+            CollectionAssert.DoesNotContain(groups, ZoneGroups.B1);
         }
 
         [Test]

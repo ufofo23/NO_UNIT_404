@@ -204,14 +204,7 @@ namespace NO404.Core
                 ServiceHub.Phone.NotifyCaseStarted(evt.CaseId);
             }
 
-            if (evt.CaseId != "N1-M01" || evt.Current != CaseState.ResolvedCorrect) return;
-            if (ServiceHub.State.GetFlag(FlagIds.Knows404)) return;
 
-            ServiceHub.Residents.QueueGlimpse("res_404");
-            Net.NetShift.Broadcast(Net.NetShift.Moment.QueueGlimpse, "res_404");
-
-            EventBus.Publish(new NotificationEvent("ui.notify.db_sync_pending",
-                                                  NotificationSeverity.Warning));
         }
 
         static AudioCue RoomToneFor(string zoneId)
@@ -415,6 +408,7 @@ namespace NO404.Core
             // Staged anomalies exist for the lens only (GDD 4.4) - the eye must not see them.
             camera.cullingMask = Layers.WithoutCctvOnly(camera.cullingMask);
             cameraGo.AddComponent<AudioListener>();
+            RenderLook.Install(camera);
 
             var flashlightGo = new GameObject("Flashlight");
             flashlightGo.transform.SetParent(cameraGo.transform, false);
@@ -957,8 +951,12 @@ namespace NO404.Core
                     // v5.0 10. Night 1 is still meant to look like a job, so the two ordinary
                     // callers are at the door early - the player has to be shown what ordinary
                     // looks like before anything is allowed to be strange.
-                    CallerOn("N1-M01", "vis_n0_guest_jiwoo");
-                    CallerOn("N1-M01", "vis_n0_courier");
+                    // v5.1 4.2 puts the main fourth, so "early" is the first job of the
+                    // shift rather than the main's beat.
+                    string firstBeat = ServiceHub.Cases.NightChain.Count > 0
+                        ? ServiceHub.Cases.NightChain[0] : "N1-M01";
+                    CallerOn(firstBeat, "vis_n0_guest_jiwoo");
+                    CallerOn(firstBeat, "vis_n0_courier");
 
                     // The parcel for the vacant unit waits for the camera wall. One of the
                     // things its invoice has to be checked against is the vehicle log on
@@ -968,7 +966,7 @@ namespace NO404.Core
 
                     // Min-seo arrives while the caretaker is on the third floor recording the
                     // noise from 304 - the same scene a second time, now that they know it.
-                    CallerOn("N1-M01", "vis_minseo");
+                    CallerOn("N1-R01", "vis_minseo");
                     break;
 
                 case 2:
@@ -1695,6 +1693,8 @@ namespace NO404.Core
         void TickShift(float dt)
         {
             ServiceHub.Clock.Tick(dt);
+            SelectedMainQuestRules.Tick(dt);
+            SubquestRules.Tick(dt);
 
             ServiceHub.Cases.Tick();
             ServiceHub.ManualEvents.Tick();

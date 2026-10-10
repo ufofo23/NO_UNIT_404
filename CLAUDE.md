@@ -8,7 +8,11 @@
 
 ## Source of truth
 
-- Design: three documents in this folder, alongside `Assets/`. They stack, newest wins.
+- Design: `NO_UNIT_404_GDD_v5.1.md` in this folder is **the current top of the stack**
+  (solo first, 15-quest night pools, B1~6F, single ending). Where it disagrees with anything
+  below, v5.1 wins. What of it is built for nights 1/3/5 is in `Docs/NIGHTS_1_3_5_V51.md`
+  and `Docs/MAIN_QUESTS_1_3_5.md`. The older documents below are no longer in the working
+  tree; they are described here for the systems that were built against them.
   - `NO_UNIT_404_MASTER_IMPLEMENTATION_GDD_v3.0.md` — **the top of the stack.** Where anything
     disagrees with it, v3.0 wins. It re-aims the product at **1–4 player co-op** and rewrites
     the visitor system into Access & Pursuit (sections V3-G and 38): the door grants one of
@@ -55,8 +59,9 @@ The gap matters more than the plan, so it is written down here rather than assum
   deliberately complete. No host migration and no reconnect: a session is one sitting. The
   stalker (`ThreatService`, night 5+) is host-only and has no client presentation. Sections
   V3-C, 47–49 remain unimplemented.
-- The building is `B2, B1, 1F..6F, ROOF` and nothing else (v2.1 0.7.1). There is no
-  thirteenth floor: `FloorPlan` has no row for it, so no stair or lift code can resolve one.
+- The building is `B1, 1F..6F` and nothing else (v5.1 3.1). There is no second basement, no
+  roof and no thirteenth floor: `FloorPlan` has no row for them, so no stair or lift code can
+  resolve one. The plant and records rooms are on B1.
   Add a floor by adding it to `FloorPlan.Order`, never by writing a destination somewhere.
 - Numbers in code must match the GDD, not the other way round. If an implementation deviates,
   fix the code or the GDD **in the same change** — never leave them out of sync.

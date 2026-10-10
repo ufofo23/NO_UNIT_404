@@ -60,7 +60,8 @@ namespace NO404.Tests
         {
             var loop = GameLoop.Instance;
 
-            loop.NewGame();
+            // Without the fifteen-second intro, which outlasts the frame patience below.
+            loop.NewGame(false);
             yield return WaitForMode(loop, GameMode.Playing, "New Game never started a shift");
 
             Assert.AreEqual(1, ServiceHub.State.NightIndex,
@@ -103,7 +104,7 @@ namespace NO404.Tests
         {
             var loop = GameLoop.Instance;
 
-            loop.NewGame();
+            loop.NewGame(false);
             yield return WaitForMode(loop, GameMode.Playing, "New Game never started a shift");
 
             for (int night = 1; night <= GameLoop.FinalNight; night++)

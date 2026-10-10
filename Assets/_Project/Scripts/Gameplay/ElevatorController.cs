@@ -11,8 +11,9 @@ namespace NO404.Gameplay
     ///
     /// The car is a real zone the player rides in. Its indicator is driven by this component
     /// rather than by the floor it is actually at, which is what makes the night-3 hook work:
-    /// the building runs B2 to 6F, the panel has no 13 button, and the display can still read
-    /// 13. The hidden maintenance button only exists once the player has reason to look for it.
+    /// the building runs B1 to 6F, the panel has no service button, and the display can still
+    /// read 4S (v5.1 3.1). The hidden maintenance button only exists once the player has
+    /// reason to look for it.
     /// </summary>
     public sealed class ElevatorController : MonoBehaviour
     {
@@ -31,13 +32,14 @@ namespace NO404.Gameplay
         /// <summary>GDD 12.3 catalogue entry #4, and the floor it claims to have stopped at.</summary>
         public const int FalseFloorType = 4;
         /// <summary>
-        /// What the indicator reads when it lies (v2.1 spec 22 M01).
-        ///
-        /// It was 16 while the building had fifteen storeys. The compressed building has six,
-        /// and the number the display invents is 13 - which is not simply a smaller lie: the
-        /// thirteenth floor is the anomaly the whole of night 3 is about.
+        /// Any spoofed number above the top floor is shown as the service code instead (v5.1
+        /// 3.1): the lie this building tells is "4S", a place inside the fourth floor, not a
+        /// storey it does not have.
         /// </summary>
         public const int FalseFloor = 13;
+
+        public const string ServiceCodeKey = "world.elevator.4s";
+        public const string ServiceOpenKey = "world.elevator.service_open";
 
         /// <summary>
         /// The panel, generated from FloorPlan (spec 27).
@@ -72,17 +74,12 @@ namespace NO404.Gameplay
             get { return NumberOf(_currentFloorId); }
         }
 
-        /// <summary>
-        /// The number a floor shows on the indicator. Basements are negative, so B2 reads B2
-        /// and the roof reads the top storey rather than a letter the display cannot render.
-        /// </summary>
+        /// <summary>The number a floor shows on the indicator. The basement is negative.</summary>
         public static int NumberOf(string floorId)
         {
-            if (floorId == FloorPlan.B2) return -2;
             if (floorId == FloorPlan.B1) return -1;
-            if (floorId == FloorPlan.Roof) return 6;
             int index = FloorPlan.IndexOf(floorId);
-            return index < 0 ? 1 : index - FloorPlan.IndexOf(FloorPlan.B2) - 1;
+            return index < 0 ? 1 : index - FloorPlan.IndexOf(FloorPlan.F1) + 1;
         }
 
         /// <summary>What the indicator actually shows - not necessarily where the car is.</summary>
@@ -143,16 +140,23 @@ namespace NO404.Gameplay
             if (_display == null) return;
 
             int shown = DisplayedFloor;
-            _display.text = shown < 0 ? "B" + (-shown) : shown.ToString();
-            // Red whenever the number is one the building does not have. Six storeys, so
-            // anything above the sixth is the lie.
-            _display.color = shown > 6 ? UI.UiFactory.Danger : UI.UiFactory.Accent;
+            // v5.1 N3-R09: before it is called, the panel flashes 4S for half a second, then 4.
+            bool flash4S = Cases.SubquestRules.Active("N3-R09") && Time.realtimeSinceStartup % 7f < 0.5f;
+            bool service = shown > 6 || flash4S;
+
+            if (Cases.SelectedMainQuestRules.Active("N3-M01")) _display.text = Loc.T(ServiceOpenKey);
+            else if (service) _display.text = Loc.T(ServiceCodeKey);
+            else _display.text = shown < 0 ? "B" + (-shown) : shown.ToString();
+
+            // Red whenever it names a place that is not a floor.
+            _display.color = service ? UI.UiFactory.Danger : UI.UiFactory.Accent;
 
             // The maintenance button is only reachable once the player holds Maintenance access,
             // which case C05 grants. Before that the panel looks completely ordinary.
             if (_maintenanceButton != null)
             {
-                bool available = ServiceHub.State.HasAccess(AccessLevel.Maintenance);
+                bool available = ServiceHub.State.HasAccess(AccessLevel.Maintenance) &&
+                    !Cases.SelectedMainQuestRules.Active("N3-M01");
                 if (_maintenanceButton.activeSelf != available) _maintenanceButton.SetActive(available);
             }
         }
@@ -165,6 +169,8 @@ namespace NO404.Gameplay
         string _floorId;
         string _targetZoneId;
         AccessLevel _required = AccessLevel.Staff1;
+        public string DestinationZone => _floorId == FloorPlan.F4 && _targetZoneId == ZoneIds.Floor04 &&
+            Cases.SelectedMainQuestRules.Active("N3-M01") ? ZoneIds.ServicePassage : _targetZoneId;
 
         public void Setup(ElevatorController car, string floorId, string targetZoneId, string labelKey,
                           AccessLevel required)
@@ -199,10 +205,10 @@ namespace NO404.Gameplay
 
             // The car will not move to a floor that has not finished streaming in (GDD 20.5).
             var streamer = ServiceHub.Zones;
-            if (streamer != null && !streamer.IsZoneReady(_targetZoneId))
+            if (streamer != null && !streamer.IsZoneReady(DestinationZone))
             {
-                streamer.RequestZone(_targetZoneId);
-                reasonKey = streamer.HasFailed(_targetZoneId) ? "ui.prompt.zone_load_failed"
+                streamer.RequestZone(DestinationZone);
+                reasonKey = streamer.HasFailed(DestinationZone) ? "ui.prompt.zone_load_failed"
                                                               : "ui.prompt.zone_loading";
                 return false;
             }
@@ -216,7 +222,7 @@ namespace NO404.Gameplay
                 ? context.Transform.GetComponentInParent<PlayerController>()
                 : null;
 
-            var destination = ZoneRegistry.FindSpawn(_targetZoneId);
+            var destination = ZoneRegistry.FindSpawn(DestinationZone);
             if (player == null || destination == null) return;
 
             if (_car != null) _car.SetFloor(_floorId);
@@ -231,8 +237,8 @@ namespace NO404.Gameplay
             Net.NetShift.Request(Net.NetShift.ShiftAct.ElevatorRide);
 
             player.Teleport(destination.position, destination.rotation);
-            ServiceHub.Player.EnterZone(_targetZoneId);
-            Net.NetShift.Request(Net.NetShift.ShiftAct.EnterZone, _targetZoneId);
+            ServiceHub.Player.EnterZone(DestinationZone);
+            Net.NetShift.Request(Net.NetShift.ShiftAct.EnterZone, DestinationZone);
             ServiceHub.Save.RequestAutosave(Save.SaveReason.ZoneTransition);
         }
     }

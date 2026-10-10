@@ -38,7 +38,8 @@ namespace NO404.ContentData
             return new[]
             {
                 // N1: the bill is the object the whole campaign turns on.
-                Evidence_("EV_404_BILL", EvidenceType.Document, "N1-M01", true),
+                Evidence_("EV_404_BILL", EvidenceType.Document, "N1-M01", false),
+                Evidence_("EV_404_BILL_PHOTO", EvidenceType.Photo, "N1-M01", false),
 
                 // N2: two channels that disagree about one man.
                 Evidence_("EV_CAM02_DOUBLE", EvidenceType.CctvSnapshot, "N2-M01", false),
@@ -46,7 +47,7 @@ namespace NO404.ContentData
 
                 // N3: a number stamped on a seal, and two heights scratched on a wall.
                 Evidence_("EV_SEAL_NUMBER", EvidenceType.Photo, "N3-M01", false),
-                Evidence_("EV_HEIGHT_MARKS", EvidenceType.Photo, "N3-M01", true),
+                Evidence_("EV_HEIGHT_MARKS", EvidenceType.Photo, "N3-M01", false),
 
                 // N4: the row that should not exist, and the paper that says it should.
                 Evidence_("EV_DB404_ROW", EvidenceType.Document, "N4-M01", true),
@@ -54,7 +55,15 @@ namespace NO404.ContentData
 
                 // N5: the night of the fire, and the man still behind the wall.
                 Evidence_("EV_FIRE_TAPE_2009", EvidenceType.AudioRecording, "N5-M01", true),
-                Evidence_("EV_DONGSIK_ID", EvidenceType.PhysicalObject, "N5-M01", true),
+                Evidence_("EV_DONGSIK_ID", EvidenceType.PhysicalObject, "N5-M01", false),
+                Evidence_("EV_N3_ANALOG", EvidenceType.MeterGraph, "N3-M01", false),
+                Evidence_("EV_N3_LIFT_LOG", EvidenceType.Document, "N3-M01", false),
+                Evidence_("EV_N5_FIRE_DOOR", EvidenceType.Photo, "N5-M01", false),
+                Evidence_("EV_N5_ANALOG", EvidenceType.MeterGraph, "N5-M01", false),
+                Evidence_("EV_N5_WORK_LOG", EvidenceType.AccessLog, "N5-M01", false),
+                Evidence_("EV_N5_LAST_POSITION", EvidenceType.Photo, "N5-M01", false),
+                Evidence_("EV_CHOI_APPROVAL", EvidenceType.Document, "N5-M01", false),
+                Evidence_("EV_404_DELETION", EvidenceType.Document, "N5-M01", false),
 
                 // N6: what 404 was actually for.
                 Evidence_("EV_ORIGINAL_LEDGER", EvidenceType.Document, "N6-M01", true)
@@ -114,7 +123,8 @@ namespace NO404.ContentData
                 Objective("obj_go_floor03", "case.n1m01.objective.go_floor03",
                           ObjectiveType.EnterZone, ZoneIds.Floor03),
                 Objective("obj_record_sound", "case.n1m01.objective.record_sound",
-                          ObjectiveType.AcquireEvidence, "EV_304_SOUND")
+                          ObjectiveType.AcquireEvidence, "EV_304_SOUND"),
+                Objective("obj_read_bill", "case.n1m01.objective.bill", ObjectiveType.AcquireEvidence, "EV_404_BILL")
             };
 
             c.decisions = new[]
@@ -126,7 +136,8 @@ namespace NO404.ContentData
                     ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, 8, "reason.correct_report"),
                     ConsequenceDefinition.Stat(StatIds.HarinResonance, 5, "reason.noticed_contradiction"),
                     ConsequenceDefinition.Flag(FlagIds.BillPreserved404, true),
-                    ConsequenceDefinition.Sanity(-3, "reason.read_the_404_bill"),
+                    ConsequenceDefinition.Evidence("EV_404_BILL_PHOTO"),
+
                     ConsequenceDefinition.Achievement(AchievementIds.FirstShift)),
 
                 // Filed as an office error. The clue survives; the connection does not.
@@ -146,7 +157,7 @@ namespace NO404.ContentData
                     ConsequenceDefinition.Achievement(AchievementIds.FirstShift))
             };
 
-            c.failSafe = FailSafe(T0300, "EV_304_WATER", "case.n1m01.failsafe.notify");
+            c.failSafe = FailSafe(T0300, null, "case.n1m01.failsafe.notify");
             c.analyticsName = "n1_main_304_noise";
             return c;
         }
@@ -225,11 +236,11 @@ namespace NO404.ContentData
         }
 
         // =================================================================
-        // N3-M01 - the thirteenth floor (v5.0 12)
+        // N3-M01 - the sealed 4F service area (v5.1 12)
         // =================================================================
 
         /// <summary>
-        /// The lift reports 13F DOOR OPEN in a building with six storeys.
+        /// The lift reports 4F-SERVICE DOOR OPEN inside the existing fourth floor.
         ///
         /// v5.0 12's lesson is that the number on the wall is not the floor. The seal on the
         /// stair landing, the analogue gauge and the flights actually walked are what say
@@ -239,12 +250,14 @@ namespace NO404.ContentData
         static CaseDefinition BuildN3Main()
         {
             var c = Main("N3-M01", 3, AnomalyFamily.Space, 17f);
-            c.evidenceIds = new[] { "EV_SEAL_NUMBER", "EV_HEIGHT_MARKS" };
+            c.evidenceIds = new[] { "EV_SEAL_NUMBER", "EV_HEIGHT_MARKS", "EV_N3_ANALOG", "EV_N3_LIFT_LOG" };
 
             c.objectives = new[]
             {
                 Objective("obj_check_seal", "case.n3m01.objective.check_seal",
                           ObjectiveType.AcquireEvidence, "EV_SEAL_NUMBER"),
+                new ObjectiveDefinition { objectiveId = "obj_analog", titleKey = "case.n3m01.objective.analog", type = ObjectiveType.AcquireEvidence, targetId = "EV_N3_ANALOG", optional = true },
+                new ObjectiveDefinition { objectiveId = "obj_lift_log", titleKey = "case.n3m01.objective.lift", type = ObjectiveType.AcquireEvidence, targetId = "EV_N3_LIFT_LOG", optional = true },
                 Objective("obj_enter_service", "case.n3m01.objective.enter_service",
                           ObjectiveType.EnterZone, ZoneIds.ServicePassage),
                 Objective("obj_find_marks", "case.n3m01.objective.find_marks",
@@ -255,30 +268,29 @@ namespace NO404.ContentData
             {
                 Decision("dec_verified_physically", "case.n3m01.decision.verified",
                     "case.n3m01.result.verified", DecisionQuality.Correct,
-                    new[] { "EV_SEAL_NUMBER" }, null,
+                    new[] { "EV_SEAL_NUMBER", "EV_N3_ANALOG", "EV_N3_LIFT_LOG", "EV_HEIGHT_MARKS" }, null,
                     ConsequenceDefinition.Flag(FlagIds.SpaceRuleConfirmed, true),
                     ConsequenceDefinition.Stat(StatIds.HarinResonance, 10, "reason.noticed_contradiction"),
-                    ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, 7, "reason.correct_report"),
-                    ConsequenceDefinition.Sanity(-5, "reason.two_childrens_names"),
+
+
                     ConsequenceDefinition.Sanity(3, "reason.read_correctly")),
 
                 Decision("dec_withdrew", "case.n3m01.decision.withdrew",
                     "case.n3m01.result.withdrew", DecisionQuality.Partial,
                     null, null,
                     ConsequenceDefinition.Stat(StatIds.HarinResonance, 5, "reason.partial_report"),
-                    ConsequenceDefinition.Sanity(-5, "reason.two_childrens_names")),
+                    ConsequenceDefinition.Notify("case.n3m01.result.withdrew")),
 
                 // v5.0 12: trusting the sign twice is what the distortion debt is for.
                 Decision("dec_trusted_the_sign", "case.n3m01.decision.trusted_sign",
                     "case.n3m01.result.trusted_sign", DecisionQuality.Wrong,
                     null, null,
                     ConsequenceDefinition.Debt(DebtIds.Distortion, 2, "reason.walked_the_wrong_door"),
-                    ConsequenceDefinition.Sanity(-10, "reason.lost_in_the_building"),
-                    ConsequenceDefinition.Health(-12, "reason.fell_through_the_hatch"))
+                    ConsequenceDefinition.Sanity(-10, "reason.lost_in_the_building"))
             };
 
-            c.failSafe = FailSafe(T0300, "EV_SEAL_NUMBER", "case.n3m01.failsafe.notify");
-            c.analyticsName = "n3_main_thirteenth_floor";
+            c.failSafe = FailSafe(T0300, null, "case.n3m01.failsafe.notify");
+            c.analyticsName = "n3_main_4f_service";
             return c;
         }
 
@@ -375,7 +387,7 @@ namespace NO404.ContentData
         static CaseDefinition BuildN5Main()
         {
             var c = Main("N5-M01", 5, AnomalyFamily.Echo, 20f);
-            c.evidenceIds = new[] { "EV_FIRE_TAPE_2009", "EV_DONGSIK_ID" };
+            c.evidenceIds = new[] { "EV_FIRE_TAPE_2009", "EV_DONGSIK_ID", "EV_N5_FIRE_DOOR", "EV_N5_ANALOG", "EV_N5_WORK_LOG", "EV_N5_LAST_POSITION", "EV_CHOI_APPROVAL", "EV_404_DELETION" };
 
             c.objectives = new[]
             {
@@ -384,7 +396,14 @@ namespace NO404.ContentData
                 Objective("obj_reach_floor04", "case.n5m01.objective.reach_floor04",
                           ObjectiveType.EnterZone, ZoneIds.Floor04),
                 Objective("obj_verify_signal", "case.n5m01.objective.verify_signal",
-                          ObjectiveType.AcquireEvidence, "EV_DONGSIK_ID")
+                          ObjectiveType.AcquireEvidence, "EV_DONGSIK_ID"),
+                Objective("obj_current_door", "case.n5m01.objective.door", ObjectiveType.AcquireEvidence, "EV_N5_FIRE_DOOR"),
+                Objective("obj_current_meter", "case.n5m01.objective.analog", ObjectiveType.AcquireEvidence, "EV_N5_ANALOG"),
+                Objective("obj_fire_tape", "case.n5m01.objective.tape", ObjectiveType.AcquireEvidence, "EV_FIRE_TAPE_2009"),
+                Objective("obj_work_log", "case.n5m01.objective.work", ObjectiveType.AcquireEvidence, "EV_N5_WORK_LOG"),
+                new ObjectiveDefinition { objectiveId = "obj_choi", titleKey = "case.n5m01.objective.choi", type = ObjectiveType.AcquireEvidence, targetId = "EV_CHOI_APPROVAL", optional = true },
+                new ObjectiveDefinition { objectiveId = "obj_deletion", titleKey = "case.n5m01.objective.deletion", type = ObjectiveType.AcquireEvidence, targetId = "EV_404_DELETION", optional = true },
+                new ObjectiveDefinition { objectiveId = "obj_last_position", titleKey = "case.n5m01.objective.position", type = ObjectiveType.AcquireEvidence, targetId = "EV_N5_LAST_POSITION", optional = true }
             };
 
             c.decisions = new[]
@@ -392,29 +411,29 @@ namespace NO404.ContentData
                 Decision("dec_residents_first", "case.n5m01.decision.residents",
                     "case.n5m01.result.residents", DecisionQuality.Correct,
                     null, null,
-                    ConsequenceDefinition.Flag(FlagIds.DongsikSignalFound, true),
+
                     ConsequenceDefinition.Choice(ChoiceIds.FireDoorStatus, "SAFE"),
                     ConsequenceDefinition.Stat(StatIds.BuildingSafety, 8, "reason.correct_report"),
                     ConsequenceDefinition.Stat(StatIds.CommunityTrust, 8, "reason.correct_report"),
-                    ConsequenceDefinition.Sanity(-8, "reason.watched_the_fire_again")),
+                    ConsequenceDefinition.Notify("case.n5m01.result.residents")),
 
                 Decision("dec_archive_first", "case.n5m01.decision.archive",
                     "case.n5m01.result.archive", DecisionQuality.Correct,
                     null, null,
-                    ConsequenceDefinition.Flag(FlagIds.DongsikSignalFound, true),
+
                     ConsequenceDefinition.Choice(ChoiceIds.FireDoorStatus, "JAMMED"),
                     ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, 12, "reason.correct_report"),
                     ConsequenceDefinition.Stat(StatIds.BuildingSafety, -5, "reason.evacuation_delayed"),
-                    ConsequenceDefinition.Sanity(-8, "reason.watched_the_fire_again")),
+                    ConsequenceDefinition.Notify("case.n5m01.result.archive")),
 
                 // v5.0 14: chasing the signal first finds him fastest and costs the most.
                 Decision("dec_chase_signal", "case.n5m01.decision.chase",
                     "case.n5m01.result.chase", DecisionQuality.Partial,
                     null, null,
-                    ConsequenceDefinition.Flag(FlagIds.DongsikSignalFound, true),
-                    ConsequenceDefinition.Flag(FlagIds.DongsikLocated, true),
+
+
                     ConsequenceDefinition.Health(-10, "reason.smoke"),
-                    ConsequenceDefinition.Sanity(-5, "reason.he_is_still_alive")),
+                    ConsequenceDefinition.Sanity(-5, "reason.last_rescue_echo")),
 
                 // Trying to hold everything up at once overloads the ring.
                 Decision("dec_hold_everything", "case.n5m01.decision.hold_all",
@@ -426,7 +445,7 @@ namespace NO404.ContentData
                     ConsequenceDefinition.Health(-8, "reason.smoke"))
             };
 
-            c.failSafe = FailSafe(T0300, "EV_FIRE_TAPE_2009", "case.n5m01.failsafe.notify");
+            c.failSafe = FailSafe(T0300, null, "case.n5m01.failsafe.notify");
             c.analyticsName = "n5_main_fire_echo";
             return c;
         }

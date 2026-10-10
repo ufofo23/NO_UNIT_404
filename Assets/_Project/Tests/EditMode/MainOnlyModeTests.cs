@@ -28,6 +28,7 @@ namespace NO404.Tests
         {
             TestServices.Ensure();
             ServiceHub.ResetPlaythrough();
+            ServiceHub.ManualEvents.YieldToAuthoredPools = false;
             EventBus.Clear();
         }
 

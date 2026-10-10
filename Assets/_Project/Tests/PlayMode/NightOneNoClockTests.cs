@@ -53,19 +53,20 @@ namespace NO404.Tests
                 ServiceHub.Interphone.Grant(Visitors.VisitorAccessLevel.FloorPass);
         }
 
+        // Tonight's roster, not every case filed under night 1: v5.1 deals five or six of
+        // fifteen, and an undrawn quest is not a job the caretaker was ever given.
         static int NightOneDone()
         {
             int done = 0;
-            foreach (var runtime in ServiceHub.Cases.AllCases)
-                if (runtime.Definition.nightIndex == 1 && runtime.State.IsResolved()) done++;
+            foreach (var runtime in ServiceHub.Cases.RosterTonight)
+                if (runtime.State.IsResolved()) done++;
             return done;
         }
 
         static int NightOneTotal()
         {
             int total = 0;
-            foreach (var runtime in ServiceHub.Cases.AllCases)
-                if (runtime.Definition.nightIndex == 1) total++;
+            foreach (var runtime in ServiceHub.Cases.RosterTonight) total++;
             return total;
         }
 
@@ -120,26 +121,27 @@ namespace NO404.Tests
 
             ServiceHub.Dialogue.End();
 
-            // C00 first, so the queue reaches C01 - the vacant unit.
+            // The first job of the shift, so the queue reaches the story subquest (v5.1 4.2).
             JudgeWhoeverIsAtTheDoor();
-            ServiceHub.Cases.Find("C00").SetState(CaseState.ConsequenceApplied,
-                                                  ServiceHub.Clock.GameSecond);
+            ServiceHub.Cases.Find(ServiceHub.Cases.NightChain[0]).SetState(CaseState.ConsequenceApplied,
+                                                                           ServiceHub.Clock.GameSecond);
 
             int guard = 0;
-            while (!ServiceHub.Cases.Find("C01").State.IsActive() && ++guard < 30)
+            while (!ServiceHub.Cases.Find("N1-R01").State.IsActive() && ++guard < 30)
                 yield return null;
 
-            Assert.IsTrue(ServiceHub.Cases.Find("C01").State.IsActive(), "C01 should be the next job");
+            Assert.IsTrue(ServiceHub.Cases.Find("N1-R01").State.IsActive(), "N1-R01 should be the next job");
 
-            // Min-seo is the whole of C02. She has to be here now, not at 22:48.
+            // Min-seo is the whole of N1-R01. She has to be here now, not at 23:05.
             Assert.IsTrue(ServiceHub.Interphone.HasWaitingVisitor,
                           "the nurse did not arrive with the job she belongs to");
 
             JudgeWhoeverIsAtTheDoor();
             yield return null;
+            ServiceHub.Cases.Tick();
 
-            Assert.AreNotEqual(CaseState.Dormant, ServiceHub.Cases.Find("C02").State,
-                "night 1's sixth job never opened, so the shift could not be finished");
+            Assert.AreEqual(CaseState.DecisionReady, ServiceHub.Cases.Find("N1-R01").State,
+                "the door decision should leave the nurse's report ready to file");
         }
     }
 }

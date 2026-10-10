@@ -216,6 +216,7 @@ namespace NO404.Anomalies
         public void Reset()
         {
             _active.Clear();
+            YieldToAuthoredPools = true;
             BuildRuntimes();
         }
 
@@ -248,9 +249,17 @@ namespace NO404.Anomalies
             }
         }
 
+        /// <summary>
+        /// v5.1 4.1: a night with its own fifteen-quest pool is already five or six jobs long,
+        /// so the old night-response chain stands down on it. A switch rather than a constant
+        /// so the runtime tests can still drive these events on the nights they were written for.
+        /// </summary>
+        public bool YieldToAuthoredPools { get; set; } = true;
+
         /// <summary>Whether an event belongs to this night (spec 22; M13 spans nights 1-5).</summary>
-        static bool AppearsOn(ManualEventDefinition def, int nightIndex)
+        bool AppearsOn(ManualEventDefinition def, int nightIndex)
         {
+            if (YieldToAuthoredPools && Cases.NightPoolService.HasAuthoredPool(nightIndex)) return false;
             if (!def.repeatsNightly) return def.nightIndex == nightIndex;
             int last = def.lastNightIndex > 0 ? def.lastNightIndex : def.nightIndex;
             return nightIndex >= def.nightIndex && nightIndex <= last;

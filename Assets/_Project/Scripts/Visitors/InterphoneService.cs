@@ -225,6 +225,7 @@ namespace NO404.Visitors
                 ServiceHub.ActiveVisitors.Admit(visitor, level, GrantingPlayerId);
 
             EventBus.Publish(new VisitorDecidedEvent(visitor.visitorId, (int)level));
+            Cases.SubquestRules.VisitorDecided(visitor.visitorId, (int)level);
             ServiceHub.Cases.NotifyObjective(Cases.ObjectiveType.JudgeVisitor, visitor.visitorId);
             ServiceHub.Analytics.Track("visitor_access", visitor.visitorId + ":" + level);
             Log.Info("Interphone", visitor.visitorId + " -> " + level + " (" + judgement + ")");
