@@ -562,6 +562,13 @@ namespace NO404.Core
             ServiceHub.Dialogue.End();
             if (_story != null) _story.Stop();
 
+            // The pool needs a campaign seed before the first draw. Minted on a new game and
+            // replayed from the save on a continue, so the same campaign always deals the
+            // same six nights (v5.0 4.4 step 10). It has to come before Cases.BeginNight,
+            // which is the draw: minted after it, night 1 of every new game was drawn with
+            // seed 0 and dealt the same three randoms every time.
+            if (ServiceHub.NightPool.CampaignSeed == 0) ServiceHub.NightPool.BeginCampaign(0);
+
             ServiceHub.Clock.SetGameSecond(GameClock.ShiftStartSecond);
             ServiceHub.State.BeginNight(nightIndex);
             ServiceHub.Cases.BeginNight(nightIndex);
@@ -578,11 +585,6 @@ namespace NO404.Core
             // An endless run replays the roster, so last shift's judgements must not keep this
             // shift's callers away from the door.
             if (ServiceHub.State.EndlessMode) ServiceHub.Interphone.Reset();
-
-            // The pool needs a campaign seed before the first draw. Minted on a new game and
-            // replayed from the save on a continue, so the same campaign always deals the
-            // same six nights (v5.0 4.4 step 10).
-            if (ServiceHub.NightPool.CampaignSeed == 0) ServiceHub.NightPool.BeginCampaign(0);
 
             ServiceHub.Vitals.BeginNight(nightIndex);
             ServiceHub.Hints.Reset();
