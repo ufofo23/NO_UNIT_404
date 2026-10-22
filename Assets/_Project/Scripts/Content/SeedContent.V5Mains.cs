@@ -72,8 +72,10 @@ namespace NO404.ContentData
                 Evidence_("EV_CHOI_APPROVAL", EvidenceType.Document, "N5-M01", false),
                 Evidence_("EV_404_DELETION", EvidenceType.Document, "N5-M01", false),
 
-                // N6: what 404 was actually for.
-                Evidence_("EV_ORIGINAL_LEDGER", EvidenceType.Document, "N6-M01", true)
+                // N6: what he did, and what is left of him. The ledger is E19 (BuildLateEvidence),
+                // the copy the stalker on night 5 can still take off the caretaker.
+                Evidence_("EV_N6_LAST_RESCUE", EvidenceType.AudioRecording, "N6-M01", true),
+                Evidence_("EV_DONGSIK_REMAINS", EvidenceType.PhysicalObject, "N6-M01", true)
             };
         }
 
@@ -320,6 +322,31 @@ namespace NO404.ContentData
             c.failSafe = FailSafe(T0300, null, "case.n2m01.failsafe.notify");
             c.analyticsName = "n2_main_two_junho";
             return c;
+        }
+
+        /// <summary>v5.1 15 balanced route: the building safety the earlier nights must have left.</summary>
+        public const int BalancedRouteSafety = 60;
+
+        /// <summary>The id v5.1 15 uses for the last rescue, played over 404.</summary>
+        public const string CinematicN6Echo = "CIN-N6-ECHO";
+
+        /// <summary>
+        /// v5.1 15: the evidence leaves the building. This is v5.1 8.1's ExternalEvidenceSent,
+        /// after which the past fades out of 404 (ECHO_RELEASE_SEQUENCE - a presentation
+        /// state, not a law about time). Her name goes onto the new list from here only if
+        /// the record survived night 4; otherwise the ending has her sister write it.
+        /// </summary>
+        static ConsequenceDefinition[] SendOut(string channelFlag)
+        {
+            return new[]
+            {
+                ConsequenceDefinition.Flag(FlagIds.ExternalEvidenceSent, true),
+                ConsequenceDefinition.Flag(FlagIds.EvidencePublished, true),
+                ConsequenceDefinition.Flag(channelFlag, true),
+                ConsequenceDefinition.Flag(FlagIds.EchoReleaseSequence, true),
+                ConsequenceDefinition.Flag(FlagIds.EndHarinRecordFirstRegistered, true)
+                    .When(ConditionDefinition.Flag(FlagIds.HarinRecordPreserved))
+            };
         }
 
         /// <summary>Set by N3-M01 when the caretaker held her own height against the wall's.</summary>
@@ -660,71 +687,109 @@ namespace NO404.ContentData
         // =================================================================
 
         /// <summary>
-        /// The last shift before the building is sealed. The player opens 404, decides between
-        /// a man and a ledger, and leaves.
+        /// The last shift before the building is sealed (v5.1 15). The caretaker opens 404 with
+        /// the prologue's key, watches the 2009 rescue play over the burnt room - Park
+        /// Dong-sik putting the elder girl out and going back in for the one more inside - and
+        /// finds, where it ends, what is left of him. There is time to bring out him or the
+        /// original ledger, both only if the building was looked after. Then the evidence goes
+        /// out, and that is the ending.
         ///
-        /// The ending is not chosen here. v5.0 8.1 gates it on HP and SAN at this quest's
-        /// final stage, and what is decided in these four options only changes the epilogue -
-        /// which is the whole reason the grade could be simplified to two numbers without
-        /// making the campaign's choices weightless.
+        /// He is never alive here (v5.1 0.13, 29-19, 30.4). Nothing in this quest rescues him,
+        /// spawns him or makes him a target: what can be recovered is his remains, his name
+        /// tag and his radio.
+        ///
+        /// The ending is not chosen here either. There is one (v5.1 8.1); these choices are
+        /// shots inside it.
         /// </summary>
         static CaseDefinition BuildN6Main()
         {
             var c = Main("N6-M01", 6, AnomalyFamily.Identity, 26f);
             c.questType = QuestType.Main;
-            c.evidenceIds = new[] { "EV_ORIGINAL_LEDGER" };
 
-            c.objectives = new[]
+            // v5.1 15: the rescue as it happened, what is left of him, and the ledger.
+            c.evidenceIds = new[] { "EV_N6_LAST_RESCUE", "EV_DONGSIK_REMAINS", "E19_ORIGINAL_LEDGER" };
+
+            // v5.1 15 "balanced route": only somebody whose earlier nights left the building
+            // sound has time for both. Fixed when the night opens, so nothing done tonight
+            // can buy it after the fact.
+            c.onStart = new[]
             {
-                Objective("obj_enter_404", "case.n6m01.objective.enter_404",
-                          ObjectiveType.EnterZone, ZoneIds.Unit404),
-                Objective("obj_take_ledger", "case.n6m01.objective.take_ledger",
-                          ObjectiveType.AcquireEvidence, "EV_ORIGINAL_LEDGER")
+                ConsequenceDefinition.Flag(FlagIds.N6BalancedRoute, true).When(
+                    ConditionDefinition.Stat(StatIds.BuildingSafety, BalancedRouteSafety),
+                    ConditionDefinition.Choice(ChoiceIds.FireDoorStatus, "SAFE"))
             };
 
+            // v5.1 15: SAN -5 for entering 404 at all. Smoke is the HP risk, and how much of
+            // it there is was decided at the fire door on night 5.
+            var enter = Objective("obj_enter_404", "case.n6m01.objective.enter_404",
+                                  ObjectiveType.EnterZone, ZoneIds.Unit404);
+            enter.onComplete = new[]
+            {
+                ConsequenceDefinition.Sanity(-5, "reason.entered_404"),
+                ConsequenceDefinition.Health(-10, "reason.smoke")
+                    .When(ConditionDefinition.Choice(ChoiceIds.FireDoorStatus, "OPEN"))
+            };
+
+            // v5.1 15: the last rescue ECHO, in order - he finds the child, puts her out
+            // through the passage, says there is one more inside, goes back in - and it ends
+            // at the place his remains are. SAN -5 to -8 for watching it: -6.
+            var witness = Objective("obj_witness_rescue", "case.n6m01.objective.witness",
+                                    ObjectiveType.AcquireEvidence, "EV_N6_LAST_RESCUE");
+            witness.onComplete = new[]
+            {
+                ConsequenceDefinition.Sanity(-6, "reason.watched_him_go_back_in"),
+                ConsequenceDefinition.Cinematic(CinematicN6Echo),
+                ConsequenceDefinition.Flag(FlagIds.DongsikRemainsFound, true),
+                ConsequenceDefinition.Flag(FlagIds.DongsikFound, true)
+            };
+
+            // v5.1 15 "시간 부족": bringing him out and securing the ledger compete for the
+            // same minutes. Whichever is done first, the other is lost to the fire - unless
+            // the balanced route is open. Both are optional: the location, the photographs and
+            // the radio record already leave with the send (v5.1 15 실패 / 수습).
+            var recover = Objective("obj_recover_remains", "case.n6m01.objective.recover",
+                                    ObjectiveType.AcquireEvidence, "EV_DONGSIK_REMAINS", true);
+            recover.onComplete = new[]
+            {
+                ConsequenceDefinition.Flag(FlagIds.EndDongsikRemainsRecovered, true),
+                ConsequenceDefinition.Flag(FlagIds.N6LedgerLeftBehind, true)
+                    .When(ConditionDefinition.Flag(FlagIds.N6BalancedRoute, false),
+                          ConditionDefinition.NoEvidence("E19_ORIGINAL_LEDGER"))
+            };
+
+            var ledger = Objective("obj_secure_ledger", "case.n6m01.objective.take_ledger",
+                                   ObjectiveType.AcquireEvidence, "E19_ORIGINAL_LEDGER", true);
+            ledger.onComplete = new[]
+            {
+                ConsequenceDefinition.Flag(FlagIds.LedgerSecured, true),
+                ConsequenceDefinition.Flag(FlagIds.EndLedgerSecured, true),
+                // The ArchiveIntegrity the ledger protects is the +10 every archive-critical
+                // piece of evidence carries (EvidenceService); v5.1 15 sets no other number.
+                ConsequenceDefinition.Flag(FlagIds.N6RemainsLeftBehind, true)
+                    .When(ConditionDefinition.Flag(FlagIds.N6BalancedRoute, false),
+                          ConditionDefinition.NoEvidence("EV_DONGSIK_REMAINS"))
+            };
+
+            c.objectives = new[] { enter, witness, recover, ledger };
+
+            // v5.1 15: the last step is sending it out, and the only choice left is who to.
+            // Every channel is the single ending (v5.1 8.1); the channel is a shot inside it.
             c.decisions = new[]
             {
-                Decision("dec_people_first", "case.n6m01.decision.people",
-                    "case.n6m01.result.people", DecisionQuality.Correct,
-                    null, null,
-                    ConsequenceDefinition.Flag(FlagIds.DongsikRescued, true),
-                    ConsequenceDefinition.Flag(FlagIds.DongsikFound, true),
-                    ConsequenceDefinition.Stat(StatIds.CommunityTrust, 10, "reason.correct_report"),
-                    ConsequenceDefinition.Sanity(-5, "reason.entered_404")),
+                Decision("dec_send_police", "case.n6m01.decision.police",
+                    "case.n6m01.result.police", DecisionQuality.Correct, null, null,
+                    SendOut(FlagIds.SubmittedToPolice)),
 
-                Decision("dec_ledger_first", "case.n6m01.decision.ledger",
-                    "case.n6m01.result.ledger", DecisionQuality.Correct,
-                    null, null,
-                    ConsequenceDefinition.Flag(FlagIds.LedgerSecured, true),
-                    ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, 15, "reason.correct_report"),
-                    ConsequenceDefinition.Sanity(-5, "reason.entered_404")),
+                Decision("dec_send_media", "case.n6m01.decision.media",
+                    "case.n6m01.result.media", DecisionQuality.Correct, null, null,
+                    SendOut(FlagIds.SubmittedToMedia)),
 
-                // v5.0 15: both, but only for somebody whose earlier nights bought the time.
-                Decision("dec_both", "case.n6m01.decision.both",
-                    "case.n6m01.result.both", DecisionQuality.Correct,
-                    null,
-                    new[]
-                    {
-                        ConditionDefinition.Stat(StatIds.BuildingSafety, 60),
-                        ConditionDefinition.Flag(FlagIds.DongsikSignalFound, true)
-                    },
-                    ConsequenceDefinition.Flag(FlagIds.DongsikRescued, true),
-                    ConsequenceDefinition.Flag(FlagIds.DongsikFound, true),
-                    ConsequenceDefinition.Flag(FlagIds.LedgerSecured, true),
-                    ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, 15, "reason.correct_report"),
-                    ConsequenceDefinition.Stat(StatIds.CommunityTrust, 10, "reason.correct_report"),
-                    ConsequenceDefinition.Health(-8, "reason.structure_gave_way"),
-                    ConsequenceDefinition.Sanity(-5, "reason.entered_404")),
-
-                Decision("dec_leave", "case.n6m01.decision.leave",
-                    "case.n6m01.result.leave", DecisionQuality.Wrong,
-                    null, null,
-                    ConsequenceDefinition.Stat(StatIds.ArchiveIntegrity, -20, "reason.wrong_report"),
-                    ConsequenceDefinition.Stat(StatIds.CommunityTrust, -10, "reason.wrong_report"),
-                    ConsequenceDefinition.Sanity(-5, "reason.entered_404"))
+                Decision("dec_send_residents", "case.n6m01.decision.residents",
+                    "case.n6m01.result.residents", DecisionQuality.Correct, null, null,
+                    SendOut(FlagIds.SubmittedToResidents))
             };
 
-            c.failSafe = FailSafe(T0300, null, "case.n6m01.failsafe.notify");
+            c.failSafe = FailSafe(T0300, "EV_N6_LAST_RESCUE", "case.n6m01.failsafe.notify");
             c.analyticsName = "n6_main_unit_404";
             return c;
         }

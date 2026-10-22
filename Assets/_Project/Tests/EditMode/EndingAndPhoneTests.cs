@@ -36,12 +36,14 @@ namespace NO404.Tests
             EventBus.Clear();
         }
 
+        /// <summary>v5.1 8.1: one ending, and the result for not reaching it.</summary>
         [Test]
-        public void AllFiveGddEndingsExist()
+        public void TheOneEndingAndTheFailureResultBothExist()
         {
-            for (int i = 0; i < EndingIds.All.Length; i++)
-                Assert.IsNotNull(ServiceHub.Content.FindEnding(EndingIds.All[i]),
-                                 "missing " + EndingIds.All[i]);
+            CollectionAssert.AreEqual(new[] { EndingIds.SingleEnding404Existed }, EndingIds.All);
+            Assert.IsNotNull(ServiceHub.Content.FindEnding(EndingIds.SingleEnding404Existed));
+            Assert.IsNotNull(ServiceHub.Content.FindEnding(EndingIds.NoEnding));
+            CollectionAssert.DoesNotContain(EndingIds.All, EndingIds.NoEnding);
         }
 
         [Test]
@@ -54,71 +56,6 @@ namespace NO404.Tests
                                ending.endingId + " shares or precedes another ending's order");
                 previous = ending.evaluationOrder;
             }
-        }
-
-        /// <summary>
-        /// The failure result is authored and reachable but is not one of the four (v5.0 8.1).
-        /// </summary>
-        [Test]
-        public void TheFailureResultExistsAndIsNotAGrade()
-        {
-            Assert.IsNotNull(ServiceHub.Content.FindEnding(EndingIds.NoEnding));
-            CollectionAssert.DoesNotContain(EndingIds.All, EndingIds.NoEnding);
-        }
-
-        /// <summary>
-        /// v5.0 8.3: the grade is HP and SAN, and the choices change the epilogue instead.
-        ///
-        /// This is what replaced the old condition-matched endings. Their claim - that six
-        /// nights of decisions are worth something at the end - is still the claim; it is just
-        /// no longer made by moving somebody between letters.
-        /// </summary>
-        [Test]
-        public void AnEmptyCampaignEarnsNoEpilogueLines()
-        {
-            CollectionAssert.IsEmpty(ServiceHub.Endings.EpilogueModifiers());
-        }
-
-        [Test]
-        public void RescuingDongsikIsNamedInTheEpilogue()
-        {
-            ServiceHub.State.SetFlag(FlagIds.DongsikRescued, true);
-            CollectionAssert.Contains(ServiceHub.Endings.EpilogueModifiers(),
-                                      "ending.epilogue.dongsik_survived");
-        }
-
-        [Test]
-        public void PreservingHarinsRecordPutsHerNameBack()
-        {
-            ServiceHub.State.SetFlag(FlagIds.HarinRecordPreserved, true);
-            CollectionAssert.Contains(ServiceHub.Endings.EpilogueModifiers(),
-                                      "ending.epilogue.harin_named");
-        }
-
-        [Test]
-        public void TheArchiveAndTheResidentsSpeakOnlyWhenTheyWereEarned()
-        {
-            var modifiers = ServiceHub.Endings.EpilogueModifiers();
-            CollectionAssert.DoesNotContain(modifiers, "ending.epilogue.records_verified");
-            CollectionAssert.DoesNotContain(modifiers, "ending.epilogue.residents_testify");
-
-            ServiceHub.State.SetStat(StatIds.ArchiveIntegrity, 70);
-            ServiceHub.State.SetStat(StatIds.CommunityTrust, 70);
-
-            modifiers = ServiceHub.Endings.EpilogueModifiers();
-            CollectionAssert.Contains(modifiers, "ending.epilogue.records_verified");
-            CollectionAssert.Contains(modifiers, "ending.epilogue.residents_testify");
-        }
-
-        /// <summary>
-        /// A building left unsafe says so, whatever letter the caretaker walked away with.
-        /// </summary>
-        [Test]
-        public void AnUnsafeBuildingIsReportedInTheEpilogue()
-        {
-            ServiceHub.State.SetStat(StatIds.BuildingSafety, 30);
-            CollectionAssert.Contains(ServiceHub.Endings.EpilogueModifiers(),
-                                      "ending.epilogue.residents_hurt");
         }
     }
 
@@ -350,9 +287,14 @@ namespace NO404.Tests
             Assert.AreEqual(6, final.nightIndex);
             Assert.IsTrue(final.isFixedMain);
 
-            // v5.0 15 lists four ways out of 404: the man, the ledger, both, or neither.
-            Assert.GreaterOrEqual(final.decisions.Length, 4,
-                                  "the last night has to offer a real choice about what to carry out");
+            // v5.1 15: what is carried out of 404 - his remains, the ledger, both or neither -
+            // is decided in the room, by two optional objectives that compete for the same
+            // minutes. The report afterwards only says where the evidence went.
+            int optional = 0;
+            foreach (var objective in final.objectives)
+                if (objective.optional && objective.type == ObjectiveType.AcquireEvidence) optional++;
+            Assert.GreaterOrEqual(optional, 2, "the last night has to offer a real choice about what to carry out");
+            Assert.GreaterOrEqual(final.decisions.Length, 1, "the evidence has nowhere to go");
         }
 
         [Test]

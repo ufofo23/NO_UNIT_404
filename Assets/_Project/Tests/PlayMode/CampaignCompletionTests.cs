@@ -225,15 +225,19 @@ namespace NO404.Tests
             var ending = ServiceHub.Endings.Evaluate();
             Assert.IsNotNull(ending, "the campaign finished and no ending was reachable");
 
-            Assert.AreEqual(EndingService.GradeFor(hp, san), ending.endingId,
-                            "the ending disagrees with the HP/SAN it was supposedly graded on");
+            // v5.1 8.1: there is one ending, and the walk sent the evidence out.
+            Assert.AreEqual(EndingIds.SingleEnding404Existed, ending.endingId,
+                            "the campaign was finished and the evidence sent, and it did not reach the ending");
 
             Assert.AreEqual(100, hp,
                             "no first-choice decision on any night costs health, so HP should be full");
 
-            // Six mains, first decision each, cost -3 -5 -2 -9 -13 -5. v5.1 adds
+            // Six mains, first decision each, cost -3 -5 -2 -9 -13 -11. v5.1 adds
             // five SAN when Park's final rescue is cross-verified. Night 6 closes, and the shift
-            // gives seven back (v5.0 7.3) - so 100 - 37 + 7.
+            // gives seven back (v5.0 7.3) - so 100 - 43 + 7.
+            //
+            // Night 6 is eleven: five for going into 404, six for watching the 2009 rescue to
+            // where it ends (v5.1 15). It used to be a flat five charged by the report.
             //
             // Night 4 is nine: eight for reading her own name on the row, three back for
             // settling it against the paper ledger, four for the memory that follows the
@@ -247,11 +251,11 @@ namespace NO404.Tests
             // clocking off each one; a played campaign collects five more. Which is the point
             // worth keeping: even the harshest reading of the current content leaves a
             // caretaker who takes no physical risk comfortably above the gate.
-            CollectionAssert.AreEqual(new[] { "N1:-3", "N2:-5", "N3:-2", "N4:-9", "N5:-13", "N6:-5" },
+            CollectionAssert.AreEqual(new[] { "N1:-3", "N2:-5", "N3:-2", "N4:-9", "N5:-13", "N6:-11" },
                                       sanByNight,
                                       "the SAN cost of a night's main changed");
 
-            Assert.AreEqual(100 - 37 + VitalService.NightEndCalm, san,
+            Assert.AreEqual(100 - 43 + VitalService.NightEndCalm, san,
                             "the six mains and one end-of-shift recovery should leave SAN here");
         }
 
@@ -293,14 +297,15 @@ namespace NO404.Tests
         }
 
         /// <summary>
-        /// The same six nights, walked by somebody the building has worn down.
+        /// The same six nights, walked by somebody the building has worn down - and then by
+        /// somebody it killed.
         ///
-        /// v5.0 8.1's gate is the one part of the ending that can make a finished campaign
-        /// produce no ending at all, so it is worth proving it fires rather than trusting the
-        /// arithmetic to have been wired to something.
+        /// v5.1 8.1 takes SAN out of the ending entirely: being worn down makes the last night
+        /// harder to get through, it does not make the ending worse. HP 0 is the one state
+        /// that has no ending, because it is death and not a grade.
         /// </summary>
         [UnityTest]
-        public IEnumerator ACaretakerBelowTheGateFinishesTheWorkAndGetsNoEnding()
+        public IEnumerator SanityDoesNotGradeTheEndingAndDeathHasNone()
         {
             var loop = GameLoop.Instance;
             yield return BuildTheWorld(loop);
@@ -315,14 +320,139 @@ namespace NO404.Tests
                 ResolveEverythingDrawn(night, resolved);
             }
 
-            // Below thirty SAN at the final reveal (v5.0 8.1).
-            ServiceHub.Vitals.Strain(ServiceHub.Vitals.San - 20, "test");
-            Assert.AreEqual(EndingGate.MentalBreakdown, ServiceHub.Vitals.Gate);
-
+            ServiceHub.Vitals.Strain(ServiceHub.Vitals.San - 1, "test");
             var ending = ServiceHub.Endings.Evaluate();
             Assert.IsNotNull(ending);
-            Assert.AreEqual(EndingIds.NoEnding, ending.endingId,
-                            "finishing the work does not by itself earn an ending");
+            Assert.AreEqual(EndingIds.SingleEnding404Existed, ending.endingId,
+                            "one point of SAN and the evidence sent is still the ending");
+
+            ServiceHub.Vitals.Damage(ServiceHub.Vitals.Hp, "test");
+            ending = ServiceHub.Endings.Evaluate();
+            Assert.IsNotNull(ending);
+            Assert.AreEqual(EndingIds.NoEnding, ending.endingId, "a caretaker at HP 0 did not walk out");
+        }
+
+        /// <summary>
+        /// Picks up a ringing phone and listens to the end, and turns away whoever is still
+        /// at the door - the two things a shift waits on that are not a case.
+        /// </summary>
+        static void ClearTheLines()
+        {
+            ListenToWhateverIsTalking();
+            if (ServiceHub.Phone.IsRinging)
+            {
+                ServiceHub.Phone.Answer();
+                ListenToWhateverIsTalking();
+            }
+            if (ServiceHub.Interphone.Active != null)
+                ServiceHub.Interphone.Grant(Visitors.VisitorAccessLevel.Reject);
+        }
+
+        /// <summary>
+        /// Waits on the game, never longer than <paramref name="seconds"/> of real time.
+        /// </summary>
+        static IEnumerator Until(System.Func<bool> condition, float seconds = 20f)
+        {
+            float deadline = UnityEngine.Time.realtimeSinceStartup + seconds;
+            while (!condition() && UnityEngine.Time.realtimeSinceStartup < deadline) yield return null;
+        }
+
+        /// <summary>
+        /// The mains, played the way the game moves between them rather than jumped to.
+        ///
+        /// The walk above starts each night with DebugStartNight and reads the ending off
+        /// Evaluate. Neither is a thing a player does. This one opens a new game, and from
+        /// there only clocks off, reads the summary, presses Continue - the same callback the
+        /// summary button runs - and on the last night lets the report close the shift by
+        /// itself, the way v5.1 15 ends it. It finishes on the ending screen and the way back
+        /// to the menu, so a break anywhere between two nights is caught, not only inside one.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator TheMainsPlayFromTheFirstNightToTheEndingScreen()
+        {
+            var loop = GameLoop.Instance;
+            Assert.IsNotNull(loop, "no GameLoop - the test scene did not boot");
+
+            MainOnlyMode.Set(true);
+            yield return BuildTheWorld(loop);
+            yield return Until(() => loop.Mode == GameMode.Playing && ServiceHub.State.NightIndex == 1);
+            Assert.AreEqual(GameMode.Playing, loop.Mode, "a new game never reached night 1");
+
+            var resolved = new List<string>();
+
+            for (int night = 1; night <= GameLoop.FinalNight; night++)
+            {
+                Assert.AreEqual(night, ServiceHub.State.NightIndex);
+                string main = "N" + night + "-M01";
+
+                // The main is handed out by the night, not by the test. Whatever is talking
+                // when it opens is listened to, and the clock is walked forward a minute at a
+                // time in case the main waits for its hour.
+                for (int minute = 0; minute < 8 * 60; minute++)
+                {
+                    ListenToWhateverIsTalking();
+                    var runtime = ServiceHub.Cases.Find(main);
+                    if (runtime != null && runtime.State.IsActive()) break;
+
+                    yield return null;
+                    if (ServiceHub.Clock.GameSecond + 60 < GameClock.ShiftEndSecond)
+                        ServiceHub.Clock.SetGameSecond(ServiceHub.Clock.GameSecond + 60);
+                }
+
+                Assert.IsTrue(ServiceHub.Cases.Find(main).State.IsActive(),
+                              "night " + night + " never handed out " + main);
+
+                ResolveEverythingDrawn(night, resolved);
+                CollectionAssert.Contains(resolved, main, "night " + night + " never closed its main");
+                yield return null;
+                ListenToWhateverIsTalking();
+
+                if (night < GameLoop.FinalNight)
+                {
+                    // Whatever rang or knocked while the night was being played is answered
+                    // the way a player clears it before clocking off.
+                    for (int guard = 0; guard < 32 && !loop.CanEndShiftEarly(); guard++)
+                    {
+                        ClearTheLines();
+                        yield return null;
+                    }
+                    Assert.AreEqual(GameLoop.ShiftBlocker.None, loop.CurrentShiftBlocker,
+                                    "night " + night + ": the main is closed and the shift cannot be clocked off");
+
+                    loop.RequestEndShift();
+                    yield return Until(() => loop.Mode == GameMode.NightSummary, 5f);
+                    Assert.AreEqual(GameMode.NightSummary, loop.Mode, "night " + night + " clocked off and showed no summary");
+
+                    loop.DebugAdvanceNight();
+                    int next = night + 1;
+                    yield return Until(() => loop.Mode == GameMode.Playing && ServiceHub.State.NightIndex == next);
+                    Assert.AreEqual(next, ServiceHub.State.NightIndex, "Continue after night " + night + " opened no next night");
+                    Assert.AreEqual(GameMode.Playing, loop.Mode, "night " + next + " never became playable");
+                }
+            }
+
+            // v5.1 15: sending the evidence is the end of the shift. Nobody clocks off.
+            yield return Until(() => loop.Mode == GameMode.Ending, 10f);
+            Assert.AreEqual(GameMode.Ending, loop.Mode, "the last report was filed and the game did not end");
+            Assert.IsNotNull(ServiceHub.Endings.Reached);
+            Assert.AreEqual(EndingIds.SingleEnding404Existed, ServiceHub.Endings.Reached.endingId);
+            Assert.IsTrue(ServiceHub.State.GetFlag(FlagIds.ExternalEvidenceSent));
+
+            UI.EndingView view = null;
+            foreach (var candidate in UnityEngine.Object.FindObjectsByType<UI.EndingView>(UnityEngine.FindObjectsSortMode.None))
+                view = candidate;
+            Assert.IsNotNull(view, "the game is in its ending and no ending screen is open");
+
+            UnityEngine.UI.Text body = null;
+            foreach (var text in view.GetComponentsInChildren<UnityEngine.UI.Text>())
+                if (text.name == "Body") body = text;
+            StringAssert.StartsWith(Loc.T("ending.shot.exit_404"), body.text);
+            StringAssert.EndsWith(Loc.T("ending.shot.404_restored"), body.text);
+
+            // And out again: the ending's one button goes back to the menu.
+            view.OnContinue();
+            yield return Until(() => loop.Mode == GameMode.Menu, 5f);
+            Assert.AreEqual(GameMode.Menu, loop.Mode, "the ending has no way back to the menu");
         }
     }
 }

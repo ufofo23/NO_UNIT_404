@@ -127,3 +127,45 @@ GDD의 설계를 바꾼 것은 없고, GDD가 정하지 않은 부분을 구현�
 - **삭제의 ChairmanAlert.** 지시를 따랐는데도 +5 인 것은, 시나리오북에서 최경태가 그날 명단의 `윤서우`를 근무자 정보와 대조하기 때문이다. 0 으로 둘지.
 - **1일차의 404호 명단 노출.** 1일차에 3초간 스치는 404호 행이 예전에는 `윤하린`이라는 이름으로 보였다 (§0.16 위반). 지금은 `윤***` 로 가려진다. 1일차 담당과 확인 필요.
 - **N4-R10 "선자의 증언".** 매 런 고정 등장해야 하는데 v5.1 구조로는 아직 없다. 메인의 "선자 상태에 따른 가족사진/과거 기억" 대조도 이 사건이 생긴 뒤에 붙일 수 있다.
+
+---
+
+## P-03. N6-M01 "404호는 있었습니다" 와 단일 엔딩 — 구현하면서 정한 것
+
+- 대상: GDD v5.1 §15 `N6-M01`, §8 단일 엔딩 / Conditional Shot, §30.4·30.5 수용 기준
+- 구현 위치: `SeedContent.V5Mains.cs` (`BuildN6Main`), `EndingService.cs` (`Evaluate`, `EndingShots`), `EndingViews.cs`, `WorldBuilder.cs` (`BuildUnit404Interior`), `StorySequenceView.cs` (`CIN-N6-ECHO`)
+- 상태: 구현됨, GDD 미반영
+
+v5.0의 A~D 등급 엔딩과 "살아 있는 박동식 구조"를 v5.1 계약대로 걷어냈다. 엔딩은 하나이고,
+여섯 밤의 선택은 그 엔딩 안의 컷으로만 달라진다. GDD 설계를 바꾼 것은 없고 GDD가 정하지 않은
+수치·시점·판정 규칙을 정했다.
+
+### 정한 것
+
+| 항목 | GDD | 구현 |
+|---|---|---|
+| 엔딩 도달 | FinalMainQuestCompleted + ExternalEvidenceSent, 생존 | 같음. N6-M01 이 해결되고 `EXTERNAL_EVIDENCE_SENT` 이면 단일 엔딩, HP 0 이면 엔딩 없음. SAN 은 어떤 값이어도 같은 엔딩 |
+| 외부 전송 | 경찰 / 언론 / 주민 | 보고서의 결정 3개 (`dec_send_police/media/residents`). 셋 다 같은 엔딩이고 채널은 엔딩 안 한 컷 (`ending.shot.sent.*`) |
+| 404 진입 | SAN -5, 연기 HP 위험 | 진입 순간 SAN -5. 5일차 방화문이 `OPEN` 이면 HP -10, `SAFE`·`JAMMED` 면 0 |
+| 마지막 구조 ECHO | SAN -5~-8 | 시청 순간 SAN -6. 끝나는 자리에 유해가 있다는 플래그 `DONGSIK_REMAINS_FOUND` |
+| CIN-N6-ECHO | Timeline 영상 | 인게임 연출. 2009/현재 대비 + 자막 5줄, 줄당 4.5초, 건너뛰기 가능. 아트 단계에서 Timeline 으로 교체 |
+| 시간 부족 | "유해 수습과 원본 장부 확보가 같은 시간을 다툰다" | **먼저 한 쪽이 끝나면 다른 쪽은 사라진다** (`N6_REMAINS_LEFT_BEHIND` / `N6_LEDGER_LEFT_BEHIND`). 실시간 타이머는 두지 않았다 |
+| 균형 루트 | "이전 밤 관리가 좋으면 둘 다" | 6일차 시작 시점에 `BuildingSafety ≥ 60` 이고 방화문 `SAFE` 이면 `N6_BALANCED_ROUTE`. 시작할 때 한 번만 정해진다 |
+| 원본 장부 | 증거 항목 | 기존 `E19_ORIGINAL_LEDGER` 를 그대로 쓴다 (v5.0 의 `EV_ORIGINAL_LEDGER` 는 제거). ArchiveIntegrity 는 보관 핵심 증거의 기본 +10 만 오른다 |
+| 둘 다 못 가져온 경우 | 위치·사진·무전 기록이 대신 나간다 | 두 목표 모두 선택이고, 아무것도 들고 나오지 않아도 전송하면 같은 엔딩. 컷은 `dongsik.located`, `ledger.digital` |
+| 엔딩 연출 | Conditional Shot 영상 | 컷 문구를 순서대로 이어 붙인 텍스트. 공통 프레임 (404 탈출 → 전송 → … → 며칠 뒤 → 새벽 → 404 복원 도면) 은 항상 같다 |
+| 하린 기록 | 명단 인쇄 / 서우가 손으로 적음 | 4일차 `HarinRecordPreserved` 이면 전송할 때 `END_HARIN_RECORD_FIRST_REGISTERED`. 어느 쪽이든 명단에 `윤하린` 이 나온다 |
+
+### 걷어낸 것
+
+- 엔딩 `ENDING_A` ~ `ENDING_D`, 등급 판정 `GradeFor`, 에필로그 수정자. 엔딩 ID 는 `SINGLE_ENDING_404_EXISTED` 와 실패 결과 `ENDING_NONE` 둘뿐이다.
+- 404호 안의 살아 있는 박동식과 구조 대화 (`D_N6_DONGSIK_RESCUE` 상호작용). 6일차 어떤 결과도 `DongsikRescued` 를 세우지 않는다.
+
+### 함께 정해야 할 것
+
+- **SAN -6.** -5~-8 범위에서 골랐다. 앞선 밤의 누적 (캠페인 테스트 기준 N6 합계 -11) 을 보고 조정할지.
+- **균형 루트 기준.** `BuildingSafety 60` 은 임의값이다. 5일차 담당 쪽 Safety 변동 폭과 맞춰 봐야 한다.
+- **실시간 시간 압박.** 지금은 "순서" 로만 표현된다. 연기 타이머를 붙일지는 연출 단계에서 결정.
+- **남은 문자열·업적.** `ending.ending_a..e.*`, `epilogue.*` 문자열과 등급 엔딩에 묶였던 업적 (Silence / Erased / Collapse) 이 이제 쓰이지 않는다. 지울지 다른 조건에 붙일지.
+- **404호 안의 회장 대면 대화.** v5.0 그대로 남아 있다. §15 에는 없다.
+- **N6-R05 고정 서브퀘스트.** v5.1 구조로는 아직 없다.

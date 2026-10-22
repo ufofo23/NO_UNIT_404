@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NO404.Cases;
 using NO404.ContentData;
 using NO404.Core;
 
@@ -53,43 +54,46 @@ namespace NO404.Endings
         /// can no longer tell what they saw. v5.0 8.2's extra restrictions exist to stop
         /// exactly that trade, so they are applied after the score rather than folded into it.
         /// </summary>
+        /// <summary>
+        /// v5.1 8.1, in full:
+        ///
+        ///   HP > 0 AND FinalMainQuestCompleted AND ExternalEvidenceSent -> SINGLE_ENDING_404_EXISTED
+        ///
+        /// HP and SAN do not grade anything. A caretaker on one point of SAN who got the
+        /// evidence out reaches the same ending as one who is untouched; what being worn
+        /// down costs is how hard the last night was to get through (v5.1 8.1, 0.8). HP 0
+        /// and SAN 0 are deaths and breakdowns, handled where they happen, not here.
+        ///
+        /// Anything short of that - the night ran out, nothing was sent - is not a worse
+        /// ending. It is no ending: the campaign did not reach its last scene.
+        /// </summary>
         public EndingDefinition Evaluate()
         {
             var vitals = ServiceHub.Vitals;
-            if (vitals == null) return Find(EndingIds.D_CommunityCollapse);
+            var state = ServiceHub.State;
 
-            if (vitals.Gate != EndingGate.Eligible)
+            if (vitals != null && vitals.Hp <= 0)
             {
-                Log.Info("Ending", "no ending: " + vitals.Gate +
-                                   " (HP " + vitals.Hp + ", SAN " + vitals.San + ")");
+                Log.Info("Ending", "no ending: HP 0");
                 return Find(EndingIds.NoEnding);
             }
 
-            var grade = GradeFor(vitals.Hp, vitals.San);
-            Log.Info("Ending", "grade " + grade + " from HP " + vitals.Hp + " / SAN " + vitals.San +
-                               " (score " + vitals.ConditionScore.ToString("0.0") + ")");
+            var finalMain = ServiceHub.Cases != null ? ServiceHub.Cases.Find(FinalMainId) : null;
+            bool finished = finalMain != null && finalMain.State.IsResolved();
+            bool sent = state != null && state.GetFlag(FlagIds.ExternalEvidenceSent);
 
-            return Find(grade);
+            if (!finished || !sent)
+            {
+                Log.Info("Ending", "no ending: final main " + (finished ? "done" : "open") +
+                                   ", evidence " + (sent ? "sent" : "not sent"));
+                return Find(EndingIds.NoEnding);
+            }
+
+            return Find(EndingIds.SingleEnding404Existed);
         }
 
-        /// <summary>
-        /// v5.0 8.2, as written. Public and static so the acceptance tests can walk the
-        /// thresholds without standing a whole campaign up first.
-        /// </summary>
-        public static string GradeFor(int hp, int san)
-        {
-            float score = hp * 0.55f + san * 0.45f;
-
-            // The two restrictions v5.0 8.2 adds under the table.
-            bool aAllowed = hp >= 55 && san >= 50;
-            bool bAllowed = hp >= 40 && san >= 40;
-
-            if (aAllowed && score >= 85f && hp >= 75 && san >= 75) return EndingIds.A_RecordedPeople;
-            if (bAllowed && score >= 70f && hp >= 60 && san >= 55) return EndingIds.B_SafeSilence;
-            if (score >= 55f && hp >= 45 && san >= 40) return EndingIds.C_Erased404;
-
-            return EndingIds.D_CommunityCollapse;
-        }
+        /// <summary>The main quest whose completion v5.1 8.1 calls FinalMainQuestCompleted.</summary>
+        public const string FinalMainId = "N6-M01";
 
         EndingDefinition Find(string endingId)
         {
@@ -101,30 +105,67 @@ namespace NO404.Endings
         }
 
         /// <summary>
-        /// What the campaign's choices changed about the ending it did not choose (v5.0 8.4).
+        /// CIN-END, as the ordered list of shots it is made of (v5.1 8.2, 8.3, 8.5.5).
         ///
-        /// The grade is two numbers, which is what makes it legible. This is where six nights
-        /// of decisions get their say: who is named in the epilogue, how much of the record
-        /// survives to be verified, whether anybody corroborates it. Returned as keys rather
-        /// than prose so the ending screen can lay them out and the string table can hold them.
+        /// The frame never changes: the exit from 404, the evidence arriving outside, the
+        /// dawn, the number written back onto the plan, the title. Between them sit the
+        /// conditional shots, and every one of them has two forms - neither of which is the
+        /// bad one. v5.1 8.3 is explicit that these are not good and bad endings, and the
+        /// scenario book goes further: where a choice went the other way the shot is often
+        /// the stronger of the two (her name written by hand rather than printed).
+        ///
+        /// Only flags MAIN and FIXED_STORY quests may set are read here (v5.1 8.4).
         /// </summary>
-        public List<string> EpilogueModifiers()
+        public List<string> EndingShots()
         {
             var keys = new List<string>();
             var state = ServiceHub.State;
             if (state == null) return keys;
 
-            if (state.GetFlag(FlagIds.DongsikRescued)) keys.Add("ending.epilogue.dongsik_survived");
-            if (state.GetFlag(FlagIds.HarinRecordPreserved)) keys.Add("ending.epilogue.harin_named");
-            if (state.GetStat(StatIds.ArchiveIntegrity) >= 70) keys.Add("ending.epilogue.records_verified");
-            if (state.GetStat(StatIds.CommunityTrust) >= 70) keys.Add("ending.epilogue.residents_testify");
-            if (state.GetStat(StatIds.ChairmanAlert) >= 80) keys.Add("ending.epilogue.chairman_fights");
-            if (state.GetStat(StatIds.BuildingSafety) < 40) keys.Add("ending.epilogue.residents_hurt");
+            // END_00 / END_01: out of 404, and the evidence is somewhere it cannot be deleted.
+            keys.Add("ending.shot.exit_404");
+            keys.Add(state.GetFlag(FlagIds.SubmittedToMedia) ? "ending.shot.sent.media"
+                   : state.GetFlag(FlagIds.SubmittedToResidents) ? "ending.shot.sent.residents"
+                   : "ending.shot.sent.police");
 
+            // END_02: Seon-ja.
+            if (state.GetFlag(FlagIds.EndSunjaTestimonyFull)) keys.Add("ending.shot.sunja.full");
+            else if (state.GetFlag(FlagIds.EndSunjaTrusted)) keys.Add("ending.shot.sunja.trusted");
+            else keys.Add("ending.shot.sunja.empty_chair");
+
+            // The 2009 call has no "without" shot: v5.1 8.3 leaves it out.
+            if (state.GetFlag(FlagIds.End2009CallPreserved)) keys.Add("ending.shot.call_2009");
+
+            keys.Add(state.GetFlag(FlagIds.EndChildItemsPreserved) ? "ending.shot.child_items.kept"
+                                                                   : "ending.shot.child_items.photo");
+
+            // END_03: Park Dong-sik. Never alive (v5.1 0.13): what changes is how much of what
+            // he did leaves the building with the evidence.
+            keys.Add(state.GetFlag(FlagIds.EndDongsikRemainsRecovered) ? "ending.shot.dongsik.recovered"
+                                                                       : "ending.shot.dongsik.located");
+            keys.Add(state.GetFlag(FlagIds.EndDongsikBroadcastVerified) ? "ending.shot.broadcast.original"
+                                                                        : "ending.shot.broadcast.other_record");
+
+            keys.Add(state.GetFlag(FlagIds.EndHarinDoorOpened) ? "ending.shot.harin_door.memory"
+                                                               : "ending.shot.harin_door.slipper");
+
+            // END_05: the ledger.
+            keys.Add(state.GetFlag(FlagIds.EndLedgerSecured) ? "ending.shot.ledger.opened"
+                                                             : "ending.shot.ledger.digital");
+
+            // "Days later" (scenario book, 제6기): what the investigation corrects.
+            keys.Add("ending.shot.days_later");
+
+            // END_04: her name. Printed, or written by the sister who remembered it.
+            keys.Add(state.GetFlag(FlagIds.EndHarinRecordFirstRegistered) ? "ending.shot.harin_record.printed"
+                                                                          : "ending.shot.harin_record.handwritten");
+
+            // END_06 / END_07: dawn, and the number back on the plan.
+            keys.Add("ending.shot.dawn");
+            keys.Add("ending.shot.404_restored");
             return keys;
         }
 
-        /// <summary>Evaluates, records the result and fires the event that shows the screen.</summary>
         public EndingDefinition Resolve()
         {
             var ending = Evaluate();
@@ -164,10 +205,14 @@ namespace NO404.Endings
             ServiceHub.Settings.Save();
             Log.Info("Ending", "gallery unlocked " + endingId);
 
-            // Only the four grades count towards the collection. NoEnding is authored and
-            // reachable but it is a failure result, and "seen them all" must not require
-            // somebody to have collapsed once (v5.0 8.1).
-            if (settings.unlockedEndings.Count >= EndingIds.All.Length)
+            // Only real endings count towards the collection - there is one (v5.1 8.1) - and
+            // a save from before v5.1 may still hold the four old letters, which must not
+            // count either.
+            int collected = 0;
+            for (int i = 0; i < EndingIds.All.Length; i++)
+                if (settings.unlockedEndings.Contains(EndingIds.All[i])) collected++;
+
+            if (collected >= EndingIds.All.Length)
                 ServiceHub.Steam.Unlock(AchievementIds.Completionist);
         }
 
@@ -176,7 +221,17 @@ namespace NO404.Endings
             return ServiceHub.Settings.Current.unlockedEndings.Contains(endingId);
         }
 
-        public int UnlockedCount { get { return ServiceHub.Settings.Current.unlockedEndings.Count; } }
+        public int UnlockedCount
+        {
+            get
+            {
+                int count = 0;
+                var unlocked = ServiceHub.Settings.Current.unlockedEndings;
+                for (int i = 0; i < EndingIds.All.Length; i++)
+                    if (unlocked.Contains(EndingIds.All[i])) count++;
+                return count;
+            }
+        }
 
         /// <summary>Aftermath of the most recently reached ending, used by the main menu.</summary>
         public EndingAftermath LastAftermath

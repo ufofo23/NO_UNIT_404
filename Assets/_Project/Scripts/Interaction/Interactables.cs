@@ -18,6 +18,8 @@ namespace NO404.Interaction
         [SerializeField] protected int _fromNight = -1;
         [Tooltip("Last night this object is usable. -1 = no end.")]
         [SerializeField] protected int _untilNight = -1;
+        [Tooltip("Once this flag is set the object does nothing. Empty = never.")]
+        [SerializeField] protected string _blockingFlagId;
 
         protected bool _used;
 
@@ -45,6 +47,12 @@ namespace NO404.Interaction
         /// the world but are inert and show no prompt, so the greybox layout never changes
         /// shape between nights.
         /// </summary>
+        /// <summary>
+        /// Something else happening first takes this away: the fire reaching the room, the
+        /// chance having been spent on the other thing.
+        /// </summary>
+        public void BlockWhen(string flagId) { _blockingFlagId = flagId; }
+
         public void SetAvailability(string requiredFlagId, int fromNight, int untilNight = -1)
         {
             _requiredFlagId = requiredFlagId;
@@ -56,6 +64,7 @@ namespace NO404.Interaction
         {
             if (_fromNight >= 0 && ServiceHub.State.NightIndex < _fromNight) return false;
             if (_untilNight >= 0 && ServiceHub.State.NightIndex > _untilNight) return false;
+            if (!string.IsNullOrEmpty(_blockingFlagId) && ServiceHub.State.GetFlag(_blockingFlagId)) return false;
             if (!string.IsNullOrEmpty(_requiredFlagId) && !ServiceHub.State.GetFlag(_requiredFlagId)) return false;
             return true;
         }

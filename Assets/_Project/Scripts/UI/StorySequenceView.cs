@@ -53,6 +53,22 @@ namespace NO404.UI
                     LineKeys = new[] { "cin.n4.line.01", "cin.n4.line.02", "cin.n4.line.03", "cin.n4.line.04" },
                     SecondsPerLine = 5f
                 }
+            },
+
+            // v5.1 15 / scenario book 23:40: the last rescue, in order, over the burnt room.
+            // It is a recording of what he did, not him (v5.1 0.13), and it ends where he fell.
+            {
+                "CIN-N6-ECHO", new Sequence
+                {
+                    LeftKey = "cin.n6.echo.then",
+                    RightKey = "cin.n6.echo.now",
+                    LineKeys = new[]
+                    {
+                        "cin.n6.echo.line.01", "cin.n6.echo.line.02", "cin.n6.echo.line.03",
+                        "cin.n6.echo.line.04", "cin.n6.echo.line.05"
+                    },
+                    SecondsPerLine = 4.5f
+                }
             }
         };
 
