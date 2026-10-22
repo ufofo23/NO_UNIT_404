@@ -108,6 +108,9 @@ namespace NO404.Gameplay
             Ev("N5-R13", ZoneIds.Floor04, "BroadcastPosition", new Vector3(BuildingSpec.HiddenWallCentreX, 1.7f, north), Kit.Plate, "EV_N5R13_POSITION");
             Ev("N5-R14", ZoneIds.Floor04, "OverlapAnalogTemp", new Vector3(4.0f, 1.4f, south), Kit.Gauge, "EV_N5R14_OVERLAP", yaw: 180f);
             Act("N5-R14", ZoneIds.Floor04, "OverlapVisiblePath", new Vector3(-4.0f, 1.0f, south), Kit.Opening, "n5r14_follow", yaw: 180f);
+
+            // Nights 2, 4 and 6 (v5.1 11, 13, 15).
+            BuildEvenSubquestProps();
         }
 
         // ---- placement helpers ----------------------------------------------

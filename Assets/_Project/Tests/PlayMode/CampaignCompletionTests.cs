@@ -260,7 +260,7 @@ namespace NO404.Tests
         }
 
         /// <summary>
-        /// v5.1 4.1: nights 1, 3 and 5 played with their whole draw - main, story subquest and
+        /// v5.1 4.1: all six nights played with their whole draw - main, story subquest and
         /// three or four randoms - and every one of them closes.
         /// </summary>
         [UnityTest]
@@ -277,9 +277,8 @@ namespace NO404.Tests
                 ListenToWhateverIsTalking();
 
                 var drawn = new List<string>(ServiceHub.Cases.DrawnTonight);
-                if (night % 2 == 1)
-                    Assert.That(drawn.Count, Is.InRange(5, 6), "night " + night + " is not a v5.1 night: " +
-                                                                  string.Join(",", drawn.ToArray()));
+                Assert.That(drawn.Count, Is.InRange(5, 6), "night " + night + " is not a v5.1 night: " +
+                                                              string.Join(",", drawn.ToArray()));
 
                 ResolveEverythingDrawn(night, resolved);
                 yield return null;
@@ -290,9 +289,8 @@ namespace NO404.Tests
                                    "night " + night + " cannot be clocked off");
             }
 
-            CollectionAssert.Contains(resolved, "N1-R01");
-            CollectionAssert.Contains(resolved, "N3-R12");
-            CollectionAssert.Contains(resolved, "N5-R13");
+            foreach (var story in new[] { "N1-R01", "N2-R12", "N3-R12", "N4-R10", "N5-R13", "N6-R05" })
+                CollectionAssert.Contains(resolved, story);
             Assert.Greater(ServiceHub.Vitals.Hp, 0, "the walk took no risks it could not survive");
         }
 

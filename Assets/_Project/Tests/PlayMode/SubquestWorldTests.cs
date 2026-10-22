@@ -11,7 +11,7 @@ using NO404.Interaction;
 namespace NO404.Tests
 {
     /// <summary>
-    /// Nights 1/3/5 (v5.1 10, 12, 14) in the built world: every subquest prop is physically
+    /// All six nights' subquests (v5.1 10-15) in the built world: every subquest prop is physically
     /// reachable, silent outside its quest, and the flows with rules of their own - a live
     /// panel, a looping corridor, a broadcast that needs a second witness - play through.
     /// </summary>
@@ -22,7 +22,7 @@ namespace NO404.Tests
         static readonly string[] Streamed =
         {
             ZoneIds.Parking, ZoneIds.RecyclingYard, ZoneIds.Machinery, ZoneIds.PumpRoom, ZoneIds.Archive,
-            ZoneIds.Floor03, ZoneIds.Floor04, ZoneIds.ServicePassage, ZoneIds.Floor05, ZoneIds.Floor06
+            ZoneIds.Floor03, ZoneIds.Floor04, ZoneIds.ServicePassage, ZoneIds.Unit404, ZoneIds.Floor05, ZoneIds.Floor06
         };
 
         [UnitySetUp]
@@ -65,7 +65,7 @@ namespace NO404.Tests
         public IEnumerator EveryPropIsReachableAndSilentOutsideItsQuest()
         {
             var props = Object.FindObjectsByType<SubquestInteractable>(FindObjectsSortMode.None);
-            Assert.GreaterOrEqual(props.Length, 73, "night 1/3/5 props are missing from the world");
+            Assert.GreaterOrEqual(props.Length, 146, "subquest props are missing from the world");
 
             var context = new PlayerContext();
             var problems = new List<string>();

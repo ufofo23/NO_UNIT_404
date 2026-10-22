@@ -65,10 +65,11 @@ namespace NO404.ContentData
             return new Bundle
             {
                 Residents = Concat(BuildResidents(), BuildLateResidents()),
-                Evidence = Concat(Concat(Concat(BuildEvidence(), BuildLateEvidence()), BuildV5Evidence()),
-                                  BuildV51Evidence()),
+                Evidence = Concat(Concat(Concat(Concat(BuildEvidence(), BuildLateEvidence()), BuildV5Evidence()),
+                                         BuildV51Evidence()), BuildV51EvenEvidence()),
                 Visitors = Concat(Concat(BuildVisitors(), BuildLateVisitors()), BuildDoorstepVisitors()),
-                Dialogues = Concat(Concat(BuildDialogues(), BuildLateDialogues()), BuildDoorstepDialogues()),
+                Dialogues = Concat(Concat(Concat(BuildDialogues(), BuildLateDialogues()), BuildDoorstepDialogues()),
+                                   BuildEvenSubquestDialogues()),
                 // v5.0 10-15. The per-night cases C00-C14 and the routine tasks T01-T18 were
                 // removed with this change: v5.0 replaces the fixed nightly roster with a
                 // fifteen-quest pool per night, and the old cases were authored against a
@@ -79,7 +80,7 @@ namespace NO404.ContentData
                 Channels = BuildChannels(),
                 Anomalies = BuildAnomalies(),
                 MeterSeries = BuildMeterSeries(),
-                PhoneCalls = BuildPhoneCalls(),
+                PhoneCalls = Concat(BuildPhoneCalls(), BuildEvenSubquestCalls()),
                 Endings = BuildEndings(),
                 ManualPages = BuildManualPages(),
                 ManualEvents = BuildManualEvents(),
