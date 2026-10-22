@@ -265,6 +265,11 @@ namespace NO404.EditorTools
             foreach (var definition in content.Cases)
             {
                 CollectSetFlags(definition.consequences, settable);
+                CollectSetFlags(definition.onStart, settable);
+                if (definition.objectives != null)
+                    for (int i = 0; i < definition.objectives.Length; i++)
+                        if (definition.objectives[i] != null)
+                            CollectSetFlags(definition.objectives[i].onComplete, settable);
                 if (definition.decisions != null)
                     for (int i = 0; i < definition.decisions.Length; i++)
                         if (definition.decisions[i] != null)

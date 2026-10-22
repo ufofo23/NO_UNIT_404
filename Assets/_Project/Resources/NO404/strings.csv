@@ -1294,9 +1294,9 @@ dlg.n1.305.004,"...저기, 그 집에 사람 살아요? 이사 오는 건 한 �
 ui.notify.feeds_cut,관제 회선 12개 전부 신호 없음. 지하 배전반을 확인하십시오.,All twelve feeds are down. Check the basement board.
 ui.notify.feeds_restored,관제 회선이 복구되었다,The feeds are back
 # ---------------------------------------------------------------- world signage (GDD 17.5.6)
-ending.ending_none.title,결말에 이르지 못함,No Ending Reached
-ending.ending_none.summary,끝까지 밀어붙였지만 스스로를 지키지 못했다.,You pushed it to the end and could not carry it there.
-ending.ending_none.body,마지막 장면에 도달했으나 몸과 정신이 그것을 감당하지 못했다. 마지막 안전 지점에서 6일차를 다시 시도할 수 있다.,You reached the last scene in a state that could not hold it. Night 6 can be retried from the last safe point.
+ending.ending_none.title,마지막 근무를 마치지 못했다,The last shift was not finished
+ending.ending_none.summary,404에서 있었던 일은 아직 건물 안에 있다.,What happened in 404 is still inside the building.
+ending.ending_none.body,증거가 밖으로 나가지 않았다. 다시 시도할 수 있다.,The evidence never left. You can try again.
 ending.epilogue.dongsik_survived,박동식이 살아서 증언한다.,Park Dong-sik lives to give his own account.
 ending.epilogue.harin_named,윤하린의 이름이 공식 피해자 명단에 복원된다.,Yoon Ha-rin's name is restored to the official list of the dead.
 ending.epilogue.records_verified,수사기관이 원본 기록을 검증한다.,Investigators verify the original records.
@@ -3286,17 +3286,9 @@ case.n4m01.result.keep,아무에게도 말하지 않고 남겨 두었다.,Left i
 case.n4m01.decision.delete,지시대로 레코드를 삭제했다고 보고,Report: deleted the record as instructed
 case.n4m01.result.delete,행을 지웠다. 종이 장부에는 아직 남아 있다.,Deleted the row. The paper ledger still has it.
 case.n6-m01.title,404호는 있었습니다,There was a unit 404
-case.n6-m01.summary,건물이 봉인되기 전 마지막 근무. 404에 들어가 무엇을 가지고 나올지 정한다.,The last shift before the building is sealed. Go into 404 and decide what to bring out.
-case.n6m01.objective.enter_404,404호 진입,Enter 404
-case.n6m01.objective.take_ledger,원본 장부 확보,Secure the original ledger
-case.n6m01.decision.people,사람 먼저,People first
-case.n6m01.result.people,그를 먼저 데리고 나왔다.,You brought him out first.
-case.n6m01.decision.ledger,장부 먼저,The ledger first
-case.n6m01.result.ledger,장부를 품에 안고 나왔다.,You came out holding the ledger.
-case.n6m01.decision.both,둘 다,Both
-case.n6m01.result.both,"구조물이 무너지기 직전, 둘 다 가지고 나왔다.","Just before the structure gave, you brought out both."
-case.n6m01.decision.leave,그대로 두고 나감,Leave it all
-case.n6m01.result.leave,아무것도 가지고 나오지 않았다.,You came out with nothing.
+case.n6-m01.summary,마지막 근무. 황동 열쇠로 404를 연다. 그 안에서 있었던 일과 남아 있는 것을 건물 밖으로 내보내야 한다.,"The last shift. The brass key opens 404. What happened inside, and what is still there, has to leave the building."
+case.n6m01.objective.enter_404,404호에 들어가십시오,Go into 404
+case.n6m01.objective.take_ledger,원본 장부를 확보하십시오,Secure the original ledger
 evidence.ev_cam02_double.name,CAM-02 로비 화면,CAM-02 lobby capture
 evidence.ev_cam02_double.desc,들여보낸 서준호가 로비에서 상자를 정리하는 화면. 같은 시각 실제 로비에는 아무도 없다.,"The Seo Jun-ho who was let in, sorting boxes in the lobby. At that moment there is nobody in the real lobby."
 evidence.ev_waybill_order.name,송장 번호 순서,Waybill number order
@@ -3371,3 +3363,54 @@ cin.n4.line.04,지어낸 이야기가 아니었다.,I did not make it up.
 reason.defied_the_chairman,최경태의 지시를 따르지 않았다,Did not do what Choi instructed
 reason.deleted_the_record,기록을 삭제했다,Deleted the record
 case.n4m01.failsafe.notify,주민 DB 동기화 로그에 404호 레코드 생성이 자동 기록되었습니다.,The resident database sync log has automatically recorded a new record for unit 404.
+# ================================================================ case N6-M01 and the single ending
+case.n6m01.objective.witness,그날 밤 이 방에서 있었던 일을 끝까지 지켜보십시오,"Watch what happened in this room that night, to the end"
+case.n6m01.objective.recover,박동식의 유해와 명찰·무전기를 수습하십시오,"Recover Park Dong-sik's remains, name tag and radio"
+case.n6m01.decision.police,경찰·소방에 증거를 보낸다,Send the evidence to the police and fire service
+case.n6m01.decision.media,언론에 증거를 보낸다,Send the evidence to the press
+case.n6m01.decision.residents,주민 단체에 증거를 보낸다,Send the evidence to the residents' association
+case.n6m01.result.police,전송이 끝났다. 수신 확인이 돌아왔다.,Sent. The receipt came back.
+case.n6m01.result.media,전송이 끝났다. 기자에게서 짧은 답장이 왔다.,"Sent. A reporter wrote back, briefly."
+case.n6m01.result.residents,전송이 끝났다. 단체방에 읽음 표시가 하나씩 늘어난다.,"Sent. One by one, the group chat marks it read."
+case.n6m01.failsafe.notify,무전기에서 2009년의 마지막 구조 무전이 다시 흘러나옵니다.,The radio plays the last rescue call from 2009 again.
+evidence.ev_n6_last_rescue.name,마지막 구조,The last rescue
+evidence.ev_n6_last_rescue.desc,"2009-11-07. 박동식이 아이 하나를 서비스 통로로 내보내고 ""안에 한 명 더 있다""며 다시 들어갔다. 무전: 「아이 하나는 내보냈다」 「안에 한 명 더 있다」 「404 들어간다」.","2009-11-07. Park Dong-sik put one child out through the service passage and went back in for ""one more inside"". Radio: ""one child out"", ""one more inside"", ""going into 404""."
+evidence.ev_dongsik_remains.name,박동식의 유해와 명찰·무전기,"Park Dong-sik's remains, name tag and radio"
+evidence.ev_dongsik_remains.desc,구조 ECHO가 끝난 자리. 17년 동안 아무도 찾지 않았다. 그가 들어간 방이 존재하지 않았으므로.,"Where the rescue ended. Nobody looked for seventeen years, because the room he went into did not exist."
+ui.prompt.watch_echo,지켜보기,Watch
+ui.prompt.recover_remains,유해 수습,Recover the remains
+reason.entered_404,404호에 들어갔다,Went into unit 404
+reason.watched_him_go_back_in,그가 다시 들어가는 것을 봤다,Watched him go back in
+cin.n6.echo.then,2009-11-07  02:13,2009-11-07  02:13
+cin.n6.echo.now,지금 · 404호,Now - unit 404
+cin.n6.echo.line.01,연기 속에서 그가 아이 하나를 찾아낸다.,In the smoke he finds a child.
+cin.n6.echo.line.02,서비스 통로 밖으로 아이를 내보낸다.,He puts her out through the service passage.
+cin.n6.echo.line.03,「안에 한 명 더 있다.」,"""There is one more inside."""
+cin.n6.echo.line.04,그는 다시 들어간다.,He goes back in.
+cin.n6.echo.line.05,정전. 연기. 방화문.,The power goes. Smoke. The fire door.
+ending.single_ending_404_existed.title,404호는 있었습니다.,There was a unit 404.
+ending.single_ending_404_existed.summary,404의 진실이 건물 밖에 남았다.,The truth about 404 is outside the building now.
+ending.single_ending_404_existed.body,서우는 새벽에 건물을 나왔다.,Seo-woo walked out of the building at dawn.
+ending.shot.exit_404,404의 과거가 옅어지고 불탄 방만 남는다. 서우는 빨간 실내화와 황동 열쇠를 문턱에 내려놓고 나온다.,The past thins out of 404 until only the burnt room is left. Seo-woo sets the red slipper and the brass key on the threshold and walks out.
+ending.shot.sent.police,경찰·소방에 404 관련 자료가 도착했다는 확인이 온다. 최경태의 은폐 정황이 수사 대상이 된다.,Confirmation comes back from the police and fire service: the 404 material has arrived. Choi's cover-up becomes a matter for investigators.
+ending.shot.sent.media,아침 기사에 404호가 실린다. 최경태의 은폐 정황이 수사 대상이 된다.,404 is in the morning's news. Choi's cover-up becomes a matter for investigators.
+ending.shot.sent.residents,주민들이 자료를 돌려 읽고 함께 신고서를 낸다. 최경태의 은폐 정황이 수사 대상이 된다.,The residents pass the material round and file a report together. Choi's cover-up becomes a matter for investigators.
+ending.shot.sunja.full,"이선자가 카메라 앞에서 이름을 밝히고 말한다. ""아이 둘이었어. 큰애랑 작은애랑.""","Lee Seon-ja gives her name to the camera. ""There were two of them. The big one and the little one."""
+ending.shot.sunja.trusted,이선자가 카메라 앞에서 2009년의 404 가족을 기억한다고 짧게 말한다.,"Lee Seon-ja tells the camera, briefly, that she remembers the family in 404 in 2009."
+ending.shot.sunja.empty_chair,증언석은 비어 있다. 이선자의 서면 진술이 그 자리에 놓인다.,The witness chair is empty. Lee Seon-ja's written statement lies where she would have sat.
+ending.shot.call_2009,"수사 자료 속 녹음에서 2009년의 목소리가 말한다. ""4층에서 연기 냄새가 나는데요.""","In the recordings among the evidence, a voice from 2009: ""I can smell smoke on the fourth floor."""
+ending.shot.child_items.kept,피해물품 봉투에 어린이 컵과 전기요 조각이 들어간다.,A child's cup and a scrap of electric blanket go into the evidence bag.
+ending.shot.child_items.photo,피해물품 목록에는 사진 몇 장만 붙어 있다.,"The list of belongings has a few photographs attached, and nothing else."
+ending.shot.dongsik.recovered,소방대원들이 박동식의 유해를 명찰·무전기와 함께 옮긴다. 기록에 「구조 활동 확인」이 적힌다.,"Firefighters carry out Park Dong-sik's remains with his name tag and radio. The record reads ""rescue activity confirmed""."
+ending.shot.dongsik.located,박동식이 쓰러진 위치와 사진이 수사 기록에 남는다. 「근무 이탈」이 「구조 활동 중 사망」으로 정정된다.,"Where Park Dong-sik fell, and the photographs, go into the case file. ""Left his post"" is corrected to ""died during a rescue""."
+ending.shot.broadcast.original,그의 마지막 무전 원본이 유해가 발견된 자리와 함께 기록된다. 「404 들어간다.」,"The original of his last radio call is filed with the place his remains were found. ""Going into 404."""
+ending.shot.broadcast.other_record,그의 마지막 무전은 다른 기록으로 뒤늦게 보완된다.,"His last radio call is filled in later, from other records."
+ending.shot.harin_door.memory,"작은 방 문틈으로, 아주 잠깐, 작은 손이 보인다.","Through the gap of the small door, for a moment, a small hand."
+ending.shot.harin_door.slipper,문 앞의 빨간 실내화.,The red slipper in front of the door.
+ending.shot.ledger.opened,수사관이 원본 장부를 펼친다. 404호 줄이 있다.,An investigator opens the original ledger. The line for 404 is there.
+ending.shot.ledger.digital,전송된 디지털 자료와 사진만으로 수사가 시작된다.,The investigation begins from the digital copies and photographs that were sent.
+ending.shot.days_later,며칠 뒤. 윤미정의 사망 장소가 「4층 공용부」에서 「404호」로 정정된다. 신원 미상으로 처리되어 있던 아동의 유해가 404 화재 피해자로 연결된다.,"Days later. Yun Mi-jeong's place of death is corrected from ""fourth-floor common area"" to ""unit 404"". The remains of a child filed as unidentified are linked to the 404 fire."
+ending.shot.harin_record.printed,새로 작성된 피해자 명단에 이름이 인쇄된다. 윤하린. 생년월일 미상. 사망 2009-11-07. 장소 404호.,A name is printed on the new list of victims. Yun Ha-rin. Date of birth unknown. Died 2009-11-07. Unit 404.
+ending.shot.harin_record.handwritten,빈 명단 맨 아래에 서우가 손으로 적는다. 윤하린. 생년월일 미상. 사망 2009-11-07. 장소 404호.,At the bottom of the empty list Seo-woo writes it by hand. Yun Ha-rin. Date of birth unknown. Died 2009-11-07. Unit 404.
+ending.shot.dawn,새벽. 서우가 건물 밖으로 나온다.,Dawn. Seo-woo comes out of the building.
+ending.shot.404_restored,도면의 빈 공간 위에 숫자 세 개가 다시 적힌다.,"On the blank space in the floor plan, three numbers are written back in."

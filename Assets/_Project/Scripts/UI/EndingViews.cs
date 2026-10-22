@@ -37,7 +37,9 @@ namespace NO404.UI
             _body = UiFactory.CreateText("Body", root, string.Empty, 20, TextAnchor.UpperLeft,
                                          UiFactory.TextPrimary);
             UiFactory.Pin(_body.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f),
-                          new Vector2(140f, -250f), new Vector2(1300f, 520f));
+                          // Tall enough for the longest single ending (every long form, the
+                          // 2009 call kept) in either language; it stops above the footer.
+                          new Vector2(140f, -250f), new Vector2(1300f, 600f));
 
             _footer = UiFactory.CreateText("Footer", root, string.Empty, 16, TextAnchor.UpperLeft,
                                            UiFactory.TextMuted);
@@ -65,7 +67,20 @@ namespace NO404.UI
             }
 
             _title.text = Loc.T(ending.titleKey);
-            _body.text = Loc.T(ending.summaryKey) + "\n\n" + Loc.T(ending.bodyKey);
+
+            // The single ending is told as its shots, in order (v5.1 8.2). Anything else is a
+            // result screen rather than an ending, and says what it is in two lines.
+            if (ending.endingId == EndingIds.SingleEnding404Existed)
+            {
+                var shots = ServiceHub.Endings.EndingShots();
+                var lines = new string[shots.Count];
+                for (int i = 0; i < shots.Count; i++) lines[i] = Loc.T(shots[i]);
+                _body.text = string.Join("\n\n", lines);
+            }
+            else
+            {
+                _body.text = Loc.T(ending.summaryKey) + "\n\n" + Loc.T(ending.bodyKey);
+            }
             _footer.text = Loc.T("ui.ending.gallery_progress",
                                  ServiceHub.Endings.UnlockedCount, EndingIds.All.Length);
         }

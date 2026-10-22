@@ -225,15 +225,19 @@ namespace NO404.Tests
             var ending = ServiceHub.Endings.Evaluate();
             Assert.IsNotNull(ending, "the campaign finished and no ending was reachable");
 
-            Assert.AreEqual(EndingService.GradeFor(hp, san), ending.endingId,
-                            "the ending disagrees with the HP/SAN it was supposedly graded on");
+            // v5.1 8.1: there is one ending, and the walk sent the evidence out.
+            Assert.AreEqual(EndingIds.SingleEnding404Existed, ending.endingId,
+                            "the campaign was finished and the evidence sent, and it did not reach the ending");
 
             Assert.AreEqual(100, hp,
                             "no first-choice decision on any night costs health, so HP should be full");
 
-            // Six mains, first decision each, cost -3 -5 -2 -9 -13 -5. v5.1 adds
+            // Six mains, first decision each, cost -3 -5 -2 -9 -13 -11. v5.1 adds
             // five SAN when Park's final rescue is cross-verified. Night 6 closes, and the shift
-            // gives seven back (v5.0 7.3) - so 100 - 37 + 7.
+            // gives seven back (v5.0 7.3) - so 100 - 43 + 7.
+            //
+            // Night 6 is eleven: five for going into 404, six for watching the 2009 rescue to
+            // where it ends (v5.1 15). It used to be a flat five charged by the report.
             //
             // Night 4 is nine: eight for reading her own name on the row, three back for
             // settling it against the paper ledger, four for the memory that follows the
@@ -247,11 +251,11 @@ namespace NO404.Tests
             // clocking off each one; a played campaign collects five more. Which is the point
             // worth keeping: even the harshest reading of the current content leaves a
             // caretaker who takes no physical risk comfortably above the gate.
-            CollectionAssert.AreEqual(new[] { "N1:-3", "N2:-5", "N3:-2", "N4:-9", "N5:-13", "N6:-5" },
+            CollectionAssert.AreEqual(new[] { "N1:-3", "N2:-5", "N3:-2", "N4:-9", "N5:-13", "N6:-11" },
                                       sanByNight,
                                       "the SAN cost of a night's main changed");
 
-            Assert.AreEqual(100 - 37 + VitalService.NightEndCalm, san,
+            Assert.AreEqual(100 - 43 + VitalService.NightEndCalm, san,
                             "the six mains and one end-of-shift recovery should leave SAN here");
         }
 
@@ -293,14 +297,15 @@ namespace NO404.Tests
         }
 
         /// <summary>
-        /// The same six nights, walked by somebody the building has worn down.
+        /// The same six nights, walked by somebody the building has worn down - and then by
+        /// somebody it killed.
         ///
-        /// v5.0 8.1's gate is the one part of the ending that can make a finished campaign
-        /// produce no ending at all, so it is worth proving it fires rather than trusting the
-        /// arithmetic to have been wired to something.
+        /// v5.1 8.1 takes SAN out of the ending entirely: being worn down makes the last night
+        /// harder to get through, it does not make the ending worse. HP 0 is the one state
+        /// that has no ending, because it is death and not a grade.
         /// </summary>
         [UnityTest]
-        public IEnumerator ACaretakerBelowTheGateFinishesTheWorkAndGetsNoEnding()
+        public IEnumerator SanityDoesNotGradeTheEndingAndDeathHasNone()
         {
             var loop = GameLoop.Instance;
             yield return BuildTheWorld(loop);
@@ -315,14 +320,16 @@ namespace NO404.Tests
                 ResolveEverythingDrawn(night, resolved);
             }
 
-            // Below thirty SAN at the final reveal (v5.0 8.1).
-            ServiceHub.Vitals.Strain(ServiceHub.Vitals.San - 20, "test");
-            Assert.AreEqual(EndingGate.MentalBreakdown, ServiceHub.Vitals.Gate);
-
+            ServiceHub.Vitals.Strain(ServiceHub.Vitals.San - 1, "test");
             var ending = ServiceHub.Endings.Evaluate();
             Assert.IsNotNull(ending);
-            Assert.AreEqual(EndingIds.NoEnding, ending.endingId,
-                            "finishing the work does not by itself earn an ending");
+            Assert.AreEqual(EndingIds.SingleEnding404Existed, ending.endingId,
+                            "one point of SAN and the evidence sent is still the ending");
+
+            ServiceHub.Vitals.Damage(ServiceHub.Vitals.Hp, "test");
+            ending = ServiceHub.Endings.Evaluate();
+            Assert.IsNotNull(ending);
+            Assert.AreEqual(EndingIds.NoEnding, ending.endingId, "a caretaker at HP 0 did not walk out");
         }
     }
 }

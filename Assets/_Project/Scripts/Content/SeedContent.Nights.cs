@@ -1441,13 +1441,10 @@ namespace NO404.ContentData
         {
             return new[]
             {
-                Ending(EndingIds.A_RecordedPeople, 10, AchievementIds.TrueRecord, EndingAftermath.None),
-                Ending(EndingIds.B_SafeSilence,    20, AchievementIds.Silence,    EndingAftermath.None),
-                Ending(EndingIds.C_Erased404,      30, AchievementIds.Erased,     EndingAftermath.None),
-                Ending(EndingIds.D_CommunityCollapse, 40, AchievementIds.Collapse, EndingAftermath.CorruptTitle),
+                // v5.1 8.1: one ending. The choices are shots inside it (EndingService.EndingShots).
+                Ending(EndingIds.SingleEnding404Existed, 10, AchievementIds.TrueRecord, EndingAftermath.None),
 
-                // Not a grade and not in the gallery: the campaign reached its last scene in a
-                // state that could not carry it (v5.0 8.1).
+                // Not an ending and not in the gallery: the last night was not finished.
                 Ending(EndingIds.NoEnding, 90, null, EndingAftermath.None)
             };
         }

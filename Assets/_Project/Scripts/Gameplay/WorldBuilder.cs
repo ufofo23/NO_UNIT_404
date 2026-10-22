@@ -1406,15 +1406,26 @@ namespace NO404.Gameplay
             Box(root, "ChildDrawings", new Vector3(-0.4f, 1.5f, half.y - 0.06f), new Vector3(1.4f, 0.7f, 0.02f),
                 new Color(0.72f, 0.70f, 0.60f));
 
-            Pickup(root, "OriginalLedger", new Vector3(half.x - 0.6f, 1.05f, -half.y + 0.5f),
-                   new Vector3(0.3f, 0.07f, 0.4f), new Color(0.66f, 0.60f, 0.46f),
-                   "E19_ORIGINAL_LEDGER", "ui.prompt.take_ledger", null, 6);
+            // v5.1 15: the ledger, and the minutes it costs. Taking him out first loses it.
+            var ledger = Pickup(root, "OriginalLedger", new Vector3(half.x - 0.6f, 1.05f, -half.y + 0.5f),
+                                new Vector3(0.3f, 0.07f, 0.4f), new Color(0.66f, 0.60f, 0.46f),
+                                "E19_ORIGINAL_LEDGER", "ui.prompt.take_ledger", null, 6);
+            ledger.GetComponent<EvidencePickup>().BlockWhen(FlagIds.N6LedgerLeftBehind);
 
-            var dongsik = Box(root, "Dongsik", new Vector3(-0.9f, 0.3f, -1f), new Vector3(0.55f, 0.6f, 1.4f),
-                              new Color(0.36f, 0.32f, 0.30f));
-            var rescue = dongsik.AddComponent<DialogueInteractable>();
-            rescue.Setup("D_N6_DONGSIK_RESCUE", "ui.prompt.rescue_dongsik");
-            rescue.SetAvailability(null, 6);
+            // v5.1 15: where the 2009 rescue plays back. Looked at, not taken; it is the room.
+            Observation(root, "LastRescueEcho", new Vector3(0f, 1.2f, 0.2f),
+                        new Vector3(0.6f, 0.6f, 0.6f), new Color(0.22f, 0.22f, 0.24f),
+                        "EV_N6_LAST_RESCUE", "ui.prompt.watch_echo", 6);
+
+            // Where the ECHO ends. What is left of Park Dong-sik - his remains, his name tag,
+            // his radio - and nothing that moves or speaks (v5.1 0.13, 30.4). It is there to
+            // be found once the rescue has been watched to its end, and it is lost if the
+            // minutes went on the ledger instead.
+            var remains = Pickup(root, "DongsikRemains", new Vector3(-0.9f, 0.12f, -1f),
+                                 new Vector3(0.55f, 0.18f, 1.4f), new Color(0.30f, 0.28f, 0.26f),
+                                 "EV_DONGSIK_REMAINS", "ui.prompt.recover_remains",
+                                 FlagIds.DongsikRemainsFound, 6);
+            remains.GetComponent<EvidencePickup>().BlockWhen(FlagIds.N6RemainsLeftBehind);
 
             var chairman = Box(root, "Chairman", new Vector3(0.6f, 0.9f, half.y - 0.7f),
                                new Vector3(0.45f, 1.75f, 0.35f), new Color(0.30f, 0.28f, 0.30f));

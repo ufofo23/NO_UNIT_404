@@ -202,6 +202,36 @@ namespace NO404.Core
         public const string EndChildItemsPreserved = "END_CHILD_ITEMS_PRESERVED";
         /// <summary>N5-R13: the last broadcast was matched to a place and a second witness.</summary>
         public const string EndDongsikBroadcastVerified = "END_DONGSIK_LAST_BROADCAST_VERIFIED";
+        /// <summary>N2-R12: the 2009 call was kept or recorded.</summary>
+        public const string End2009CallPreserved = "END_2009_CALL_PRESERVED";
+        /// <summary>N4-R10: Seon-ja's testimony was taken in full.</summary>
+        public const string EndSunjaTestimonyFull = "END_SUNJA_TESTIMONY_FULL";
+        /// <summary>N6-R05: the door to the small room was opened.</summary>
+        public const string EndHarinDoorOpened = "END_HARIN_DOOR_OPENED";
+        /// <summary>N6-M01: his remains, name tag and radio were brought out with the evidence.</summary>
+        public const string EndDongsikRemainsRecovered = "END_DONGSIK_REMAINS_RECOVERED";
+        /// <summary>N6-M01, from HARIN_RECORD_PRESERVED: her name is printed on the new list.</summary>
+        public const string EndHarinRecordFirstRegistered = "END_HARIN_RECORD_FIRST_REGISTERED";
+        /// <summary>N6-M01, from ORIGINAL_LEDGER_SECURED: investigators open the original ledger.</summary>
+        public const string EndLedgerSecured = "END_LEDGER_SECURED";
+
+        // ---- v5.1 15 / 8.1: night 6 ---------------------------------------------
+
+        /// <summary>The 2009 rescue ECHO has ended where he fell, and that place has been seen.</summary>
+        public const string DongsikRemainsFound = "DONGSIK_REMAINS_FOUND";
+        /// <summary>v5.1 8.1: the core evidence left the building. The single ending needs it.</summary>
+        public const string ExternalEvidenceSent = "EXTERNAL_EVIDENCE_SENT";
+        /// <summary>v5.1 15: the past fades out of 404 after the send. Presentation only.</summary>
+        public const string EchoReleaseSequence = "ECHO_RELEASE_SEQUENCE";
+        /// <summary>
+        /// v5.1 15 "balanced route": the earlier nights left the building sound enough that there
+        /// is time to bring out both the remains and the ledger. Fixed when night 6 opens.
+        /// </summary>
+        public const string N6BalancedRoute = "N6_BALANCED_ROUTE";
+        /// <summary>The ledger was taken first and there was no time to go back for him.</summary>
+        public const string N6RemainsLeftBehind = "N6_REMAINS_LEFT_BEHIND";
+        /// <summary>He was brought out first and the ledger was lost to the fire.</summary>
+        public const string N6LedgerLeftBehind = "N6_LEDGER_LEFT_BEHIND";
         //
         // Two of v5.0 5.4's flags were already here under other names and mean exactly what
         // v5.0 means by them, so they are not written twice: DONGSIK_SIGNAL_FOUND is
@@ -529,22 +559,17 @@ namespace NO404.Core
     /// </summary>
     public static class EndingIds
     {
-        /// <summary>A - 기록된 404. Saw the truth and did not lose themselves to it.</summary>
-        public const string A_RecordedPeople = "ENDING_A";
-        /// <summary>B - 살아남은 증언. Marked, but the testimony gets out.</summary>
-        public const string B_SafeSilence = "ENDING_B";
-        /// <summary>C - 404의 생존자. The truth survives; the person carrying it barely does.</summary>
-        public const string C_Erased404 = "ENDING_C";
-        /// <summary>D - 기억의 대가. Out of the building with fragments.</summary>
-        public const string D_CommunityCollapse = "ENDING_D";
-        /// <summary>Neither a grade nor a gallery entry: the campaign was not survivable.</summary>
+        /// <summary>
+        /// v5.1 8.1: the one ending. 404 was entered, the evidence left the building, and the
+        /// caretaker walked out alive. What the earlier nights decided changes shots inside it
+        /// (v5.1 8.3), never which ending it is.
+        /// </summary>
+        public const string SingleEnding404Existed = "SINGLE_ENDING_404_EXISTED";
+        /// <summary>Not an ending and not a gallery entry: the last night was not finished.</summary>
         public const string NoEnding = "ENDING_NONE";
 
-        /// <summary>The four gradeable endings, best first.</summary>
-        public static readonly string[] All =
-        {
-            A_RecordedPeople, B_SafeSilence, C_Erased404, D_CommunityCollapse
-        };
+        /// <summary>Every ending there is. One (v5.1 0.3).</summary>
+        public static readonly string[] All = { SingleEnding404Existed };
     }
 
     /// <summary>Facility OS applications (GDD 16.6).</summary>
