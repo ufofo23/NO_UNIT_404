@@ -568,11 +568,10 @@ namespace NO404.Gameplay
             var half = HalfOf(ZoneIds.Office);          // 4.0 x 3.0
             float north = half.y - 0.15f;
             float west = -half.x + 0.35f;
-            float east = half.x - 0.35f;
 
             Box(root, "Desk", new Vector3(0f, 0.4f, north - 0.6f), new Vector3(3f, 0.8f, 0.8f),
                 new Color(0.30f, 0.27f, 0.24f));
-            var monitor = Box(root, "Monitor", new Vector3(0f, 1.15f, north - 0.35f),
+            var monitor = Box(root, "Monitor", new Vector3(0f, 1.1f, north - 0.35f),
                               new Vector3(1.1f, 0.6f, 0.08f), new Color(0.10f, 0.14f, 0.16f));
 
             OfficeTerminal = monitor.AddComponent<TerminalInteractable>();
@@ -607,14 +606,14 @@ namespace NO404.Gameplay
             // Proud of the panel and at eye height, so aiming high finds the peephole and
             // aiming anywhere else on the door finds the bolt.
             var peepholeBox = Box(root, "OfficeDoorPeephole",
-                                  new Vector3(-0.9f, 1.55f, -half.y + wallFace + 0.24f),
+                                  new Vector3(-0.9f, 1.55f, -half.y + wallFace + 0.2f),
                                   new Vector3(0.12f, 0.12f, 0.06f), new Color(0.16f, 0.16f, 0.17f));
             var peephole = peepholeBox.AddComponent<Interaction.OfficeDoorPeephole>();
             peephole.Configure("ui.prompt.office_door_peephole", 1.6f, true);
             peephole.Bind(officeDoor);
 
             // GDD 17.5.1: a 40-slot key cabinet on the west wall.
-            Box(root, "KeyCabinet", new Vector3(west, 1.1f, 0.8f), new Vector3(0.3f, 1.6f, 1.6f),
+            Box(root, "KeyCabinet", new Vector3(-half.x + BuildingSpec.WallThickness * 0.5f + 0.15f, 1.1f, 0.8f), new Vector3(0.3f, 1.6f, 1.6f),
                 new Color(0.26f, 0.26f, 0.27f));
 
             Pickup(root, "HandoverMemo", new Vector3(-1.1f, 0.85f, north - 0.7f),
@@ -628,7 +627,7 @@ namespace NO404.Gameplay
                    new Vector3(0.3f, 0.02f, 0.42f), new Color(0.80f, 0.78f, 0.72f),
                    "EV_CONTRACT", "ui.prompt.read_contract");
 
-            var radio = Box(root, "Radio", new Vector3(west + 0.2f, 1.5f, -0.8f),
+            var radio = Box(root, "Radio", new Vector3(-half.x + BuildingSpec.WallThickness * 0.5f + 0.15f, 1.5f, -0.8f),
                             new Vector3(0.3f, 0.2f, 0.3f), new Color(0.22f, 0.24f, 0.22f));
             radio.AddComponent<DialogueInteractable>().Setup("D_PROLOGUE_RADIO", "ui.prompt.use_radio");
 
@@ -650,7 +649,7 @@ namespace NO404.Gameplay
                    "E14_FIRE_DOOR_LOCK_LOG", "ui.prompt.open_drawer", FlagIds.Knows404, 4);
 
             // Night 6: the building address system (GDD 9.7 step 2).
-            var pa = Box(root, "PublicAddress", new Vector3(east, 1.6f, 0f),
+            var pa = Box(root, "PublicAddress", new Vector3(half.x - BuildingSpec.WallThickness * 0.5f - 0.125f, 1.6f, 0f),
                          new Vector3(0.25f, 0.4f, 0.3f), new Color(0.33f, 0.32f, 0.30f));
             var paDialogue = pa.AddComponent<DialogueInteractable>();
             paDialogue.Setup("D_N6_EVACUATION", "ui.prompt.use_pa");
@@ -670,7 +669,7 @@ namespace NO404.Gameplay
             Box(root, "ParcelShelf", new Vector3(half.x - 0.3f, 0.8f, 1f),
                 new Vector3(0.4f, 1.6f, 3f), new Color(0.32f, 0.29f, 0.25f));
 
-            Pickup(root, "Key404", new Vector3(-half.x + 0.6f, 1.1f, 1f),
+            Pickup(root, "Key404", new Vector3(-half.x + 0.46f, 1.1f, 1f),
                    new Vector3(0.12f, 0.05f, 0.22f), new Color(0.68f, 0.62f, 0.35f),
                    "EV_KEY404", "ui.prompt.take_key");
 
@@ -1043,7 +1042,7 @@ namespace NO404.Gameplay
 
             // GDD 15.5: the night reserve can only be topped up from down here. Every trip
             // costs whatever arrives at the front door while the office is empty.
-            var breakerBox = Box(root, "BreakerPanel", new Vector3(-half.x + 0.3f, 1.4f, 2.5f),
+            var breakerBox = Box(root, "BreakerPanel", new Vector3(-half.x + BuildingSpec.WallThickness * 0.5f + 0.1f, 1.4f, 2.5f),
                                  new Vector3(0.2f, 1.1f, 0.8f), new Color(0.22f, 0.26f, 0.24f));
             breakerBox.AddComponent<Interaction.BreakerPanel>().Configure("ui.prompt.breaker", 1.8f, true);
 
@@ -1407,7 +1406,7 @@ namespace NO404.Gameplay
                 new Color(0.72f, 0.70f, 0.60f));
 
             // v5.1 15: the ledger, and the minutes it costs. Taking him out first loses it.
-            var ledger = Pickup(root, "OriginalLedger", new Vector3(half.x - 0.6f, 1.05f, -half.y + 0.5f),
+            var ledger = Pickup(root, "OriginalLedger", new Vector3(half.x - 0.6f, 0.035f, -half.y + 0.5f),
                                 new Vector3(0.3f, 0.07f, 0.4f), new Color(0.66f, 0.60f, 0.46f),
                                 "E19_ORIGINAL_LEDGER", "ui.prompt.take_ledger", null, 6);
             ledger.GetComponent<EvidencePickup>().BlockWhen(FlagIds.N6LedgerLeftBehind);

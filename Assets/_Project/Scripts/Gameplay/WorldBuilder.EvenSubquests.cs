@@ -27,6 +27,7 @@ namespace NO404.Gameplay
             float north = corridor - 0.1f, south = -corridor + 0.1f;
 
             // Office slots. West faces -90, east 90, south 180; the desk is the front edge.
+            // Lobby papers lie on the guard counter, which runs x -0.4 to 1.0 at z 1.8.
             // The key cabinet holds the west wall from z 0 to 1.6, the radio z -0.8, and the
             // 304 water chart (N1-M01) the east wall at z 0.6. The desk is full - the memo,
             // the contract and the cassette player are on it - so these are all wall slots.
@@ -45,21 +46,21 @@ namespace NO404.Gameplay
             Ev("N2-R01", ZoneIds.Lobby, "ReturnInvoice", new Vector3(lobby.x - 0.35f, 1.63f, 0.9f), Kit.Paper, "EV_N2R01_INVOICE");
             Ev("N2-R01", ZoneIds.Lobby, "ReturnParcel", new Vector3(4.4f, 0.17f, 2.6f), Kit.Package, "EV_N2R01_ITEM");
             Ev("N2-R02", ZoneIds.Office, "TempCardRequest", new Vector3(westX, 0.85f, -1.9f), Kit.Plate, "EV_N2R02_REQUEST", yaw: -90f);
-            Ev("N2-R02", ZoneIds.Lobby, "ResidentPhotoId", new Vector3(1.3f, 0.93f, 1.8f), Kit.Paper, "EV_N2R02_PHOTO_ID");
-            Ev("N2-R03", ZoneIds.Machinery, "ArchiveFeederGauge", new Vector3(3.0f, 1.5f, machinery.y - 0.55f), Kit.Gauge, "EV_N2R03_LOAD");
-            Act("N2-R03", ZoneIds.Machinery, "ArchiveFeederIsolator", new Vector3(4.1f, 1.4f, machinery.y - 0.55f), Kit.Breaker, "n2r03_isolate");
+            Ev("N2-R02", ZoneIds.Lobby, "ResidentPhotoId", new Vector3(-0.3f, 0.93f, 1.8f), Kit.Paper, "EV_N2R02_PHOTO_ID");
+            Ev("N2-R03", ZoneIds.Machinery, "ArchiveFeederGauge", new Vector3(3.0f, 1.5f, machinery.y - 0.16f), Kit.Gauge, "EV_N2R03_LOAD");
+            Act("N2-R03", ZoneIds.Machinery, "ArchiveFeederIsolator", new Vector3(4.1f, 1.4f, machinery.y - 0.15f), Kit.Breaker, "n2r03_isolate");
             Act("N2-R03", ZoneIds.Machinery, "ArchiveFeederBusbar", new Vector3(-3.2f, 1.2f, machinery.y - 0.55f), Kit.Panel, "n2r03_rebalance");
-            Ev("N2-R04", ZoneIds.Parking, "MisreadPlate", new Vector3(-8f, 0.55f, -7.66f), Kit.Plate, "EV_N2R04_PLATE");
+            Ev("N2-R04", ZoneIds.Parking, "MisreadPlate", new Vector3(-6f, 0.55f, 3.37f), Kit.Plate, "EV_N2R04_PLATE");
             Ev("N2-R04", ZoneIds.Office, "VehicleRegistry", new Vector3(eastX, 1.4f, -0.25f), Kit.Panel, "EV_N2R04_REGISTRY", yaw: 90f);
             Ev("N2-R05", ZoneIds.Lobby, "OldReturnCarton", new Vector3(3.3f, 0.17f, 2.6f), Kit.Package, "EV_N2R05_CARTON");
-            Ev("N2-R05", ZoneIds.Lobby, "ReturnSlipBook", new Vector3(-1.3f, 0.93f, 1.8f), Kit.Paper, "EV_N2R05_SLIP");
+            Ev("N2-R05", ZoneIds.Lobby, "ReturnSlipBook", new Vector3(0.9f, 0.93f, 1.8f), Kit.Paper, "EV_N2R05_SLIP");
             Ev("N2-R06", ZoneIds.Floor03, "WetUmbrella", new Vector3(-7.2f, 0.32f, south + 0.12f), Kit.Extinguisher, "EV_N2R06_UMBRELLA", yaw: 180f);
             Ev("N2-R07", ZoneIds.Office, "CloneTokenLog", new Vector3(eastX, 1.4f, 1.4f), Kit.Panel, "EV_N2R07_TOKEN", yaw: 90f);
             Ev("N2-R07", ZoneIds.Lobby, "DoorstepIntercom", new Vector3(-1.0f, 1.4f, lobby.y - 0.1f), Kit.Plate, "EV_N2R07_DOORSTEP");
             ActAt("N2-R08", ZoneIds.Lobby, "FeedTestMark", new Vector3(1.5f, 0.04f, -1.5f), Kit.Tape, "n2r08_deviate", 0f, 90f);
             Ev("N2-R09", ZoneIds.Office, "ParkingDbPrintout", new Vector3(0f, 0.83f, deskZ), Kit.Paper, "EV_N2R09_DB");
-            Ev("N2-R09", ZoneIds.Parking, "EmptyBayFloor", new Vector3(-3f, 0.03f, 6.5f), Kit.Tape, "EV_N2R09_FLOOR", pitch: 90f);
-            Ev("N2-R09", ZoneIds.Parking, "EmptyBayTyreMarks", new Vector3(-4.2f, 0.03f, 6.5f), Kit.Tape, "EV_N2R09_TYRES", pitch: 90f);
+            Ev("N2-R09", ZoneIds.Parking, "EmptyBayFloor", new Vector3(-4.0f, 0.03f, 5.8f), Kit.Tape, "EV_N2R09_FLOOR", pitch: 90f);
+            Ev("N2-R09", ZoneIds.Parking, "EmptyBayTyreMarks", new Vector3(-4.0f, 0.03f, 4.4f), Kit.Tape, "EV_N2R09_TYRES", pitch: 90f);
             Ev("N2-R10", ZoneIds.Office, "AccessLogScreen", new Vector3(westX, 1.5f, 2.75f), Kit.Panel, "EV_N2R10_LOG", yaw: -90f);
             Ev("N2-R10", ZoneIds.Floor04, "Door406Seal", new Vector3(BuildingSpec.Floor04DoorX[4] + 0.6f, 1.2f, north), Kit.Seal, "EV_N2R10_SEAL");
             Ev("N2-R11", ZoneIds.Elevator, "CarFloorIndicator", new Vector3(-LiftWall, 1.9f, 0.3f), Kit.Plate, "EV_N2R11_INDICATOR", yaw: -90f);
@@ -102,7 +103,7 @@ namespace NO404.Gameplay
             Ev("N6-R04", ZoneIds.Office, "OfficeSpeaker", new Vector3(1.0f, 2.25f, southZ), Kit.Device, "EV_N6R04_BROADCAST", yaw: 180f);
             Ev("N6-R05", ZoneIds.Unit404, "UnplannedDoorPlate", new Vector3(-unit.x + 0.1f, 1.3f, 0.3f), Kit.Plate, "EV_N6R05_DOOR", yaw: -90f);
             Act("N6-R05", ZoneIds.Unit404, "UnplannedDoorHandle", new Vector3(-unit.x + 0.1f, 0.95f, 0.3f), Kit.Breaker, "n6r05_open", yaw: -90f);
-            Ev("N6-R05", ZoneIds.Unit404, "RedSlipperAtDoor", new Vector3(-unit.x + 0.45f, 0.08f, 0.75f), Kit.Seal, "EV_N6R05_SLIPPER", pitch: 90f);
+            Ev("N6-R05", ZoneIds.Unit404, "RedSlipperAtDoor", new Vector3(-unit.x + 0.45f, 0.035f, 0.75f), Kit.Seal, "EV_N6R05_SLIPPER", pitch: 90f);
             Ev("N6-R06", ZoneIds.ServicePassage, "FallenNameplate", new Vector3(0.8f, 0.4f, passageSouth), Kit.Seal, "EV_N6R06_NAMEPLATE", yaw: 180f);
             Act("N6-R06", ZoneIds.ServicePassage, "PassageShoring", new Vector3(1.4f, 1.2f, passageNorth), Kit.Device, "n6r06_stabilise");
             Act("N6-R06", ZoneIds.ServicePassage, "PassageDebris", new Vector3(2.4f, 0.6f, passageSouth), Kit.Package, "n6r06_clear", yaw: 180f);

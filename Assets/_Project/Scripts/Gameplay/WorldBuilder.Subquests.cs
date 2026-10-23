@@ -85,7 +85,7 @@ namespace NO404.Gameplay
             Act("N5-R01", ZoneIds.Machinery, "OverloadPanel", new Vector3(0f, 1.2f, HalfOf(ZoneIds.Machinery).y - 0.55f), Kit.Breaker, "n5r01_panel");
             Ev("N5-R02", ZoneIds.Floor03, "Door303Knock", new Vector3(BuildingSpec.StandardDoorX[2], 1.5f, north - 0.04f), Kit.Plate, "EV_N5R02_STATE");
             Ev("N5-R03", ZoneIds.PumpRoom, "PumpOverloadGauge", new Vector3(1.3f, 1.5f, 2.88f), Kit.Gauge, "EV_N5R03_GAUGE");
-            Act("N5-R03", ZoneIds.PumpRoom, "PumpBypassValve", new Vector3(2.9f, 0.9f, 1.0f), Kit.Valve, "n5r03_valve", yaw: 90f);
+            Act("N5-R03", ZoneIds.PumpRoom, "PumpBypassValve", new Vector3(3.8f, 0.9f, 1.0f), Kit.Valve, "n5r03_valve", yaw: 90f);
             Ev("N5-R04", ZoneIds.Parking, "ArchiveDoorSeal", new Vector3(2.65f, 1.3f, -parking.y + 0.12f), Kit.Seal, "EV_N5R04_SEAL", yaw: 180f);
             Ev("N5-R04", ZoneIds.Office, "ArchiveAccessLog", new Vector3(office.x - 0.12f, 1.4f, -2.2f), Kit.Panel, "EV_N5R04_LOG", yaw: 90f);
             Ev("N5-R05", ZoneIds.Floor04, "ReturnedPackage", new Vector3(6.8f, 0.2f, 0.82f), Kit.Package, "EV_N5R05_PACKAGE");
@@ -94,7 +94,7 @@ namespace NO404.Gameplay
                requiredFlag: Cases.SubquestRules.N5RecorderSafe);
             Ev("N5-R07", ZoneIds.Floor03, "AnalogThermometer3F", new Vector3(-4f, 1.5f, south), Kit.Gauge, "EV_N5R07_TEMP", yaw: 180f);
             Ev("N5-R07", ZoneIds.Office, "FireAlarmPanel", new Vector3(-office.x + 0.12f, 1.5f, 2.3f), Kit.Panel, "EV_N5R07_PANEL", yaw: -90f);
-            Ev("N5-R08", ZoneIds.Floor04, "Cam04Housing", new Vector3(9.6f, 2.3f, -0.75f), Kit.Camera, "EV_N5R08_LED", yaw: 90f);
+            Ev("N5-R08", ZoneIds.Floor04, "Cam04Housing", new Vector3(9.74f, 2.3f, -0.75f), Kit.Camera, "EV_N5R08_LED", yaw: 90f);
             Ev("N5-R09", ZoneIds.Floor04, "StairDoorSealSouth", new Vector3(9.85f, 1.2f, -0.65f), Kit.Seal, "EV_N5R09_SEAL", yaw: 90f);
             Ev("N5-R10", ZoneIds.Floor05, "LoopExtinguisherEast", new Vector3(8.6f, 0.45f, south + 0.1f), Kit.Extinguisher, "EV_N5R10_MARKER", yaw: 180f);
             Act("N5-R10", ZoneIds.Floor05, "LostRandomDoor", new Vector3(BuildingSpec.StandardDoorX[0], 1.5f, north), Kit.Plate, "n5r10_door");
