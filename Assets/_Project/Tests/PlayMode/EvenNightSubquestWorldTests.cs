@@ -83,10 +83,18 @@ namespace NO404.Tests
             var problems = new List<string>();
             int checkedProps = 0;
 
-            foreach (var prop in Object.FindObjectsByType<SubquestInteractable>(FindObjectsSortMode.None))
+            var all = Object.FindObjectsByType<SubquestInteractable>(FindObjectsSortMode.None);
+            foreach (var prop in all)
             {
                 if (!IsEven(prop.CaseId)) continue;
                 checkedProps++;
+
+                // What shares the room with it is what is there while its quest is open.
+                ServiceHub.ResetPlaythrough();
+                Open(prop.CaseId[1] - '0', prop.CaseId);
+                if (!string.IsNullOrEmpty(prop.RequiredFlag)) ServiceHub.State.SetFlag(prop.RequiredFlag, true);
+                foreach (var other in all) other.Sync();
+                Physics.SyncTransforms();
 
                 var box = prop.GetComponent<BoxCollider>();
                 Assert.IsNotNull(box, prop.name);
@@ -209,6 +217,14 @@ namespace NO404.Tests
                     if (!filed.Accepted) filed = ServiceHub.Cases.SubmitDecision(id, d.decisionId, attached);
 
                 if (!filed.Accepted) problems.Add(id + ": no row can be filed (" + filed.RejectReason + ")");
+
+                // Filed, and the quest's things leave the room with it.
+                foreach (var prop in props)
+                {
+                    if (prop.CaseId != id) continue;
+                    prop.Sync();
+                    if (prop.Shown) problems.Add(id + ": " + prop.name + " is still standing after the report");
+                }
                 yield return null;
             }
 
