@@ -496,25 +496,8 @@ namespace NO404.ContentData
                 Node("left", "speaker.sunja", "dlg.n4.sunja.left", null));
         }
 
-        static DialogueDefinition Call404()
-        {
-            return Conversation("D_N4_CALL_404", DialogueChannel.Phone, 0.25f, 0f,
-                Node("start", "speaker.unknown", "dlg.n4.call404.start", "echo"),
-                Node("echo", "speaker.unknown", "dlg.n4.call404.echo", "child"),
-                Node("child", "speaker.child", "dlg.n4.call404.child", null,
-                    Choices(
-                        Choice("answer_gently", "dlg.n4.call404.choice.gentle", "gentle", false,
-                            ConsequenceDefinition.Stat(StatIds.HarinResonance, 2, "reason.answered_gently"),
-                            ConsequenceDefinition.Flag(FlagIds.Knows404, true)),
-                        Choice("ask_who", "dlg.n4.call404.choice.who", "who", false,
-                            ConsequenceDefinition.Stat(StatIds.HarinResonance, 1, "reason.answered_gently")),
-                        Choice("hang_up", "dlg.n4.call404.choice.hang_up", "hung_up", true,
-                            ConsequenceDefinition.Stat(StatIds.HarinResonance, -1, "reason.hung_up")))),
-                Node("gentle", "speaker.child", "dlg.n4.call404.gentle", "end"),
-                Node("who", "speaker.child", "dlg.n4.call404.who", "end"),
-                Node("end", "speaker.child", "dlg.n4.call404.end", null),
-                Node("hung_up", "speaker.unknown", "dlg.n4.call404.hung_up", null));
-        }
+        /// <summary>v5.1 moved this call into N4-R03; the conversation is written there.</summary>
+        static DialogueDefinition Call404() { return Call404Line(); }
 
         static DialogueDefinition ChairmanPressure()
         {
@@ -647,17 +630,21 @@ namespace NO404.ContentData
         static PhoneCallDefinition Call404Definition()
         {
             var call = Call("CALL_N4_404", "caller.unit404", "404", "D_N4_CALL_404",
-                            CallPriority.Impossible, 4, At(0, 30), "N4-M01",
-                            new[] { ConsequenceDefinition.Stat(StatIds.HarinResonance, -10, "reason.missed_call") },
-                            1200);
+                            CallPriority.Impossible, 4, At(0, 30), "N4-R03",
+                            new[]
+                            {
+                                ConsequenceDefinition.Stat(StatIds.HarinResonance, -10, "reason.missed_call"),
+                                ConsequenceDefinition.Flag(SubquestRules.N4R03Missed, true),
+                                ConsequenceDefinition.Evidence("EV_N4R03_CALL")
+                            },
+                            0);
 
             call.ringSeconds = 300;
 
-            // C07 and C09 were two separate night-4 beats and both now hang off N4-M01. Without
-            // this the 404 call rings in the same second as the chairman's and outranks it,
-            // being Impossible priority - so the scene where the caretaker is told to delete
-            // the record would never be heard. Twenty game minutes into the job instead.
-            call.releaseDelaySeconds = 20 * 60;
+            // v5.1 13 makes this call its own subquest, N4-R03, so it rings with that quest's
+            // beat rather than twenty minutes into the main's - the chairman's call about the
+            // record belongs to N4-M01 and the two never share a moment any more.
+            call.releaseDelaySeconds = 0;
             call.onAnswered = new[]
             {
                 ConsequenceDefinition.Flag(FlagIds.Knows404, true),

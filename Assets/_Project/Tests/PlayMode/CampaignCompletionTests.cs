@@ -260,7 +260,7 @@ namespace NO404.Tests
         }
 
         /// <summary>
-        /// v5.1 4.1: nights 1, 3 and 5 played with their whole draw - main, story subquest and
+        /// v5.1 4.1: all six nights played with their whole draw - main, story subquest and
         /// three or four randoms - and every one of them closes.
         /// </summary>
         [UnityTest]
@@ -277,9 +277,8 @@ namespace NO404.Tests
                 ListenToWhateverIsTalking();
 
                 var drawn = new List<string>(ServiceHub.Cases.DrawnTonight);
-                if (night % 2 == 1)
-                    Assert.That(drawn.Count, Is.InRange(5, 6), "night " + night + " is not a v5.1 night: " +
-                                                                  string.Join(",", drawn.ToArray()));
+                Assert.That(drawn.Count, Is.InRange(5, 6), "night " + night + " is not a v5.1 night: " +
+                                                              string.Join(",", drawn.ToArray()));
 
                 ResolveEverythingDrawn(night, resolved);
                 yield return null;
@@ -290,9 +289,8 @@ namespace NO404.Tests
                                    "night " + night + " cannot be clocked off");
             }
 
-            CollectionAssert.Contains(resolved, "N1-R01");
-            CollectionAssert.Contains(resolved, "N3-R12");
-            CollectionAssert.Contains(resolved, "N5-R13");
+            foreach (var story in new[] { "N1-R01", "N2-R12", "N3-R12", "N4-R10", "N5-R13", "N6-R05" })
+                CollectionAssert.Contains(resolved, story);
             Assert.Greater(ServiceHub.Vitals.Hp, 0, "the walk took no risks it could not survive");
         }
 
@@ -453,6 +451,110 @@ namespace NO404.Tests
             view.OnContinue();
             yield return Until(() => loop.Mode == GameMode.Menu, 5f);
             Assert.AreEqual(GameMode.Menu, loop.Mode, "the ending has no way back to the menu");
+        }
+
+        /// <summary>
+        /// The same walk as the one above with the whole pool on: every night is its main, its
+        /// story subquest and three or four randoms, handed out one at a time by the night
+        /// itself, then clock-off, the summary, Continue. Three campaigns on three seeds, so
+        /// the randoms differ - and every one of them ends on the ending screen.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WholeShiftsPlayFromTheFirstNightToTheEndingScreen()
+        {
+            var loop = GameLoop.Instance;
+            Assert.IsNotNull(loop, "no GameLoop - the test scene did not boot");
+            MainOnlyMode.Set(false);
+
+            var everResolved = new HashSet<string>();
+            var firstNights = new HashSet<string>();
+
+            for (int run = 0; run < 3; run++)
+            {
+                yield return BuildTheWorld(loop);
+                yield return Until(() => loop.Mode == GameMode.Playing && ServiceHub.State.NightIndex == 1);
+                Assert.AreEqual(GameMode.Playing, loop.Mode, "run " + run + ": a new game never reached night 1");
+                int seed = ServiceHub.NightPool.CampaignSeed;
+
+                var resolved = new List<string>();
+                for (int night = 1; night <= GameLoop.FinalNight; night++)
+                {
+                    string where = "run " + run + " (seed " + seed + ") night " + night;
+                    Assert.AreEqual(night, ServiceHub.State.NightIndex, where);
+                    var drawn = new List<string>(ServiceHub.Cases.DrawnTonight);
+                    if (night == 1)
+                    {
+                        var sorted = new List<string>(drawn);
+                        sorted.Sort(System.StringComparer.Ordinal);
+                        firstNights.Add(string.Join(",", sorted.ToArray()));
+                    }
+                    Assert.That(drawn.Count, Is.InRange(5, 6), where + " drew " + string.Join(",", drawn.ToArray()));
+
+                    string main = "N" + night + "-M01";
+                    for (int minute = 0; minute < 8 * 60; minute++)
+                    {
+                        if (loop.Mode != GameMode.Playing) break;
+                        ClearTheLines();
+                        ResolveEverythingDrawn(night, resolved);
+                        bool done = true;
+                        foreach (var id in drawn) if (!ServiceHub.Cases.Find(id).State.IsResolved()) done = false;
+                        if (done) break;
+
+                        yield return null;
+                        if (ServiceHub.Clock.GameSecond + 60 < GameClock.ShiftEndSecond)
+                            ServiceHub.Clock.SetGameSecond(ServiceHub.Clock.GameSecond + 60);
+                    }
+
+                    CollectionAssert.Contains(resolved, main, where + " never closed its main");
+
+                    if (night < GameLoop.FinalNight)
+                    {
+                        foreach (var id in drawn) CollectionAssert.Contains(resolved, id, where + " left " + id + " open");
+
+                        for (int guard = 0; guard < 32 && !loop.CanEndShiftEarly(); guard++)
+                        {
+                            ClearTheLines();
+                            yield return null;
+                        }
+                        Assert.AreEqual(GameLoop.ShiftBlocker.None, loop.CurrentShiftBlocker, where + ": the shift cannot be clocked off");
+
+                        loop.RequestEndShift();
+                        yield return Until(() => loop.Mode == GameMode.NightSummary, 5f);
+                        Assert.AreEqual(GameMode.NightSummary, loop.Mode, where + " clocked off and showed no summary");
+
+                        loop.DebugAdvanceNight();
+                        int next = night + 1;
+                        yield return Until(() => loop.Mode == GameMode.Playing && ServiceHub.State.NightIndex == next);
+                        Assert.AreEqual(next, ServiceHub.State.NightIndex, where + ": Continue opened no next night");
+                    }
+                    else
+                    {
+                        // The last report ends the shift; whatever the queue put after the main
+                        // is never handed out (v5.1 4.2 puts the main fourth).
+                        CollectionAssert.Contains(resolved, "N6-R05", where + " never handed out its story subquest");
+                    }
+                }
+
+                yield return Until(() => loop.Mode == GameMode.Ending, 10f);
+                Assert.AreEqual(GameMode.Ending, loop.Mode, "run " + run + ": the last report was filed and the game did not end");
+                Assert.AreEqual(EndingIds.SingleEnding404Existed, ServiceHub.Endings.Reached.endingId, "run " + run);
+                Assert.Greater(ServiceHub.Vitals.Hp, 0, "run " + run);
+
+                foreach (var id in resolved) everResolved.Add(id);
+                UnityEngine.Debug.Log("[WholeShifts] run " + run + " seed " + seed + " hp " + ServiceHub.Vitals.Hp +
+                                      " san " + ServiceHub.Vitals.San + ": " + string.Join(",", resolved.ToArray()));
+
+                loop.DebugReturnToMenu();
+                yield return Until(() => loop.Mode == GameMode.Menu, 5f);
+            }
+
+            foreach (var story in new[] { "N1-R01", "N2-R12", "N3-R12", "N4-R10", "N5-R13", "N6-R05" })
+                Assert.IsTrue(everResolved.Contains(story), story + " was never played");
+
+            // Three seeds, and night 1 is drawn from each of them: a new game whose first draw
+            // ran before the seed existed dealt the same night 1 every time.
+            Assert.Greater(firstNights.Count, 1, "three new games dealt the same night 1: " +
+                                                 string.Join(" | ", new List<string>(firstNights).ToArray()));
         }
     }
 }

@@ -15,14 +15,26 @@ namespace NO404.Tests
     /// </summary>
     public sealed class NightPoolContentTests
     {
-        static readonly int[] AuthoredNights = { 1, 3, 5 };
+        static readonly int[] AuthoredNights = { 1, 2, 3, 4, 5, 6 };
         static readonly Dictionary<int, string> StoryOf = new Dictionary<int, string>
         {
-            { 1, "N1-R01" }, { 3, "N3-R12" }, { 5, "N5-R13" }
+            { 1, "N1-R01" }, { 2, "N2-R12" }, { 3, "N3-R12" }, { 4, "N4-R10" }, { 5, "N5-R13" }, { 6, "N6-R05" }
         };
 
         List<CaseDefinition> _all;
         HashSet<string> _evidence;
+
+        /// <summary>
+        /// Quests whose every row is gated, because the report files what was already done
+        /// at the door, on the phone or in the room - and the gates cover every case, one row
+        /// for each answer plus one for having given none. EveryComplementarySetCoversEveryState
+        /// below proves that rather than trusting this list.
+        /// </summary>
+        static readonly HashSet<string> Complementary = new HashSet<string>
+        {
+            "N1-R01", "N3-R14",
+            "N2-R12", "N4-R03", "N4-R10", "N4-R13", "N6-R05", "N6-R06", "N6-R09"
+        };
 
         [SetUp]
         public void Setup()
@@ -33,6 +45,7 @@ namespace NO404.Tests
             _evidence = new HashSet<string>();
             foreach (var e in SeedContent.BuildV5Evidence()) _evidence.Add(e.evidenceId);
             foreach (var e in SeedContent.BuildV51Evidence()) _evidence.Add(e.evidenceId);
+            foreach (var e in SeedContent.BuildV51EvenEvidence()) _evidence.Add(e.evidenceId);
             foreach (var e in SeedContent.BuildEvidence()) _evidence.Add(e.evidenceId);
         }
 
@@ -77,7 +90,10 @@ namespace NO404.Tests
 
                 int normal = random.FindAll(c => c.questType == QuestType.Normal).Count;
                 int mixed = random.FindAll(c => c.questType == QuestType.Mixed).Count;
-                int heavy = random.FindAll(c => c.questType == QuestType.Anomaly || c.questType == QuestType.Consequence).Count;
+                // The heavy band is ANOMALY, CONSEQUENCE and - on the last night - FINAL_PRESSURE,
+                // the same three NightPoolService.TakeHeavyQuota draws from.
+                int heavy = random.FindAll(c => c.questType == QuestType.Anomaly || c.questType == QuestType.Consequence ||
+                                                c.questType == QuestType.FinalPressure).Count;
 
                 Assert.GreaterOrEqual(normal, quota.Normal, "night " + night + " normal");
                 Assert.GreaterOrEqual(mixed, quota.Mixed, "night " + night + " mixed");
@@ -91,7 +107,9 @@ namespace NO404.Tests
             // v5.1 4.1.1: a random quest may change the night, never the ending's shots.
             var ending = new HashSet<string>
             {
-                FlagIds.EndSunjaTrusted, FlagIds.EndChildItemsPreserved, FlagIds.EndDongsikBroadcastVerified
+                FlagIds.EndSunjaTrusted, FlagIds.EndChildItemsPreserved, FlagIds.EndDongsikBroadcastVerified,
+                FlagIds.End2009CallPreserved, FlagIds.EndSunjaTestimonyFull, FlagIds.EndHarinDoorOpened,
+                FlagIds.EndDongsikRemainsRecovered, FlagIds.EndLedgerSecured, FlagIds.EndHarinRecordFirstRegistered
             };
 
             foreach (var c in _all)
@@ -110,8 +128,11 @@ namespace NO404.Tests
             var expected = new Dictionary<string, string>
             {
                 { "N1-R01", FlagIds.EndSunjaTrusted },
+                { "N2-R12", FlagIds.End2009CallPreserved },
                 { "N3-R12", FlagIds.EndChildItemsPreserved },
-                { "N5-R13", FlagIds.EndDongsikBroadcastVerified }
+                { "N4-R10", FlagIds.EndSunjaTestimonyFull },
+                { "N5-R13", FlagIds.EndDongsikBroadcastVerified },
+                { "N6-R05", FlagIds.EndHarinDoorOpened }
             };
 
             foreach (var pair in expected)
@@ -163,9 +184,52 @@ namespace NO404.Tests
                         if (e != handedOver) needsOnlyWhatTheDeadlineGives = false;
                     if (needsOnlyWhatTheDeadlineGives) open = true;
                 }
-                // Complementary flag pairs: exactly one of these rows is always open.
-                if (c.caseId == "N1-R01" || c.caseId == "N3-R14") open = true;
+                // Complementary flag sets: exactly one of these rows is always open.
+                if (Complementary.Contains(c.caseId)) open = true;
                 Assert.IsTrue(open, c.caseId + " has no ungated way to file");
+            }
+        }
+
+        /// <summary>
+        /// The quests excused above, checked rather than trusted: for every combination of the
+        /// flags their rows are gated on, at least one row is open that needs nothing beyond
+        /// what the quest's required objectives already made the caretaker collect.
+        /// </summary>
+        [Test]
+        public void EveryComplementarySetCoversEveryState()
+        {
+            foreach (var id in Complementary)
+            {
+                var c = _all.Find(x => x.caseId == id);
+                Assert.IsNotNull(c, id);
+
+                var given = new HashSet<string>();
+                foreach (var o in c.objectives)
+                    if (!o.optional && o.type == ObjectiveType.AcquireEvidence) given.Add(o.targetId);
+
+                var flags = new List<string>();
+                foreach (var d in c.decisions)
+                    foreach (var q in d.availability)
+                    {
+                        Assert.AreEqual(ConditionType.FlagEquals, q.type, id + "/" + d.decisionId + " is gated on more than flags");
+                        if (!flags.Contains(q.keyA)) flags.Add(q.keyA);
+                    }
+                Assert.LessOrEqual(flags.Count, 6, id + " has too many gates to enumerate");
+
+                for (int mask = 0; mask < (1 << flags.Count); mask++)
+                {
+                    bool open = false;
+                    foreach (var d in c.decisions)
+                    {
+                        bool allowed = true;
+                        foreach (var q in d.availability)
+                            if (((mask >> flags.IndexOf(q.keyA)) & 1) == 1 != q.boolValue) allowed = false;
+                        foreach (var e in d.requiredEvidenceIds)
+                            if (!given.Contains(e)) allowed = false;
+                        if (allowed) open = true;
+                    }
+                    Assert.IsTrue(open, id + " has no row to file with flags " + System.Convert.ToString(mask, 2));
+                }
             }
         }
 

@@ -16,18 +16,19 @@ namespace NO404.ContentData
     /// quest whose answer is available without looking. What cannot be data - shocks, loops,
     /// variants decided by an earlier night - is in <see cref="SubquestRules"/>.
     ///
-    /// Night 2, 4 and 6 still carry only their main. That is the scope of this pass, not an
-    /// oversight; <see cref="NightPoolService.HasAuthoredPool"/> is what tells the rest of the
-    /// game which nights are whole.
+    /// Nights 2, 4 and 6 are in SeedContent.V51PoolsEven and join the list here, so every
+    /// night is whole; <see cref="NightPoolService.HasAuthoredPool"/> is still what tells the
+    /// rest of the game so.
     /// </summary>
     public static partial class SeedContent
     {
         public static CaseDefinition[] BuildV51Subquests()
         {
-            var list = new List<CaseDefinition>(42);
+            var list = new List<CaseDefinition>(84);
             list.AddRange(Night1Subquests());
             list.AddRange(Night3Subquests());
             list.AddRange(Night5Subquests());
+            list.AddRange(EvenNightSubquests());
             foreach (var c in list) c.evidenceIds = EvidenceOf(c);
             return list.ToArray();
         }

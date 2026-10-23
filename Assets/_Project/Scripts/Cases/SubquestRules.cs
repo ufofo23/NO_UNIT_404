@@ -4,7 +4,8 @@ using NO404.Evidence;
 namespace NO404.Cases
 {
     /// <summary>
-    /// The runtime half of the night 1 / 3 / 5 subquests (v5.1 10, 12, 14).
+    /// The runtime half of the night 1 / 3 / 5 subquests (v5.1 10, 12, 14). Nights 2, 4 and
+    /// 6 (v5.1 11, 13, 15) are in SubquestRules.Even.cs.
     ///
     /// The quests themselves are data in SeedContent.V51Pools. What lives here is what data
     /// cannot say: a panel that shocks you unless its breaker is down, a corridor that hands
@@ -12,7 +13,7 @@ namespace NO404.Cases
     /// night 1. Every one of those reads and writes the saved flag/stat/choice state, so a
     /// reload lands in exactly the same building.
     /// </summary>
-    public static class SubquestRules
+    public static partial class SubquestRules
     {
         // ---- state written here (all saved through GameStateService) -----------
 
@@ -76,7 +77,8 @@ namespace NO404.Cases
         public static bool Handles(string caseId)
         {
             if (string.IsNullOrEmpty(caseId) || caseId.Length < 5) return false;
-            return (caseId.StartsWith("N1-R") || caseId.StartsWith("N3-R") || caseId.StartsWith("N5-R"));
+            return caseId.StartsWith("N1-R") || caseId.StartsWith("N2-R") || caseId.StartsWith("N3-R") ||
+                   caseId.StartsWith("N4-R") || caseId.StartsWith("N5-R") || caseId.StartsWith("N6-R");
         }
 
         public static bool Active(string caseId)
@@ -115,7 +117,7 @@ namespace NO404.Cases
                 case "N5-R10":
                     return state.GetStat("PLAYER_LOST_COUNT") >= 2 || state.GetDebt(DebtIds.Distortion) >= 2 ? 50 : 0;
             }
-            return 0;
+            return EvenWeightBonus(def.caseId, state);
         }
 
         // -----------------------------------------------------------------
@@ -194,6 +196,10 @@ namespace NO404.Cases
                     if (state.GetFlag(WallResponse404))
                         ServiceHub.Evidence.Acquire("EV_N5R13_KNOCK", EvidenceSource.Dialogue);
                     break;
+
+                default:
+                    EvenStarted(caseId, state);
+                    break;
             }
 
             Persist();
@@ -237,7 +243,7 @@ namespace NO404.Cases
                 case "EV_N5R13_PATTERN": return 5;
                 case "EV_N5R14_OVERLAP": return 4;
             }
-            return 0;
+            return EvenStrainFor(evidenceId);
         }
 
         /// <summary>Facts that only exist once two separate pieces agree.</summary>
@@ -277,6 +283,8 @@ namespace NO404.Cases
                 ServiceHub.Vitals.Damage(4, "reason.slipped");
                 Notify("quest.n1r06.slipped", NotificationSeverity.Warning);
             }
+
+            EvenTick(deltaTime, state, player);
         }
 
         /// <summary>A report that cannot be filed from where the caretaker is standing.</summary>
@@ -318,6 +326,7 @@ namespace NO404.Cases
 
                 case "N3-R08": state.SetFlag(N3R08Looping, false); break;
                 case "N5-R10": state.SetFlag(N5R10Looping, false); break;
+                default: EvenResolved(caseId, decisionId, state); break;
             }
 
             Persist();
@@ -376,7 +385,7 @@ namespace NO404.Cases
                 case "n5r12_valve": return !ServiceHub.Evidence.Has("EV_N5R12_VALVE");
                 case "n5r14_follow": return !state.GetFlag(N5R14Collided);
             }
-            return false;
+            return EvenCanAct(action, state);
         }
 
         /// <summary>
@@ -386,6 +395,13 @@ namespace NO404.Cases
         public static string Act(string action)
         {
             if (!CanAct(action)) return null;
+            if (IsEvenNight(action))
+            {
+                EvenAct(action, State, ServiceHub.Vitals);
+                Persist();
+                return null;
+            }
+
             var state = State;
             var vitals = ServiceHub.Vitals;
             string moveTo = null;

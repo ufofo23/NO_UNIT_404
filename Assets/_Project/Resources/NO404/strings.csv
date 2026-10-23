@@ -708,16 +708,10 @@ dlg.n4.sunja.fire_night,내가 신고했어요. 두 번. 관리소가 끊었어�
 dlg.n4.sunja.mother,당신 어머니예요. 그날 당신만 나왔어요.,She is your mother. That night only you came out.
 dlg.n4.sunja.closing,미안해요. 더 크게 말했어야 했는데.,I am sorry. I should have said it louder.
 dlg.n4.sunja.left,...그래요. 몸 조심해요.,...all right. Take care of yourself.
-dlg.n4.call404.start,(수화기 너머에서 아무 소리도 나지 않는다),(There is no sound on the line)
-dlg.n4.call404.echo,(관리실 키보드 소리가 3초 늦게 들린다),(The office keyboard comes back three seconds late)
-dlg.n4.call404.child,나 두고 가지 마.,Don't leave me here.
-dlg.n4.call404.choice.gentle,안 가. 여기 있을게.,I am not going anywhere.
-dlg.n4.call404.choice.who,누구니.,Who is this?
+dlg.n4.call404.start,(수화기 너머로 관리실 소리가 들린다. 3초 늦게. 방금 내가 의자를 끈 소리까지.),"(On the line, the sound of the office. Three seconds late. Even the chair I just moved.)"
+dlg.n4.call404.child,…거기 관리실이죠? 나 아직 여기 있어요.,...Is that the office? I'm still here.
 dlg.n4.call404.choice.hang_up,(수화기를 내려놓는다),(Put the handset down)
-dlg.n4.call404.gentle,문이 안 열려. 밖에서 잠갔어.,The door will not open. It was locked from outside.
-dlg.n4.call404.who,너 나 알잖아.,You know me.
-dlg.n4.call404.end,(통화가 끊기고 관리실 뒤쪽 문서함이 열린다),(The line drops and the drawer behind you swings open)
-dlg.n4.call404.hung_up,(잠시 뒤 같은 번호에서 다시 걸려온다),(A moment later the same number rings again)
+dlg.n4.call404.hung_up,(끊었다. 수화기를 내려놓는 소리가 3초 뒤에 한 번 더 들렸다.),"(Hung up. The click of the handset came again, three seconds later.)"
 # ================================================================ dialogue night 5-6
 dlg.n5.chairman.start,오늘 밤은 조용히 넘어가자.,Let us get through tonight quietly.
 dlg.n5.chairman.offer,기록 서버는 내가 알아서 한다. 자네는 정규직 생각이나 해.,I will handle the record server. You think about a permanent contract.
@@ -3414,3 +3408,649 @@ ending.shot.harin_record.printed,새로 작성된 피해자 명단에 이름이 
 ending.shot.harin_record.handwritten,빈 명단 맨 아래에 서우가 손으로 적는다. 윤하린. 생년월일 미상. 사망 2009-11-07. 장소 404호.,At the bottom of the empty list Seo-woo writes it by hand. Yun Ha-rin. Date of birth unknown. Died 2009-11-07. Unit 404.
 ending.shot.dawn,새벽. 서우가 건물 밖으로 나온다.,Dawn. Seo-woo comes out of the building.
 ending.shot.404_restored,도면의 빈 공간 위에 숫자 세 개가 다시 적힌다.,"On the blank space in the floor plan, three numbers are written back in."
+case.n2-r01.title,정상 반품 택배,A routine return
+case.n2-r01.summary,어제와 다른 배송기사가 오배송 반품을 가지러 왔다. 송장과 물건만 맞으면 되는 일이다.,A different courier from yesterday has come for a misdelivered return. The invoice and the item just have to match.
+case.n2-r01.decision.hand_over,송장·물품 확인 후 반출,"Check invoice and item, hand it over"
+case.n2-r01.result.hand_over,"송장, 기사, 차량이 모두 맞았다. 상자를 내줬다. 오늘 밤 처음으로 아무것도 이상하지 않았다.","Invoice, courier and van all matched. Handed the box over. The first thing tonight that was simply what it was."
+case.n2-r01.decision.over_check,추가 신원 확인 요구,Ask for more identification
+case.n2-r01.result.over_check,신분증과 회사 연락처까지 확인했다. 기사는 불쾌한 얼굴로 상자를 받아 갔다.,Checked his ID and called his depot. He took the box looking put out.
+case.n2-r01.decision.refuse,반출 거절,Refuse the collection
+case.n2-r01.result.refuse,반출을 거절했다. 반품은 택배대에 그대로 남았고 주민 민원이 들어왔다.,Refused. The return stays on the shelf and a resident has complained.
+quest.prop.ev_n2r01_invoice,반품 송장 확인,Read the return invoice
+evidence.ev_n2r01_invoice.name,반품 송장,Return invoice
+evidence.ev_n2r01_invoice.desc,"오늘 날짜, 오늘 배송사, 차량번호까지 기사 정보와 일치한다.","Today's date, today's carrier, and the van number all match the courier."
+quest.prop.ev_n2r01_item,반품 상자 확인,Check the returned parcel
+evidence.ev_n2r01_item.name,반품 상자,Returned parcel
+evidence.ev_n2r01_item.desc,송장의 품목과 같은 상자다. 테이프도 처음 그대로다.,"The parcel the invoice lists, still taped as it came."
+case.n2-r02.title,주민 출입카드 분실,A lost access card
+case.n2-r02.summary,504호 주민이 출입카드를 잃어버렸다며 임시카드를 요청했다.,The resident of 504 has lost their access card and wants a temporary one.
+case.n2-r02.decision.floor_card,5층 제한 임시카드 발급,Issue a temporary card for 5F only
+case.n2-r02.result.floor_card,사진과 연락처가 일치했다. 5층과 공용부만 열리는 카드를 줬다.,Photo and phone number matched. Issued a card for 5F and the common areas only.
+case.n2-r02.decision.full_temporary,전 층 임시카드 발급,Issue an all-floors temporary card
+case.n2-r02.result.full_temporary,빨리 끝내려고 전 층 카드를 줬다. 누구 손에 들어가도 건물 전체가 열린다.,Issued an all-floors card to be done with it. Whoever holds it can open the whole building.
+case.n2-r02.decision.refuse,발급 거절,Refuse
+case.n2-r02.result.refuse,내일 관리사무소로 오라고 했다. 주민은 집 앞까지 다른 주민을 불러야 했다.,Told them to come back in office hours. They had to ring a neighbour to get in.
+quest.prop.ev_n2r02_request,임시카드 신청서 확인,Read the temporary card request
+evidence.ev_n2r02_request.name,임시카드 신청서,Temporary card request
+evidence.ev_n2r02_request.desc,504호. 신청인 이름과 연락처가 주민 DB와 같다.,Unit 504. The applicant's name and number match the resident database.
+quest.prop.ev_n2r02_photo_id,신분증 사진 대조,Compare the photo ID
+evidence.ev_n2r02_photo_id.name,주민 신분증,Resident's photo ID
+evidence.ev_n2r02_photo_id.desc,사진 속 얼굴이 로비에 서 있는 주민과 같다.,The face on it is the resident standing in the lobby.
+case.n2-r03.title,B1 차단기 발열,A hot breaker on B1
+case.n2-r03.summary,기록실 전원 회로가 평소보다 뜨겁다. 전류가 실제로 높다. 괴현상은 아니다.,The records room circuit is running hot. The current really is high. Nothing strange about it.
+case.n2-r03.decision.rebalance,부하 분산,Split the load
+case.n2-r03.result.rebalance,급전선을 끊고 부하를 두 회로로 나눴다. 온도가 내려가기 시작했다.,Isolated the feeder and split the load across two circuits. The temperature has started to fall.
+case.n2-r03.decision.temp_fan,임시 선풍기로 냉각,Cool it with a fan for now
+case.n2-r03.result.temp_fan,선풍기를 갖다 댔다. 열은 조금 내려갔지만 원인은 그대로다.,"Put a fan on it. A little cooler, and the cause is still there."
+case.n2-r03.decision.ignore,무시,Leave it
+case.n2-r03.result.ignore,그대로 뒀다. 차단기 덮개가 손을 대기 어려울 만큼 뜨겁다.,Left it. The breaker cover is too hot to touch.
+quest.prop.ev_n2r03_load,기록실 회로 전류계 확인,Read the records circuit ammeter
+evidence.ev_n2r03_load.name,기록실 회로 전류,Records circuit current
+evidence.ev_n2r03_load.desc,정격의 9할을 넘는다. 디지털 값과 아날로그 바늘이 같다.,Over ninety per cent of rating. The digital value and the needle agree.
+quest.prop.ev_n2r03_rebalanced,부하 분산 결과 확인,Check the split load
+evidence.ev_n2r03_rebalanced.name,분산 후 전류,Current after the split
+evidence.ev_n2r03_rebalanced.desc,두 회로 모두 정격의 절반 아래로 내려왔다.,Both circuits are now under half their rating.
+quest.act.n2r03_isolate,기록실 급전선 차단기 내리기,Switch off the records feeder
+quest.act.n2r03_rebalance,분전반 열고 부하 나누기,Open the board and split the load
+quest.n2r03.isolated,급전선을 차단했다. 이제 분전반을 열어도 안전하다.,Feeder off. The board is safe to open now.
+quest.n2r03.shocked,살아 있는 회로에 손이 닿았다. 급전선을 먼저 내려야 한다.,Touched a live circuit. The feeder has to come off first.
+quest.n2r03.live,아직 전기가 흐른다. 급전선 차단기부터 내려야 한다.,Still live. Switch the feeder off first.
+case.n2-r04.title,주차 게이트 번호판 오인식,The parking gate misreads a plate
+case.n2-r04.summary,주민 차량 번호를 게이트가 한 자리 틀리게 읽어 문이 열리지 않는다.,The gate is reading a resident's plate one character wrong and will not open.
+case.n2-r04.decision.fix_db,수동 인증 후 번호판 DB 수정,Verify by hand and correct the database
+case.n2-r04.result.fix_db,실물 번호판과 등록증을 맞춰 보고 DB를 고쳤다. 게이트가 열렸다.,Checked the plate against the registration and corrected the record. The gate opened.
+case.n2-r04.decision.manual_open,수동으로 한 번만 개방,"Open it by hand, this once"
+case.n2-r04.result.manual_open,한 번 열어줬다. 내일 밤에도 같은 일이 생길 것이다.,Let them in this once. It will happen again tomorrow night.
+case.n2-r04.decision.refuse,개방 거절,Refuse to open it
+case.n2-r04.result.refuse,규정대로 거절했다. 주민은 차를 길가에 세웠다.,Refused by the book. The resident parked on the street.
+quest.prop.ev_n2r04_plate,실물 번호판 확인,Read the actual plate
+evidence.ev_n2r04_plate.name,실물 번호판,The actual plate
+evidence.ev_n2r04_plate.desc,등록된 번호와 같다. 게이트 카메라에는 한 글자가 다르게 찍혔다.,The registered number. The gate camera logged one character differently.
+quest.prop.ev_n2r04_registry,차량 등록부 확인,Check the vehicle register
+evidence.ev_n2r04_registry.name,차량 등록부,Vehicle register
+evidence.ev_n2r04_registry.desc,"주민 명의, 등록일, 번호가 실물과 일치한다.","Owner, date of registration and number all match the car."
+case.n2-r05.title,오래된 반품 상자,An old return carton
+case.n2-r05.summary,반품 대기칸에 2009년 제조 음료 상자가 놓여 있다. 누가 가져왔는지 CCTV에는 없다.,A drinks carton made in 2009 is waiting on the returns shelf. No camera shows who left it.
+case.n2-r05.decision.open_record,개봉 후 기록,Open it and record what is inside
+case.n2-r05.result.open_record,상자를 열고 하나씩 사진을 찍었다. 음료 병 사이에 2009년 11월 날짜의 영수증이 끼어 있었다.,Opened it and photographed each item. Between the bottles was a receipt from November 2009.
+case.n2-r05.decision.seal,밀봉한 채 보존,Keep it sealed
+case.n2-r05.result.seal,봉인 테이프 위에 날짜를 적고 보관함에 넣었다.,Dated the seal and locked it in the store.
+case.n2-r05.decision.return,반송 처리,Send it back
+case.n2-r05.result.return,반송 스티커를 붙였다. 받는 곳이 아직 있는지는 모르겠다.,Labelled it for return. Whether the address still exists is another question.
+case.n2-r05.decision.leave,그대로 둔다,Leave it where it is
+case.n2-r05.result.leave,건드리지 않았다. 아침이 되자 상자는 칸에서 사라져 있었다.,Left it. By morning the shelf was empty.
+quest.prop.ev_n2r05_carton,오래된 음료 상자 확인,Examine the old carton
+evidence.ev_n2r05_carton.name,2009년 음료 상자,"Drinks carton, made 2009"
+evidence.ev_n2r05_carton.desc,단종된 구형 로고. 반품 라벨 칸에 404호라고 적혀 있다.,A logo discontinued years ago. The returns label says 404.
+quest.prop.ev_n2r05_slip,반품 접수 대장 확인,Check the returns book
+evidence.ev_n2r05_slip.name,반품 접수 대장,Returns book
+evidence.ev_n2r05_slip.desc,오늘 접수된 반품은 한 건뿐이다. 이 상자는 대장에 없다.,One return has been logged today. This carton is not it.
+case.n2-r06.title,3F 창문 날씨 불일치,The weather in the 3F window
+case.n2-r06.summary,밖에는 비가 내리는데 CAM-06에 비친 3층 창밖은 맑다.,"It is raining outside, and the 3F window on CAM-06 shows a clear night."
+case.n2-r06.decision.keep_clip,클립 보존,Keep the clip
+case.n2-r06.result.keep_clip,젖은 우산과 맑은 창을 한 화면에 담아 저장했다. 이 화면은 지금이 아니다.,Saved the wet umbrella and the clear window side by side. That feed is not now.
+case.n2-r06.decision.swap_camera,카메라 교체 시도,Try swapping the camera
+case.n2-r06.result.swap_camera,예비 카메라로 바꿨다. 새 카메라에도 맑은 창이 보인다.,Swapped in the spare. The new camera shows the same clear window.
+case.n2-r06.decision.ignore,무시,Ignore it
+case.n2-r06.result.ignore,날씨 따위라고 넘겼다. 화면 속 창은 계속 맑다.,"Weather, nothing more. The window on screen stays clear."
+quest.prop.ev_n2r06_umbrella,복도의 젖은 우산 확인,Look at the wet umbrella in the corridor
+evidence.ev_n2r06_umbrella.name,젖은 우산,A wet umbrella
+evidence.ev_n2r06_umbrella.desc,방금 들어온 주민의 우산이다. 물이 아직 떨어진다. CAM-06 화면 속 같은 자리에는 우산이 없다.,"A resident's, just brought in, still dripping. In the same spot on CAM-06 there is no umbrella."
+case.n2-r07.title,내 이름으로 온 인터폰,An intercom call in my name
+case.n2-r07.summary,공동현관 인터폰의 발신자 이름이 지금 근무 중인 내 직원 ID로 표시된다.,The entrance intercom shows the caller as my own staff ID - the one on shift right now.
+case.n2-r07.decision.block_token,복제 토큰 차단,Block the cloned token
+case.n2-r07.result.block_token,출입로그에 생긴 내 카드의 사본을 막았다. 내 이름이 내가 없는 곳에서 문을 열려고 했다.,Blocked the copy of my card in the access log. My name was trying to open a door I was not at.
+case.n2-r07.decision.open_door,문 개방,Open the door
+case.n2-r07.result.open_door,문을 열었다. 아무도 들어오지 않았다. 잠시 뒤 4층 센서가 오작동을 일으켰다.,Opened it. Nobody came in. A moment later a 4F sensor started faulting.
+case.n2-r07.decision.ignore,무시,Ignore it
+case.n2-r07.result.ignore,응답하지 않았다. 몇 분 뒤 내 토큰이 혼자 한 번 사용됐다.,"Did not answer. A few minutes later my token was used once, on its own."
+quest.prop.ev_n2r07_token,출입로그의 복제 토큰 확인,Find the cloned token in the access log
+evidence.ev_n2r07_token.name,복제된 직원 토큰,A cloned staff token
+evidence.ev_n2r07_token.desc,내 직원 ID로 발급된 토큰이 두 개다. 하나는 지금 내 주머니에 있다.,Two tokens issued to my staff ID. One of them is in my pocket.
+quest.prop.ev_n2r07_doorstep,현관 인터폰 화면 직접 확인,Look at the entrance intercom yourself
+evidence.ev_n2r07_doorstep.name,빈 현관,An empty doorstep
+evidence.ev_n2r07_doorstep.desc,현관 앞에는 아무도 없다. 통화 기록에는 내 이름이 남아 있다.,Nobody at the door. The call log still has my name on it.
+case.n2-r08.title,CCTV의 10초 미래,Ten seconds ahead on CCTV
+case.n2-r08.summary,CAM-01이 내가 아직 하지 않은 행동을 10초쯤 먼저 보여준다.,CAM-01 shows me doing things about ten seconds before I do them.
+case.n2-r08.decision.experiment,검증 실험 기록,Record the test
+case.n2-r08.result.experiment,화면이 보여준 것과 다르게 움직여 보고 결과를 기록했다. 이제 이 화면을 믿을 때와 믿지 않을 때를 안다.,Did something other than the screen showed and logged what happened. Now I know when to trust it and when not to.
+case.n2-r08.decision.follow_real,화면대로 따라함,Do what the screen shows
+case.n2-r08.result.follow_real,화면 속 나를 따라 움직였다. 이번에는 화면이 맞았다. 그게 더 무섭다.,"Followed the me on screen. This time it was right, which is worse."
+case.n2-r08.decision.follow_false,화면대로 따라함,Do what the screen shows
+case.n2-r08.result.follow_false,"화면 속 나를 따라갔다. 화면은 틀렸고, 나는 계단 모서리에 부딪혔다.","Followed the me on screen. It was wrong, and I walked into the stair edge."
+case.n2-r08.decision.power_off,카메라 전원 차단,Cut the camera's power
+case.n2-r08.result.power_off,CAM-01을 껐다. 현상은 멈췄다. 무엇이었는지는 모른다.,"Turned CAM-01 off. It stopped. What it was, I will not know."
+quest.prop.ev_n2r08_test,화면과 다르게 움직이기,Do something the feed did not show
+evidence.ev_n2r08_test.name,검증 실험,The test
+evidence.ev_n2r08_test.desc,화면이 보여준 것과 일부러 다르게 움직인 기록이다.,"A record of moving differently from what the feed showed, on purpose."
+quest.act.n2r08_deviate,화면과 다른 곳에 서 보기,Stand somewhere the feed did not show
+quest.n2r08.feed_followed,"10초 뒤, 화면 속 내가 지금 선 자리로 걸어왔다. 화면은 정말로 앞서 있다.",Ten seconds later the me on screen walked to where I am standing. The feed really is ahead.
+quest.n2r08.feed_ignored,화면 속 나는 다른 곳으로 갔다. 이 화면은 미래가 아니라 되풀이다.,The me on screen went somewhere else. This feed is not the future. It is a loop.
+quest.cam.cam-01,CAM-01 공동현관 영상 확인,"Check CAM-01, the entrance"
+case.n2-r09.title,빈 주차칸의 차량,A car in an empty bay
+case.n2-r09.summary,주차 DB에는 차량이 주차 중으로 나오는데 현장의 그 칸은 비어 있다.,The parking database says a car is parked in a bay that is empty.
+case.n2-r09.decision.physical,물리 흔적으로 판정,Decide on the physical traces
+case.n2-r09.result.physical,바닥 온도와 입차 기록을 맞춰 봤다. 무엇이 사실인지는 DB가 아니라 바닥이 말해 줬다.,"Put the floor temperature against the entry record. The floor, not the database, said what happened."
+case.n2-r09.decision.delete_db,DB 기록 삭제,Delete the record
+case.n2-r09.result.delete_db,맞지 않는 기록을 지웠다. 지운 기록이 왜 생겼는지는 아무도 모른다.,Deleted the record that did not fit. Nobody knows why it was there.
+case.n2-r09.decision.lock_gate,게이트 잠금,Lock the gate
+case.n2-r09.result.lock_gate,확인될 때까지 게이트를 잠갔다. 늦게 들어온 주민들이 길가에 차를 세웠다.,Locked the gate until it is sorted. Late residents parked in the street.
+quest.prop.ev_n2r09_db,주차 DB 출력물 확인,Read the parking database printout
+evidence.ev_n2r09_db.name,주차 DB 기록,Parking database record
+evidence.ev_n2r09_db.desc,"B1 17번 칸. 입차 23:41, 출차 기록 없음.","Bay 17, B1. In at 23:41, no exit recorded."
+quest.prop.ev_n2r09_floor,빈 칸 바닥 온도 확인,Feel the floor of the empty bay
+evidence.ev_n2r09_floor.name,주차칸 바닥,The bay floor
+evidence.ev_n2r09_floor.desc,엔진 자리의 콘크리트 온도를 쟀다. 기록과 맞는지는 이 숫자가 말한다.,Took the temperature of the concrete where an engine would sit. This number says whether the record holds.
+quest.prop.ev_n2r09_tyres,타이어 물자국 확인,Look for tyre marks
+evidence.ev_n2r09_tyres.name,타이어 물자국,Tyre marks
+evidence.ev_n2r09_tyres.desc,빗물 자국이 칸 안으로 들어온 방향만 남아 있다.,Rainwater tracks lead into the bay. None lead out.
+case.n2-r10.title,복제 출입카드,A duplicated access card
+case.n2-r10.summary,같은 카드번호가 1층과 4층에서 2초 차이로 사용됐다.,The same card number was used on 1F and 4F two seconds apart.
+case.n2-r10.decision.suspend,해당 카드 즉시 정지,Suspend the card now
+case.n2-r10.result.suspend,카드를 정지했다. 진짜 주인은 내일 아침 문 앞에서 불편을 겪을 것이다.,Suspended it. Its real owner will have a bad morning at the door.
+case.n2-r10.decision.check_4f,4층 직접 확인,Go and look at 4F
+case.n2-r10.result.check_4f,4층에 올라가 봤다. 문 봉인은 그대로인데 카드 리더기에는 방금 찍힌 기록이 있었다.,Went up. The door seal was intact and the reader had a swipe from a moment ago.
+case.n2-r10.decision.ignore,무시,Ignore it
+case.n2-r10.result.ignore,오류로 넘겼다. 그 카드는 오늘 밤 두 번 더 쓰였다.,Called it a glitch. The card was used twice more tonight.
+quest.prop.ev_n2r10_log,출입로그의 중복 사용 확인,Find the double use in the access log
+evidence.ev_n2r10_log.name,중복 출입 기록,Double entry
+evidence.ev_n2r10_log.desc,"같은 카드. 1층 00:12:04, 4층 00:12:06.","Same card. 1F at 00:12:04, 4F at 00:12:06."
+quest.prop.ev_n2r10_seal,4층 문 봉인 확인,Check the 4F door seal
+evidence.ev_n2r10_seal.name,4층 문 봉인,4F door seal
+evidence.ev_n2r10_seal.desc,봉인 번호가 그대로다. 누구도 이 문을 지나가지 않았다.,The seal number is unchanged. Nobody has been through this door.
+case.n2-r11.title,엘리베이터 선행 하차,Stepping out before the doors open
+case.n2-r11.summary,CCTV에서는 문이 열리기 2초 전에 사람이 엘리베이터에서 내린다. 현장은 정상이다.,"On CCTV someone steps out of the lift two seconds before the doors open. On site, everything is normal."
+case.n2-r11.decision.log_offset,시간차 기록,Log the offset
+case.n2-r11.result.log_offset,층 표시와 영상의 시간차를 기록했다. 영상이 2초 빠르다.,Logged the gap between the floor indicator and the footage. The feed is two seconds early.
+case.n2-r11.decision.chase_resident,승객 추적,Follow the passenger
+case.n2-r11.result.chase_resident,따라가 보니 평범한 주민이었다. 이유 없이 미행당한 주민이 항의했다.,"It was an ordinary resident, who was not pleased to have been followed."
+case.n2-r11.decision.chase_trace,승객 추적,Follow the passenger
+case.n2-r11.result.chase_trace,발자국을 따라갔다. 자국은 엘리베이터 앞에서 시작해 아무 데로도 이어지지 않았다.,Followed the footprints. They start at the lift and go nowhere.
+case.n2-r11.decision.ignore,무시,Ignore it
+case.n2-r11.result.ignore,영상 지연이라고 넘겼다.,Put it down to lag.
+quest.prop.ev_n2r11_indicator,엘리베이터 층 표시 확인,Read the lift's floor indicator
+evidence.ev_n2r11_indicator.name,아날로그 층 표시,Analogue floor indicator
+evidence.ev_n2r11_indicator.desc,바늘이 1층에 닿는 순간과 영상 속 사람이 내리는 순간이 2초 어긋난다.,The needle reaches 1 two seconds after the person on screen steps out.
+quest.prop.ev_n2r11_prints,엘리베이터 앞 발자국 확인,Look at the footprints by the lift
+evidence.ev_n2r11_prints.name,젖은 발자국,Wet footprints
+evidence.ev_n2r11_prints.desc,엘리베이터 앞에서 시작하는 발자국. 들어간 자국은 없다.,Footprints that start at the lift doors. None go in.
+case.n2-r12.title,2009년 주민의 전화,A call from a 2009 resident
+case.n2-r12.summary,"해지된 내선번호로 ""4층에서 연기 냄새가 난다""는 민원이 들어왔다.","A disconnected extension is reporting ""smoke on the fourth floor""."
+case.n2-r12.decision.kept_line,통화를 이어가며 위치를 물었다,Kept the line and asked where they were
+case.n2-r12.result.kept_line,"통화를 녹음으로 남겼다. 오래된 엘리베이터 안내음, 11월 7일, 403호. 해지된 번호가 2009년의 밤을 걸어왔다.","The call is on record: the old lift chime, the seventh of November, 403. A dead number rang in from a night in 2009."
+case.n2-r12.decision.checked_4f,통화를 끊고 4층을 직접 확인했다,Hung up and checked 4F in person
+case.n2-r12.result.checked_4f,4층 감지기는 정상이다. 연기는 없다. 지금의 4층에는.,The 4F detector is normal. No smoke. Not on the 4F of now.
+case.n2-r12.decision.let_go,통화를 이어가지 않았다,Did not stay on the line
+case.n2-r12.result.let_go,통화는 짧게 끝났다. 무엇을 들을 수 있었는지는 이제 알 수 없다.,"The call ended quickly. What it could have told me, I will not know."
+quest.prop.ev_n2r12_call,해지된 내선의 전화 받기,Answer the disconnected extension
+evidence.ev_n2r12_call.name,해지된 내선의 통화,Call from a disconnected extension
+evidence.ev_n2r12_call.desc,발신 번호는 2009년에 해지된 내선이다. 배경에 지금은 없는 구형 엘리베이터 안내음이 깔려 있다.,"The extension was closed in 2009. Behind the voice, a lift chime this building no longer has."
+quest.prop.ev_n2r12_sensor,4층 화재감지기 확인,Check the 4F smoke detector
+evidence.ev_n2r12_sensor.name,4층 화재감지기,4F smoke detector
+evidence.ev_n2r12_sensor.desc,정상. 오늘 밤 4층에서 연기가 감지된 적은 없다.,Normal. No smoke has been detected on 4F tonight.
+caller.extension_closed,해지된 내선,Disconnected extension
+dlg.n2r12.start,"(잡음 너머로 오래된 엘리베이터 안내음이 들린다. ""문이 닫힙니다."") …관리실이죠? 4층에서 연기 냄새가 나요. 아까부터요.","(Behind the static, an old lift chime. ""Doors closing."") ...Is that the office? There's smoke on the fourth floor. Since a while ago."
+dlg.n2r12.smell,다들 자는 것 같아서 전화했어요. 404호 쪽이에요. 문 밑으로 계속 새어 나와요.,"Everyone seems to be asleep, so I'm calling you. It's by 404. It keeps coming under the door."
+dlg.n2r12.choice.where,어디서 전화하시는 거예요? 지금 계신 곳이 어디죠?,Where are you calling from? Where are you right now?
+dlg.n2r12.choice.go,지금 바로 4층을 확인하겠습니다.,I'll check the fourth floor right now.
+dlg.n2r12.choice.hang_up,이 번호는 해지된 번호입니다. 끊겠습니다.,This number was disconnected. I'm hanging up.
+dlg.n2r12.where,"403호요. …403호 맞는데요. 오늘 7일이잖아요. 11월 7일. 빨리 와 주세요, 옆집 애들이 아직—","403. ...It is 403. It's the seventh, isn't it. The seventh of November. Please hurry, the children next door are still—"
+dlg.n2r12.dead,(신호가 끊긴다. 통화 기록에는 해지된 내선 번호만 남았다.),(The line goes dead. All the log shows is the disconnected extension.)
+dlg.n2r12.go,…네. 꼭 가 주세요. 아직 안에 사람이 있어요.,...Yes. Please do. There's still someone inside.
+dlg.n2r12.cut,(뚝. 수화기를 내려놓을 때까지 엘리베이터 안내음이 이어졌다.),(Click. The lift chime went on until the handset was down.)
+case.n2-r13.title,우편함의 미래 근무 메모,A shift note from the future
+case.n2-r13.summary,우편함에 내 필체와 비슷한 메모가 있다. `01:14 / B1 / 문을 먼저 닫았어야 했다`,A note in a hand like mine is in the mailboxes: `01:14 / B1 / should have shut the door first`.
+case.n2-r13.decision.keep,메모 보존,Keep the note
+case.n2-r13.result.keep,"메모를 업무일지 사이에 끼워 두었다. 01:14, B1. 기억해 둔다.","Filed it in the log. 01:14, B1. Noted."
+case.n2-r13.decision.b1_check,B1 선제 점검,Check B1 before it happens
+case.n2-r13.result.b1_check,01:14이 되기 전에 B1 방화문을 닫고 확인했다. 아무 일도 일어나지 않았다. 아마도 그래서.,Shut and checked the B1 fire door before 01:14. Nothing happened. Perhaps that is why.
+case.n2-r13.decision.discard,폐기,Throw it away
+case.n2-r13.result.discard,장난이라고 생각하고 버렸다.,Called it a prank and binned it.
+quest.prop.ev_n2r13_memo,우편함 메모 확인,Read the note in the mailbox
+evidence.ev_n2r13_memo.name,미래 근무 메모,The shift note
+evidence.ev_n2r13_memo.desc,`01:14 / B1 / 문을 먼저 닫았어야 했다` 필체가 내 것과 거의 같다.,`01:14 / B1 / should have shut the door first`. The handwriting is almost mine.
+quest.prop.ev_n2r13_logbook,업무일지 용지 대조,Compare it with the duty log
+evidence.ev_n2r13_logbook.name,업무일지 용지,Duty log paper
+evidence.ev_n2r13_logbook.desc,메모는 지금 쓰는 업무일지에서 찢어 낸 종이다. 다음 장이 비어 있다.,The note was torn from the log I am using now. The next page is missing.
+quest.prop.ev_n2r13_b1_door,B1 방화문 상태 확인,Check the B1 fire door
+evidence.ev_n2r13_b1_door.name,B1 방화문,B1 fire door
+evidence.ev_n2r13_b1_door.desc,도어클로저가 느슨해 문이 끝까지 닫히지 않는다. 지금 닫아 두면 된다.,The closer is slack and the door does not shut fully. It can be shut now.
+case.n2-r14.title,404 수취인 택배,A parcel for 404
+case.n2-r14.summary,송장 주소가 `4동 404호`다. 수취인 칸은 물에 번져 읽을 수 없다. 주민 DB에는 404호가 없다.,"The address reads `Block 4, Unit 404`. The name has run in the wet. There is no 404 in the resident database."
+case.n2-r14.decision.seal,밀봉 보존,Keep it sealed
+case.n2-r14.result.seal,열지 않고 봉인해 보관했다. 404호 앞으로 온 첫 기록이다.,Sealed it unopened and stored it. The first thing on record addressed to 404.
+case.n2-r14.decision.open,개봉,Open it
+case.n2-r14.result.open,안에는 아이 두 명이 찍힌 오래된 사진 한 장이 있었다. 얼굴 위가 물에 번졌다.,"Inside, one old photograph of two children. Their faces have run in the wet."
+case.n2-r14.decision.return,반송,Send it back
+case.n2-r14.result.return,반송 처리했다. 보낸 곳은 2009년에 문을 닫은 상점이다.,Returned it. The sender is a shop that closed in 2009.
+case.n2-r14.decision.discard,폐기,Throw it away
+case.n2-r14.result.discard,주소 불명으로 폐기했다. 404호 앞으로 온 것이 하나 줄었다.,Destroyed as undeliverable. One less thing addressed to 404.
+quest.prop.ev_n2r14_invoice,404호 택배 송장 확인,Read the invoice on the 404 parcel
+evidence.ev_n2r14_invoice.name,404호 송장,Invoice to 404
+evidence.ev_n2r14_invoice.desc,인쇄일은 오늘. 주소 `4동 404호`. 수취인은 번져서 읽을 수 없다.,"Printed today. `Block 4, Unit 404`. The addressee cannot be read."
+quest.prop.ev_n2r14_sender,발송지 주소 조회,Look up the sender
+evidence.ev_n2r14_sender.name,발송지,The sender
+evidence.ev_n2r14_sender.desc,상가 명부에 따르면 이 상점은 2009년 12월에 폐업했다.,According to the business directory this shop closed in December 2009.
+evidence.ev_n2r14_photo.name,번진 아이들 사진,"Photo of two children, run in the wet"
+evidence.ev_n2r14_photo.desc,아이 둘이 나란히 서 있다. 얼굴 위가 물에 번져 누구인지 알 수 없다.,Two children side by side. Their faces have run; there is no telling who they are.
+case.n4-r01.title,303 주민 안부 확인,Checking on 303
+case.n4-r01.summary,선자 할머니의 안부를 확인해 달라는 요청이 들어왔다. 첫날 밤의 일이 그녀가 문을 여는 방식을 바꿨다.,Someone has asked for a welfare check on Mrs Lee in 303. How the first night went has changed how she answers the door.
+case.n4-r01.decision.visit,직접 방문,Visit in person
+case.n4-r01.result.visit,직접 올라가 얼굴을 보고 약 봉투를 확인했다. 이야기할 준비가 된 얼굴이었다.,"Went up, saw her, checked her medicine. She looked like someone ready to talk."
+case.n4-r01.decision.phone,전화로 확인,Check by phone
+case.n4-r01.result.phone,전화로 안부를 물었다. 괜찮다고 했다. 목소리만으로는 알 수 없다.,Rang her. She said she was fine. A voice is all there was to go on.
+case.n4-r01.decision.ignore,무시,Leave it
+case.n4-r01.result.ignore,요청을 미뤘다. 아무도 그녀의 문을 두드리지 않았다.,Put it off. Nobody knocked on her door tonight.
+quest.prop.ev_n4r01_state,303호 인터폰으로 상태 확인,Check on her through the 303 intercom
+evidence.ev_n4r01_state.name,303호 안부,"Welfare check, 303"
+evidence.ev_n4r01_state.desc,선자 할머니는 집에 있다. 약은 제때 먹었다고 한다. 2009년 얘기를 꺼내자 잠깐 말이 없었다.,She is at home and says she has taken her medicine. When 2009 came up she went quiet for a moment.
+quest.n4r01.variant.good,303호. 인터폰을 누르자마자 문이 열린다. 첫날 밤의 간호사를 기억하고 있다.,303. The door opens almost before the bell. She remembers the nurse from the first night.
+quest.n4r01.variant.delayed,303호. 한참 뒤에야 인터폰이 연결된다. 목소리가 피곤하다.,303. The intercom takes a long time to connect. She sounds tired.
+quest.n4r01.variant.denied,303호. 문은 열리지 않는다. 체인을 건 채 문틈으로만 대답한다.,303. The door stays shut. She answers through the gap with the chain on.
+case.n4-r02.title,기록실 데이터 마이그레이션,Migrating the records
+case.n4-r02.summary,최경태가 오래된 주민 데이터를 새 포맷으로 정리하라고 지시했다. 정리 중에 일부 파일명에 404가 잠깐 나타난다.,"Choi wants the old resident files moved to the new format. While it runs, 404 flickers into a few of the file names."
+case.n4-r02.decision.keep_and_copy,원본 보존 후 복사,Keep the originals and copy
+case.n4-r02.result.keep_and_copy,종이 원본은 상자에 그대로 두고 복사본으로 작업했다. 최경태는 왜 시간이 걸리냐고 물었다.,Left the paper originals boxed and worked from copies. Choi asked why it was taking so long.
+case.n4-r02.decision.overwrite,지시대로 덮어쓰기,Overwrite as instructed
+case.n4-r02.result.overwrite,지시대로 덮어썼다. 404가 나타났던 파일들은 새 포맷에 없다.,Overwrote them as told. The files where 404 appeared are not in the new format.
+case.n4-r02.decision.refuse,작업 거부,Refuse the job
+case.n4-r02.result.refuse,근무 중엔 할 수 없다고 거절했다. 최경태가 이름을 적어 갔다.,Said it could not be done on a night shift. Choi wrote my name down.
+quest.prop.ev_n4r02_originals,기록실 원본 파일 상자 확인,Check the original files in the records room
+evidence.ev_n4r02_originals.name,주민 원본 파일,Original resident files
+evidence.ev_n4r02_originals.desc,2009년까지의 종이 원본. 한 묶음은 끈이 새로 묶여 있다.,Paper originals up to 2009. One bundle has been retied recently.
+quest.prop.ev_n4r02_backup,백업 목록 확인,Read the backup list
+evidence.ev_n4r02_backup.name,백업 목록,Backup list
+evidence.ev_n4r02_backup.desc,백업 대상에서 2009년 11월 묶음만 빠져 있다.,Every batch is on the backup list except November 2009.
+case.n4-r03.title,404 발신 전화,A call from 404
+case.n4-r03.summary,내선 404에서 전화가 온다. 수화기 너머로 지금 관리실의 소리가 3초 늦게 들린다.,"Extension 404 is ringing. On the line, the sound of this office comes back three seconds late."
+case.n4-r03.decision.asked_where,어디에 있는지 물었다,Asked where they were
+case.n4-r03.result.asked_where,"아이는 지하라고 했다. 종이 많은 곳, 서랍 맨 아래 칸. B1 기록실 캐비닛이다.","The child said underground. Where the paper is, the bottom drawer. The B1 records cabinet."
+case.n4-r03.decision.asked_name,이름을 물었다,Asked their name
+case.n4-r03.result.asked_name,아이는 이름을 말하지 않았다. 목소리가 언니랑 똑같다고만 했다.,The child would not say. Only that my voice was just like her sister's.
+case.n4-r03.decision.listened,아무 말 없이 들었다,Listened and said nothing
+case.n4-r03.result.listened,끝까지 들었다. 아직 하지 않은 내 행동의 소리가 먼저 들렸다.,Heard it out. The sound of something I had not done yet came first.
+case.n4-r03.decision.hung_up,통화를 이어가지 않았다,Did not stay on the line
+case.n4-r03.result.hung_up,끊었다. 안전하다. 아무것도 알게 된 것은 없다.,"Put it down. Safe, and nothing learned."
+quest.prop.ev_n4r03_call,내선 404의 전화 받기,Answer extension 404
+evidence.ev_n4r03_call.name,내선 404 통화 기록,"Call log, extension 404"
+evidence.ev_n4r03_call.desc,존재하지 않는 내선에서 온 통화. 배경음은 3초 늦은 이 관리실이다.,"A call from an extension that does not exist. The background is this office, three seconds late."
+dlg.n4.call404.choice.where,지금 어디에 있어? 거기가 어디야?,Where are you? Where is that?
+dlg.n4.call404.choice.name,이름이 뭐니?,What's your name?
+dlg.n4.call404.choice.listen,(아무 말 없이 듣는다),"(Listen, and say nothing)"
+dlg.n4.call404.where,지하요. 종이 많은 데. 서랍 맨 아래 칸이요. 근데 거기 추워요.,Underground. Where all the paper is. The bottom drawer. It's cold there.
+dlg.n4.call404.name,…이름 말하면 안 된댔어요. 언니가. 근데 목소리가 우리 언니랑 똑같아요.,...I'm not supposed to say. My sister said. But you sound just like her.
+dlg.n4.call404.listen,(아이는 말이 없다. 관리실 소리가 3초 늦게 이어진다. 그러다 아직 일어나지 않은 소리가 먼저 들린다. 내가 수화기를 내려놓는 소리.),"(The child says nothing. The office goes on, three seconds late. Then a sound that has not happened yet: me putting the handset down.)"
+case.n4-r04.title,PC 매뉴얼과 종이 매뉴얼,The PC manual and the paper one
+case.n4-r04.summary,"PC 매뉴얼은 404 관련 호출을 무시하라고 한다. 종이 매뉴얼에는 손글씨로 ""끊지 말고 위치를 물어봐""라고 적혀 있다.","The PC manual says to ignore anything about 404. The paper manual says, in pen: ""don't hang up, ask where they are""."
+case.n4-r04.decision.keep_paper,종이 원본 보존,Keep the paper original
+case.n4-r04.result.keep_paper,개정일과 서명을 대조했다. 종이 쪽이 먼저다. PC 지침은 나중에 덮어쓴 것이다.,Compared revision dates and signatures. The paper came first. The PC instruction was written over it later.
+case.n4-r04.decision.record_both,둘 다 기록,Record both
+case.n4-r04.result.record_both,두 지침을 나란히 기록해 두었다. 어느 쪽을 따를지는 정하지 않았다.,Filed both side by side. Which one to follow is still open.
+case.n4-r04.decision.trust_pc,PC 지침을 따른다,Follow the PC manual
+case.n4-r04.result.trust_pc,PC 지침대로 하기로 했다. 404에서 전화가 오면 끊는다.,"Going by the PC. If 404 calls, hang up."
+quest.prop.ev_n4r04_paper,종이 매뉴얼 확인,Read the paper manual
+evidence.ev_n4r04_paper.name,종이 매뉴얼,Paper manual
+evidence.ev_n4r04_paper.desc,"2008년 개정판. 박동식의 서명. 여백에 ""끊지 말고 위치를 물어봐"".","2008 revision, signed by Park Dong-sik. In the margin: ""don't hang up, ask where they are""."
+quest.prop.ev_n4r04_pc,PC 매뉴얼 확인,Read the PC manual
+evidence.ev_n4r04_pc.name,PC 매뉴얼,PC manual
+evidence.ev_n4r04_pc.desc,"2010년 개정. 작성자 최경태. ""404 관련 호출은 시스템 오류이므로 응대하지 않는다.""","Revised 2010 by Choi Gyeong-tae. ""Calls concerning 404 are a system fault and are not to be answered."""
+case.n4-r05.title,가족사진에서 사라지는 아이,The child who leaves the photograph
+case.n4-r05.summary,"303호에서 맡긴 가족사진에 처음에는 아이가 둘 보였는데, 잠시 뒤 한 명이 사라졌다. 인화지에는 눌린 자국이 남아 있다.","The family photo from 303 showed two children, and then only one. The print still has the dent where she was."
+case.n4-r05.decision.seal_original,원본 봉인,Seal the original
+case.n4-r05.result.seal_original,인화지를 봉투에 봉인했다. 눌린 자국은 그대로다. 사라진 것은 상이지 자리가 아니다.,"Sealed the print. The dent is still there; the image went, not the place."
+case.n4-r05.decision.scan_only,스캔만 남긴다,"Scan it, that's all"
+case.n4-r05.result.scan_only,스캔해 두었다. 스캔본에는 아이가 한 명뿐이다.,Scanned it. The scan shows one child.
+case.n4-r05.decision.hand_to_choi,최경태에게 전달,Hand it to Choi
+case.n4-r05.result.hand_to_choi,회장에게 넘겼다. 돌려받을 수 있을지는 모르겠다.,Gave it to the chairman. Whether it comes back is anyone's guess.
+quest.prop.ev_n4r05_print,가족사진 인화지 확인,Look at the family print
+evidence.ev_n4r05_print.name,가족사진 인화지,Family photo print
+evidence.ev_n4r05_print.desc,작은 아이가 있던 자리에 인화지가 눌려 있다. 빛에 비추면 윤곽이 보인다.,"The paper is pressed where the smaller child stood. Against the light, the outline shows."
+quest.prop.ev_n4r05_scan,스캔본과 대조,Compare it with the scan
+evidence.ev_n4r05_scan.name,가족사진 스캔본,Scan of the photo
+evidence.ev_n4r05_scan.desc,스캔본에는 아이가 한 명뿐이다. 눌린 자국은 스캔되지 않았다.,One child in the scan. The dent did not scan.
+case.n4-r06.title,직원 ID 중복 로그인,Logged in twice
+case.n4-r06.summary,내 계정이 B1 단말기에 이미 로그인되어 있다는 경고가 떴다. 나는 지금 1층에 있다.,A warning says my account is already logged in on the B1 terminal. I am on 1F.
+case.n4-r06.decision.end_session,세션 강제 종료,Force the session off
+case.n4-r06.result.end_session,B1 세션을 끊었다. 경고가 사라졌다.,Killed the B1 session. The warning cleared.
+case.n4-r06.decision.check_b1,B1 현장 확인,Go and look at B1
+case.n4-r06.result.check_b1,B1 단말기 화면에는 내 이름과 방금 열람한 2009년 기록이 떠 있었다. 의자는 아직 따뜻했다.,The B1 screen had my name on it and a 2009 record just opened. The chair was still warm.
+case.n4-r06.decision.ignore,무시,Ignore it
+case.n4-r06.result.ignore,오류로 넘겼다. B1 단말기는 밤새 내 이름으로 로그인되어 있었다.,Called it a fault. B1 stayed logged in as me all night.
+quest.prop.ev_n4r06_warning,중복 로그인 경고 확인,Read the login warning
+evidence.ev_n4r06_warning.name,중복 로그인 경고,Duplicate login warning
+evidence.ev_n4r06_warning.desc,"같은 직원 ID, 관리실 단말과 B1 단말. 로그인 시각이 같다.",Same staff ID on the office terminal and on B1. Same login time.
+quest.prop.ev_n4r06_terminal,B1 단말기 확인,Check the B1 terminal
+evidence.ev_n4r06_terminal.name,B1 단말기 화면,The B1 terminal
+evidence.ev_n4r06_terminal.desc,내 계정으로 2009년 11월 출입기록이 열려 있다.,My account has the November 2009 access records open.
+case.n4-r07.title,봉인상자 안쪽의 노크,Knocking inside a sealed box
+case.n4-r07.summary,기록실의 봉인된 문서상자 안에서 노크가 세 번 들렸다.,Three knocks from inside a sealed document box in the records room.
+case.n4-r07.decision.keep_seal,봉인 유지하고 기록,Keep it sealed and record it
+case.n4-r07.result.keep_seal,"봉인을 건드리지 않고 진동을 기록했다. 세 번, 쉬고, 세 번.","Recorded the vibration without touching the seal. Three, a pause, three."
+case.n4-r07.decision.open_now,즉시 개봉,Open it now
+case.n4-r07.result.open_now,상자를 열었다. 노크는 멈췄다. 안에는 2009년 점검표 몇 장이 있었다.,Opened it. The knocking stopped. Inside were a few inspection sheets from 2009.
+case.n4-r07.decision.move_out,폐기실로 옮긴다,Move it to disposal
+case.n4-r07.result.move_out,상자를 폐기실로 옮겼다. 복도를 지나는 동안 노크가 따라왔다.,Moved it to disposal. The knocking followed down the corridor.
+quest.prop.ev_n4r07_vibration,상자 진동과 봉인번호 확인,Check the box's vibration and seal
+evidence.ev_n4r07_vibration.name,봉인상자 진동,Vibration in the sealed box
+evidence.ev_n4r07_vibration.desc,아날로그 진동계가 세 번 튄다. 봉인번호는 대장과 같다. 아무도 연 적 없다.,The analogue meter jumps three times. The seal matches the register; nobody has opened it.
+evidence.ev_n4r07_papers.name,2009년 점검표,2009 inspection sheets
+evidence.ev_n4r07_papers.desc,4층 방화문 점검란이 비어 있다. 서명은 있다.,The 4F fire door line is blank. It has been signed.
+case.n4-r08.title,2009 화재 신고 테이프,The 2009 fire call tape
+case.n4-r08.summary,B1 전기실의 오래된 녹음기에서 2009년 화재 신고 일부가 나왔다.,An old recorder in the B1 electrical room has part of a 2009 fire call on it.
+case.n4-r08.decision.copy_keep,복제 후 원본 보존,Copy it and keep the original
+case.n4-r08.result.copy_keep,디지털로 복제하고 테이프 원본은 봉인했다.,Copied it digitally and sealed the tape.
+case.n4-r08.decision.digital_only,디지털로만 저장,Save a digital copy only
+case.n4-r08.result.digital_only,파일로 저장했다. 테이프는 녹음기에 그대로 있다.,Saved it as a file. The tape is still in the machine.
+case.n4-r08.decision.report_choi,최경태에게 보고,Report it to Choi
+case.n4-r08.result.report_choi,회장에게 보고했다. 다음 날 녹음기는 비어 있었다.,Reported it to the chairman. By the next night the machine was empty.
+quest.prop.ev_n4r08_tape,오래된 녹음기 재생,Play the old recorder
+evidence.ev_n4r08_tape.name,2009 화재 신고 테이프,2009 fire call tape
+evidence.ev_n4r08_tape.desc,"02:08. ""4층 방화문이 안 열려요"" 뒤로 사이렌이 겹친다.","02:08. ""The fire door on four won't open"", and sirens behind it."
+case.n4-r09.title,2009 출입로그 재생,The 2009 access log
+case.n4-r09.summary,출입로그 화면이 20초 동안 2009년 11월 7일 기록으로 바뀐다.,For twenty seconds the access log shows the seventh of November 2009.
+case.n4-r09.decision.print,출력,Print it
+case.n4-r09.result.print,20초 안에 출력했다. 종이에는 404호 방문기록과 관리자 카드 번호가 남았다.,Printed it in time. On paper: visits to 404 and a supervisor's card number.
+case.n4-r09.decision.screenshot,스크린샷,Take a screenshot
+case.n4-r09.result.screenshot,화면을 캡처했다. 파일 속 날짜는 오늘로 찍혀 있다.,Captured the screen. The file is dated today.
+case.n4-r09.decision.close,창 닫기,Close the window
+case.n4-r09.result.close,창을 닫았다. 다시 열었을 땐 오늘 기록뿐이었다.,"Closed it. When it reopened, it was today's log."
+quest.prop.ev_n4r09_log2009,2009년 출입기록 확인,Read the 2009 access log
+evidence.ev_n4r09_log2009.name,2009년 11월 7일 출입기록,"Access log, 7 November 2009"
+evidence.ev_n4r09_log2009.desc,404호 방문 기록이 있다. 마지막 출입은 관리자 카드다.,There are visits to 404. The last entry is on a supervisor's card.
+evidence.ev_n4r09_print.name,출입기록 출력물,Printout of the access log
+evidence.ev_n4r09_print.desc,종이 위의 날짜는 2009년 11월 7일이다. 관리자 카드 번호가 선명하다.,The paper says 7 November 2009. The supervisor's card number is legible.
+case.n4-r10.title,선자의 증언,Mrs Lee's testimony
+case.n4-r10.summary,303호 선자 할머니가 2009년 그날 밤을 이야기하겠다고 한다. 아이 둘과 관리직원 박동식을 기억한다.,"Mrs Lee in 303 is willing to talk about that night in 2009. She remembers two children and Park Dong-sik, the caretaker."
+case.n4-r10.decision.recorded_full,동의를 받고 녹음했다,"Recorded it, with her consent"
+case.n4-r10.result.recorded_full,"녹음 동의를 받고 끝까지 들었다. 큰아이, 4층 끝 벽, ""안에 한 명 더 있다"", 그리고 가족사진. 하나도 빠지지 않았다.","Asked to record, and heard it all. The older girl, the wall at the end of 4F, ""there's one more inside"", and the family photograph. Nothing left out."
+case.n4-r10.decision.recorded_partial,동의를 받고 녹음했다,"Recorded it, with her consent"
+case.n4-r10.result.recorded_partial,녹음 동의를 받았다. 그녀는 조심스러웠다. 위치는 말했지만 끝까지 말하지 않은 것이 있다.,"She agreed to the recording, carefully. She gave the place; there was something she kept back."
+case.n4-r10.decision.hurried,재촉했다,Hurried her
+case.n4-r10.result.hurried,시간에 쫓겨 재촉했다. 4층 끝이라는 말만 남았다.,"Pressed for time and pushed her. All that came of it was ""the end of 4F""."
+case.n4-r10.decision.choi_first,최경태 이야기부터 꺼냈다,Asked about Choi first
+case.n4-r10.result.choi_first,회장 이야기를 먼저 꺼냈다. 그날 밤 그가 관리실 열쇠를 갖고 있었다는 것만 듣고 문이 닫혔다.,"Brought up the chairman first. Heard that he had the office keys that night, and then the door closed."
+case.n4-r10.decision.unheard,증언을 듣지 못했다,Never heard her out
+case.n4-r10.result.unheard,303호 문을 두드리지 않았다. 그녀가 기억하는 것은 아직 그녀만 안다.,"Did not knock on 303. What she remembers, only she knows."
+quest.prop.ev_n4r10_testimony,303호에서 선자의 이야기 듣기,Hear Mrs Lee out at 303
+evidence.ev_n4r10_testimony.name,선자의 증언,Mrs Lee's testimony
+evidence.ev_n4r10_testimony.desc,"2009년 11월 7일 밤. 4층 복도의 아이 둘, 관리직원 박동식, 그리고 다시 들어간 사람.","The night of 7 November 2009. Two children in the 4F corridor, the caretaker Park Dong-sik, and someone who went back in."
+quest.act.n4r10_door,303호 문 두드리기,Knock on 303
+dlg.n4r10.start,"아이고, 관리실 아가씨. 이 밤에 웬일이야. …그 얘기 하러 왔구나. 2009년.","Oh, it's the girl from the office. At this hour. ...You've come about that, haven't you. 2009."
+dlg.n4r10.remember,그날 밤 복도에 아이가 둘 있었어. 큰애랑 작은애. 그리고 관리실 박 씨. 박동식이.,There were two children in the corridor that night. The older one and the little one. And Mr Park from the office. Park Dong-sik.
+dlg.n4r10.choice.consent,괜찮으시면 녹음해도 될까요? 천천히 말씀해 주세요.,Would you mind if I recorded this? Take your time.
+dlg.n4r10.choice.hurry,시간이 없어요. 어디서 보셨는지만 말씀해 주세요.,I haven't much time. Just tell me where you saw them.
+dlg.n4r10.choice.choi,최경태 회장도 그날 밤 여기 있었나요?,Was Mr Choi here that night as well?
+dlg.n4r10.consent,"박 씨가 큰애를 먼저 안고 나왔어. 4층 끝, 벽 쪽에서. 그러고는 ""안에 한 명 더 있다""면서 다시 들어갔지. 그 사람… 다시는 안 나왔어. 우리 집 가족사진, 그 뒤에 찍은 거야.","Mr Park carried the older one out first. From the end of four, by the wall. Then he said ""there's one more inside"" and went back in. He... never came out. Our family photo was taken after that."
+dlg.n4r10.hurry,"4층… 4층 끝이었어. 더는 잘 모르겠어. 미안해, 아가씨. 머리가 하얘져서.","Four... the end of four. I don't know any more than that. I'm sorry, love. My mind's gone blank."
+dlg.n4r10.choi,(선자의 얼굴이 굳는다) …그 사람 얘기는 하지 마. 그날 밤 그 사람이 관리실 열쇠를 갖고 있었어. 그것만 알아. 이제 그만 가 봐.,(Her face sets.) ...Don't talk to me about him. He had the office keys that night. That's all I know. You'd better go.
+case.n4-r11.title,아이 둘의 연필 낙서,Two children in pencil
+case.n4-r11.summary,"새로 칠한 4층 벽 아래에서 오래된 연필 그림이 비쳐 올라온다. 큰 아이와 작은 아이, 빨간 실내화 한 짝. 이름은 없다.","Under the new paint on 4F an old pencil drawing shows through: a big child, a small one, and one red slipper. No names."
+case.n4-r11.decision.photo_keep,사진으로 남기고 보존,Photograph it and leave it be
+case.n4-r11.result.photo_keep,도료층을 확인하고 사진을 찍었다. 그림은 페인트 아래층에서 올라오고 있다.,Checked the layers and photographed it. The drawing is coming up from under the paint.
+case.n4-r11.decision.scraped,벽 일부를 긁어 확인했다,Scraped part of the wall
+case.n4-r11.result.scraped,"긁어낸 자리에서 두 번째 아이의 윤곽과 ""동생""이라는 글자 일부가 나왔다. 이름은 끝내 나오지 않았다.","The scraped patch gave the second child's outline and part of the word ""little sister"". Never a name."
+case.n4-r11.decision.paint_over,덧칠,Paint over it
+case.n4-r11.result.paint_over,한 번 더 칠했다. 마르기 전에 선이 다시 비쳤다.,Gave it another coat. The lines showed through before it dried.
+quest.prop.ev_n4r11_drawing,벽의 연필 그림 확인,Look at the pencil drawing
+evidence.ev_n4r11_drawing.name,연필 그림,Pencil drawing
+evidence.ev_n4r11_drawing.desc,큰 아이와 작은 아이가 나란히 서 있다. 옆에 빨간 실내화 한 짝. 이름은 없다.,"A big child and a small one side by side, and one red slipper beside them. No names."
+evidence.ev_n4r11_scraped.name,긁어낸 벽면,Scraped patch
+evidence.ev_n4r11_scraped.desc,"작은 아이의 윤곽 위에 ""동생"" 두 글자. 그 뒤는 비어 있다.","Over the small child's outline, the word ""little sister"". Nothing after it."
+quest.act.n4r11_scrape,벽 일부 긁어내기,Scrape a little of the wall
+case.n4-r12.title,잠깐 생겨난 404 우편함,"A mailbox for 404, briefly"
+case.n4-r12.summary,"1층 우편함 403과 501 사이에 404 칸이 생겼다가, 시선을 돌리면 사라진다.",Between 403 and 501 in the mailboxes there is a slot for 404 - until you look away.
+case.n4-r12.decision.took_contents,즉시 내용물 회수,Take what is inside
+case.n4-r12.result.took_contents,칸이 사라지기 전에 종이 한 장을 꺼냈다. 칸은 다시 없다.,Got the one sheet out before it went. The slot is gone.
+case.n4-r12.decision.measured,물리 측정만,Only measure it
+case.n4-r12.result.measured,우편함 전체 폭을 쟀다. 칸이 하나 늘었는데 폭은 그대로다.,"Measured the whole bank. One more slot, and the same width."
+case.n4-r12.decision.ignore,무시,Ignore it
+case.n4-r12.result.ignore,다시 보니 없었다. 그렇게 넘겼다.,Looked again and it was gone. Left it at that.
+quest.prop.ev_n4r12_measure,우편함 전체 폭 재기,Measure the mailbox bank
+evidence.ev_n4r12_measure.name,우편함 폭 측정,Mailbox bank width
+evidence.ev_n4r12_measure.desc,줄자로 잰 전체 폭은 도면과 같다. 칸이 하나 늘었는데도.,The tape gives the drawing's width - with one more slot in it.
+evidence.ev_n4r12_paper.name,404 칸의 종이,Sheet from the 404 slot
+evidence.ev_n4r12_paper.desc,"관리비 고지서 한 장. 세대번호 404, 2009년 10월분.","One maintenance bill. Unit 404, October 2009."
+quest.act.n4r12_open,404 칸 열어보기,Open the 404 slot
+case.n4-r13.title,엘리베이터 거울의 가족,A family in the lift mirror
+case.n4-r13.summary,엘리베이터 거울 속 내 뒤에 아이 둘이 잠깐 서 있다. 실제 공간에는 아무도 없다.,In the lift mirror two children stand behind me for a moment. There is nobody in the car.
+case.n4-r13.decision.got_off,즉시 하차,Get out at once
+case.n4-r13.result.got_off,다음 층에서 내렸다. 문이 닫힐 때 거울은 비어 있었다.,Got out at the next floor. The mirror was empty when the doors closed.
+case.n4-r13.decision.kept_watching,계속 지켜봤다,Kept watching
+case.n4-r13.result.kept_watching,끝까지 봤다. 작은 아이가 거울 속에서 내 소매를 잡았다.,"Watched to the end. The little one took hold of my sleeve, in the mirror."
+case.n4-r13.decision.photo,사진 촬영,Take a photo
+case.n4-r13.result.photo,사진을 찍었다. 사진에는 아이가 한 명만 남아 있다.,Took a picture. Only one child is in it.
+quest.prop.ev_n4r13_mirror,엘리베이터 거울 확인,Look in the lift mirror
+evidence.ev_n4r13_mirror.name,거울 속 아이들,Children in the mirror
+evidence.ev_n4r13_mirror.desc,거울에만 있다. CAM-08 화면에는 나 혼자다.,Only in the mirror. On CAM-08 I am alone.
+evidence.ev_n4r13_photo.name,거울 사진,Photo of the mirror
+evidence.ev_n4r13_photo.desc,아이가 한 명만 찍혔다. 큰아이다.,One child came out. The older one.
+quest.act.n4r13_watch,거울을 계속 들여다보기,Keep looking into the mirror
+quest.n4r13.two_children,거울 속 아이 둘이 아직 거기 있다. 돌아보면 아무도 없다.,The two children are still in the mirror. Turn round and there is no one.
+case.n4-r14.title,기록실 캐비닛의 오늘 날짜,Today's date in the records cabinet
+case.n4-r14.summary,2009년 폐기 예정 서류 봉투에 오늘 날짜의 검토 도장이 찍혀 있다.,A 2009 envelope marked for disposal has been stamped as reviewed - today.
+case.n4-r14.decision.seal,봉인 보존,Seal and keep it
+case.n4-r14.result.seal,봉투를 봉인했다. 도장 잉크가 손끝에 묻었다.,Sealed the envelope. The ink came off on my fingers.
+case.n4-r14.decision.compare_stamp,도장 대조,Compare the stamp
+case.n4-r14.result.compare_stamp,관리실 도장과 대조했다. 같은 도장이다. 오늘 밤 누군가 기록실에 왔었다.,Checked it against the office stamp. The same one. Someone was in the records room tonight.
+case.n4-r14.decision.discard,폐기,Dispose of it
+case.n4-r14.result.discard,예정대로 폐기했다.,Disposed of it as scheduled.
+quest.prop.ev_n4r14_stamp,검토 도장 확인,Look at the review stamp
+evidence.ev_n4r14_stamp.name,오늘 날짜의 검토 도장,"Review stamp, dated today"
+evidence.ev_n4r14_stamp.desc,잉크가 아직 마르지 않았다. 도장 모양은 지금 관리실의 것과 같다.,The ink is still wet. The stamp is the office's own.
+evidence.ev_n4r14_compare.name,도장 대조 결과,Stamp comparison
+evidence.ev_n4r14_compare.desc,관리실 도장 받침에 같은 날짜가 찍혀 있다. 오늘 밤 내가 찍은 적은 없다.,The office pad carries the same date. I have not stamped anything tonight.
+case.n6-r01.title,마지막 정상 주민 요청,One last ordinary request
+case.n6-r01.summary,대피 준비 중인 주민이 약과 휴대폰을 두고 왔다며 잠깐만 도와 달라고 한다.,A resident getting ready to leave has left their medicine and phone behind and wants a hand.
+case.n6-r01.decision.helped,도와줬다,Helped
+case.n6-r01.result.helped,안전한 곳이라 같이 다녀왔다. 주민은 고맙다며 몇 번이고 인사했다.,"It was a safe spot, so I went with them. They thanked me more than once."
+case.n6-r01.decision.escorted_in,위험구역까지 동행했다,Went with them into the danger zone
+case.n6-r01.result.escorted_in,연기가 도는 4층까지 함께 갔다. 약은 찾았다. 목이 따갑다.,Went up into the smoke on 4F with them. Found the medicine. My throat burns.
+case.n6-r01.decision.declined,거절했다,Said no
+case.n6-r01.result.declined,지금은 안 된다고 했다. 시간은 벌었다.,Told them not now. Bought some time.
+quest.prop.ev_n6r01_slip,주민 요청서와 대피구역 확인,Read the request and the evacuation zone
+evidence.ev_n6r01_slip.name,주민 요청서,Resident's request
+evidence.ev_n6r01_slip.desc,두고 온 물건과 위치. 대피 지도와 맞춰 보면 그곳이 안전한지 알 수 있다.,"What was left and where. Against the evacuation map, it shows whether the spot is safe."
+quest.n6r01.variant.safe,주민이 두고 온 곳은 1층 세탁실이다. 연기는 아직 그곳까지 오지 않았다.,The things were left in the 1F laundry. The smoke has not reached it.
+quest.n6r01.variant.danger,주민이 두고 온 곳은 4층 복도다. 지금 그곳은 위험구역이다.,The things were left in the 4F corridor. That is a danger zone now.
+case.n6-r02.title,기록서버 자동 삭제,The records server is deleting itself
+case.n6-r02.summary,기록서버에 카운트다운이 떴다. 남은 시간 안에 무엇을 살릴지 정해야 한다.,A countdown has appeared on the records server. What gets saved has to be decided before it runs out.
+case.n6-r02.decision.core_four,핵심 4항목 우선 보존,Save the four key items first
+case.n6-r02.result.core_four,"출입기록, 주민대장, 점검표, 통화기록. 넷을 먼저 외부로 뺐다.","Access log, resident register, inspection sheets, call log. Got those four out first."
+case.n6-r02.decision.full_backup,전체 백업 시도,Try a full backup
+case.n6-r02.result.full_backup,전체 백업이 끝났다. 무결성 오류였을 뿐 지워지는 것은 없었다.,The full backup finished. It was an integrity error; nothing was being deleted.
+case.n6-r02.decision.full_backup_lost,전체 백업 시도,Try a full backup
+case.n6-r02.result.full_backup_lost,전체 백업은 시간 안에 끝나지 않았다. 진행 중이던 파일까지 지워졌다.,The full backup did not finish in time. The files in progress went with the rest.
+case.n6-r02.decision.give_up,포기,Give up on it
+case.n6-r02.result.give_up,서버를 내버려 뒀다. 카운트다운은 0이 됐다.,Left the server. The countdown reached zero.
+quest.prop.ev_n6r02_index,기록 색인 확인,Read the archive index
+evidence.ev_n6r02_index.name,기록 색인,Archive index
+evidence.ev_n6r02_index.desc,삭제 대기열. 404와 2009년 11월이 맨 앞에 있다.,The deletion queue. 404 and November 2009 are at the front.
+quest.n6r02.variant.deleting,회장 측에서 원격 삭제가 시작됐다. 카운트다운이 줄어든다.,A remote deletion has started from the chairman's side. The countdown is running.
+quest.n6r02.variant.integrity,기록서버 무결성 오류다. 삭제는 아니지만 확인은 필요하다.,"An integrity error on the records server. Not a deletion, but it needs checking."
+case.n6-r03.title,404로 가는 복도의 길이,The passage to 404 has changed
+case.n6-r03.summary,"404로 들어가기 전, 서비스 통로가 전보다 길어 보인다.",On the way to 404 the service passage looks longer than it was.
+case.n6-r03.decision.followed_marker,기준표식을 따라 걸었다,Walked by the reference marker
+case.n6-r03.result.followed_marker,변하지 않는 표식만 보고 걸었다. 통로는 원래 길이였다.,Walked by the marker that does not change. The passage was its proper length.
+case.n6-r03.decision.wall_contact,벽을 짚고 이동했다,Kept a hand on the wall
+case.n6-r03.result.wall_contact,벽에서 손을 떼지 않고 걸었다. 느렸지만 길을 잃지 않았다.,"Kept a hand on the wall all the way. Slow, but not lost."
+case.n6-r03.decision.trusted_eyes,눈에 보이는 대로 갔다,Went by what I could see
+case.n6-r03.result.trusted_eyes,보이는 대로 걸었다. 같은 문을 세 번 지났다.,Walked by sight. Passed the same door three times.
+quest.prop.ev_n6r03_reference,통로의 기준표식 확인,Find the passage reference
+evidence.ev_n6r03_reference.name,통로 기준표식,Passage reference
+evidence.ev_n6r03_reference.desc,"3일차에 둔 표식, 또는 늘 그 자리에 있는 봉인 번호. 어느 쪽도 길이가 변하지 않았다.","The marker from night 3, or the seal number that is always there. Neither has moved."
+case.n6-r04.title,미래의 내가 하는 구조 방송,"My own rescue broadcast, early"
+case.n6-r04.summary,스피커에서 몇 분 뒤에 내가 할 구조 지시가 먼저 흘러나온다.,The speakers are playing a rescue instruction I will give a few minutes from now.
+case.n6-r04.decision.checked_now,지금 상황과 대조했다,Checked it against now
+case.n6-r04.result.checked_now,방송을 지금의 CCTV와 대조했다. 맞는 부분만 썼다.,Checked the broadcast against the cameras now. Used only what fitted.
+case.n6-r04.decision.followed_foreseen,방송대로 따라갔다,Did what it said
+case.n6-r04.result.followed_foreseen,전에 미래를 확인해 본 적이 있다. 그 방송은 맞았다.,I had tested a future before. This one was right.
+case.n6-r04.decision.followed_blind,방송대로 따라갔다,Did what it said
+case.n6-r04.result.followed_blind,방송대로 움직였다. 방송 속 계단은 이미 무너져 있었다.,Did as it said. The stairs in the broadcast had already collapsed.
+case.n6-r04.decision.cut_broadcast,방송 차단,Cut the broadcast
+case.n6-r04.result.cut_broadcast,스피커를 껐다. 조용해지니 숨이 쉬어졌다.,Turned the speakers off. In the quiet it was easier to breathe.
+quest.prop.ev_n6r04_broadcast,관리실 스피커 방송 듣기,Listen to the office speaker
+evidence.ev_n6r04_broadcast.name,미리 들린 구조 방송,The early rescue broadcast
+evidence.ev_n6r04_broadcast.desc,"내 목소리다. ""4층 동쪽 계단으로 내려가세요."" 나는 아직 그 말을 하지 않았다.","My voice. ""Use the east stairs from four."" I have not said that yet."
+case.n6-r05.title,도면에 없는 방문,A door that is not on the plan
+case.n6-r05.summary,"404호 안, 실제 구조에는 없는 작은 방문이 잠깐 보인다. 문에도 문패에도 이름은 없다. 앞에 빨간 실내화 한 짝.","Inside 404 a small door appears that the structure does not have. No name on it, no name plate. One red slipper in front of it."
+case.n6-r05.decision.noted_closed,열지 않고 기록했다,Recorded it without opening it
+case.n6-r05.result.noted_closed,문을 사진으로만 남겼다. 시간은 아꼈다.,Photographed the door and left it. Saved some time.
+case.n6-r05.decision.opened,문을 열었다,Opened it
+case.n6-r05.result.opened,"문 너머는 작은 방이었다. 이층침대 아래 칸, 벽에 붙은 키 재기 선, 그리고 잊고 있던 목소리.","Behind it, a small room. The lower bunk, the height marks on the wall, and a voice I had forgotten."
+case.n6-r05.decision.took_slipper,실내화를 챙겼다,Took the slipper
+case.n6-r05.result.took_slipper,문은 열지 않고 실내화만 집어 들었다. 아이 발 크기다.,Left the door shut and picked up the slipper. A child's size.
+quest.prop.ev_n6r05_door,도면에 없는 문 확인,Look at the door that is not on the plan
+evidence.ev_n6r05_door.name,도면에 없는 문,The unplanned door
+evidence.ev_n6r05_door.desc,원본 도면에는 이 벽에 문이 없다. 문패 자리는 비어 있다.,The original plan has no door in this wall. The name plate is blank.
+quest.prop.ev_n6r05_slipper,문 앞의 실내화 줍기,Pick up the slipper by the door
+evidence.ev_n6r05_slipper.name,빨간 실내화 한 짝,One red slipper
+evidence.ev_n6r05_slipper.desc,아이 발 크기. 그을린 자국이 있다.,"A child's size, scorched."
+quest.act.n6r05_open,문 열기,Open the door
+quest.n6r05.memory,문이 열렸다. 기억이 먼저 들어왔다.,The door opened. The memory came in first.
+case.n6-r06.title,유해 발견 지점의 붕괴,The collapse where he lies
+case.n6-r06.summary,박동식이 있을 가능성이 높은 구역의 천장과 벽체가 무너지기 시작했다. 무전기 잡음과 명찰의 반사광이 길을 가리킨다.,The ceiling and walls are coming down where Park Dong-sik most likely lies. Radio static and a glint off a name badge point the way.
+case.n6-r06.decision.stabilised,통로를 먼저 보강했다,Shored up the passage first
+case.n6-r06.result.stabilised,버팀목을 세웠다. 시간은 들었지만 지나갈 길이 생겼다.,"Put the props in. It took time, and now there is a way through."
+case.n6-r06.decision.cleared,잔해를 직접 치웠다,Cleared the debris by hand
+case.n6-r06.result.cleared,잔해를 손으로 치웠다. 빨랐다. 팔에 상처가 났다.,"Moved the rubble by hand. Quick, and my arms are cut."
+case.n6-r06.decision.detoured,우회로를 찾았다,Found another way round
+case.n6-r06.result.detoured,다른 길로 돌아갔다. 같은 벽을 두 번 만났다.,Went round. Met the same wall twice.
+quest.prop.ev_n6r06_nameplate,반짝이는 명찰 조각 확인,Look at the glinting badge
+evidence.ev_n6r06_nameplate.name,관리직원 명찰 조각,Part of a staff badge
+evidence.ev_n6r06_nameplate.desc,"그을린 명찰 일부. ""관리 박""까지 읽힌다.","A scorched piece of a staff badge. It reads ""Caretaker Pa""."
+quest.act.n6r06_stabilise,버팀목 세우기,Set up the shoring
+quest.act.n6r06_clear,잔해 직접 치우기,Move the debris by hand
+quest.n6r06.stabilised,버팀목을 세웠다. 천장이 더는 내려앉지 않는다.,The shoring is in. The ceiling has stopped coming down.
+quest.n6r06.cleared,잔해를 치웠다. 날카로운 모서리에 베였다.,Cleared it. Cut myself on an edge.
+case.n6-r07.title,원본 장부와 복제 장부,Two ledgers
+case.n6-r07.summary,"내용이 다른 장부 두 권이 있다. 하나는 지금의 잉크, 하나는 2009년의 종이다.","There are two ledgers that disagree. One is in today's ink, the other on 2009 paper."
+case.n6-r07.decision.physical_test,물리 검사로 원본을 가렸다,Told them apart by the paper
+case.n6-r07.result.physical_test,종이 노화와 도장으로 원본을 가렸다. 어느 쪽이 진짜인지 이제 확실하다.,Paper age and the stamp settled it. Which one is real is no longer in doubt.
+case.n6-r07.decision.took_both,둘 다 챙겼다,Took both
+case.n6-r07.result.took_both,"둘 다 가방에 넣었다. 무겁고, 시간이 걸렸다.","Put both in the bag. Heavy, and slow."
+case.n6-r07.decision.read_screen,디지털 내용만 보고 골랐다,Chose by the digital copy
+case.n6-r07.result.read_screen,PC에 남은 내용과 맞는 쪽을 골랐다. 그 PC 기록부터가 고쳐진 것이었다.,Picked the one that matched the PC. The PC record was the one that had been altered.
+quest.prop.ev_n6r07_copy,두 번째 장부 확인,Look at the second ledger
+evidence.ev_n6r07_copy.name,복제 장부,The copy ledger
+evidence.ev_n6r07_copy.desc,"같은 표지, 다른 내용. 404호 칸이 비어 있고 잉크가 새것이다.","Same cover, different contents. The 404 line is empty and the ink is fresh."
+quest.prop.ev_n6r07_paper_test,종이와 도장 대조,Compare the paper and the stamp
+evidence.ev_n6r07_paper_test.name,종이 대조,Paper comparison
+evidence.ev_n6r07_paper_test.desc,원본은 누렇게 바랬고 도장이 번졌다. 복제본은 하얗고 도장이 또렷하다.,The original has yellowed and its stamp has bled. The copy is white and its stamp is crisp.
+case.n6-r08.title,연기 유입,Smoke is getting in
+case.n6-r08.summary,서비스 통로와 4층 복도로 연기가 들어온다. 그동안 방화문을 어떻게 다뤘는지가 그 양을 정했다.,Smoke is coming into the service passage and the 4F corridor. How the fire doors were handled decided how much.
+case.n6-r08.decision.door_secured,방화문을 확보했다,Secured the fire door
+case.n6-r08.result.door_secured,방화문을 닫고 걸쇠를 걸었다. 연기가 멈췄다.,Shut the fire door and latched it. The smoke stopped.
+case.n6-r08.decision.vented,환기부터 했다,Ventilated first
+case.n6-r08.result.vented,환기구를 열었다. 공기가 움직였다. 방향은 운이었다.,Opened the vent. The air moved; which way was luck.
+case.n6-r08.decision.pushed_on,무시하고 진행했다,Pushed on through it
+case.n6-r08.result.pushed_on,연기 속을 그대로 지나갔다. 아직 기침이 멈추지 않는다.,Went straight through the smoke. Still coughing.
+quest.prop.ev_n6r08_temp,복도 온도계 확인,Read the corridor thermometer
+evidence.ev_n6r08_temp.name,4층 복도 온도,4F corridor temperature
+evidence.ev_n6r08_temp.desc,바늘이 계속 오른다. 연기는 계단 쪽에서 들어온다.,The needle keeps climbing. The smoke is coming from the stair side.
+quest.act.n6r08_firedoor,방화문 걸쇠 걸기,Latch the fire door
+quest.act.n6r08_vent,복도 환기구 열기,Open the corridor vent
+quest.n6r08.variant.smoke,연기가 짙다. 이 안에 있는 동안 계속 숨이 막힐 것이다.,The smoke is thick. Staying in it will keep costing.
+quest.n6r08.variant.haze,옅은 연기다. 방화문이 제 역할을 하고 있다.,Only a haze. The fire doors are doing their job.
+quest.n6r08.door_secured,방화문을 확보했다. 연기가 더 들어오지 않는다.,Fire door secured. No more smoke is getting in.
+quest.n6r08.vented,환기구로 연기가 빠져나간다.,The vent is drawing the smoke out.
+quest.n6r08.backdraft,역류다. 연기가 환기구에서 쏟아져 들어왔다.,Backdraft. The vent poured smoke back in.
+case.n6-r09.title,관리실 원격 잠금,Locked remotely
+case.n6-r09.summary,최경태 측에서 1층 출입문 일부를 원격으로 잠갔다.,Choi's side has locked some of the 1F doors remotely.
+case.n6-r09.decision.cut_circuit,B1 회로를 차단했다,Cut the B1 circuit
+case.n6-r09.result.cut_circuit,잠금 회로의 전원을 내렸다. 문이 풀렸다.,Took the power off the locking circuit. The doors released.
+case.n6-r09.decision.forced,강제로 열었다,Forced it
+case.n6-r09.result.forced,문을 억지로 열었다. 손목을 다쳤다.,Forced the door. Hurt my wrist.
+case.n6-r09.decision.took_stairs,계단으로 돌아갔다,Went round by the stairs
+case.n6-r09.result.took_stairs,계단으로 우회했다. 층수가 한 번 헷갈렸다.,Went round by the stairs. Lost count of the floors once.
+quest.prop.ev_n6r09_lock,잠긴 문 상태 확인,Check the locked door
+evidence.ev_n6r09_lock.name,원격 잠금 상태,Remote lock status
+evidence.ev_n6r09_lock.desc,물리 자물쇠는 열려 있다. 잠긴 것은 전자석이다. B1 회로로 풀 수 있다.,The mechanical lock is open; it is the magnet holding it. The B1 circuit will release it.
+quest.act.n6r09_cut,잠금 회로 차단기 내리기,Switch off the locking circuit
+quest.act.n6r09_force,문을 강제로 열기,Force the door
+quest.n6r09.variant.strong,1층과 4층 문이 모두 잠겼다. 회장 쪽이 지켜보고 있다.,The doors on 1F and 4F are all locked. The chairman's side is watching.
+quest.n6r09.variant.weak,1층 출입문 하나가 잠겼다.,One of the 1F doors has been locked.
+quest.n6r09.released,회로를 내렸다. 잠금이 풀렸다.,Circuit off. The lock has released.
+quest.n6r09.forced,문을 비틀어 열었다. 손목이 시큰거린다.,Wrenched it open. My wrist aches.
+case.n6-r10.title,주민 단체방의 404 소문,404 in the residents' chat
+case.n6-r10.summary,주민 단체방에 404 이야기가 돈다. 그동안 쌓은 신뢰가 내 공지를 믿게 할지를 정한다.,404 is going round the residents' group chat. The trust built up so far decides whether my notice is believed.
+case.n6-r10.decision.facts_believed,사실만 짧게 전달했다,"Gave them the facts, briefly"
+case.n6-r10.result.facts_believed,대피구역과 동선만 알렸다. 주민들이 그대로 움직였다.,Gave the evacuation zone and the route. People did as it said.
+case.n6-r10.decision.facts_doubted,사실만 짧게 전달했다,"Gave them the facts, briefly"
+case.n6-r10.result.facts_doubted,대피구역을 알렸다. 몇 명은 움직였고 나머지는 괴담 취급했다.,Gave the zone. Some moved; the rest called it a ghost story.
+case.n6-r10.decision.whole_truth,404의 진실까지 공개했다,Told them the whole truth about 404
+case.n6-r10.result.whole_truth,404에 대해 아는 것을 모두 썼다. 단체방이 혼란에 빠졌다.,Wrote down everything I know about 404. The chat fell apart.
+case.n6-r10.decision.silence,침묵했다,Said nothing
+case.n6-r10.result.silence,아무 공지도 하지 않았다. 대피가 늦어졌다.,Posted nothing. The evacuation was late.
+quest.prop.ev_n6r10_chat,주민 단체방 확인,Read the residents' chat
+evidence.ev_n6r10_chat.name,주민 단체방,Residents' chat
+evidence.ev_n6r10_chat.desc,"""관리실에서 연락 있었어요?"" ""404가 진짜 있대."" 지금 대피구역은 1층 로비와 B1 주차장이다.","""Anything from the office?"" ""They say 404 is real."" The evacuation zones are the 1F lobby and B1 parking."
+case.n6-r11.title,CCTV 속 빈 404,An empty 404 on CCTV
+case.n6-r11.summary,CAM-04가 404 내부를 보여준다. 들어가 보면 구조가 다르다.,"CAM-04 is showing the inside of 404. Walk in, and it is laid out differently."
+case.n6-r11.decision.cctv_as_aid,CCTV는 보조로만 썼다,Used the camera as a guide only
+case.n6-r11.result.cctv_as_aid,"봉인과 장부 위치는 직접 확인하고, 화면은 참고만 했다.","Checked the seal and the ledger myself, and kept the screen as a reference."
+case.n6-r11.decision.camera_off,카메라를 차단했다,Shut the camera off
+case.n6-r11.result.camera_off,CAM-04를 껐다. 이제 눈으로만 간다.,Turned CAM-04 off. Eyes only from here.
+case.n6-r11.decision.followed_feed,영상만 따라갔다,Went by the footage
+case.n6-r11.result.followed_feed,화면 속 구조대로 걸었다. 화면 속 문은 벽이었다.,Walked the layout on screen. The door on screen was a wall.
+quest.prop.ev_n6r11_seal,통로의 404 봉인 확인,Check the 404 seal in the passage
+evidence.ev_n6r11_seal.name,현재의 404 봉인,The 404 seal as it is now
+evidence.ev_n6r11_seal.desc,봉인은 지금 이 자리에 있다. CAM-04 화면 속에는 이 봉인이 없다.,"The seal is here, now. On CAM-04 it is not."
+case.n6-r12.title,모든 CCTV가 관리실을 비춤,Every camera shows the office
+case.n6-r12.summary,모든 CCTV가 관리실을 비춘다. 화면 속 나는 실제보다 몇 초 늦게 움직인다.,Every camera is showing the office. The me on screen moves a few seconds behind.
+case.n6-r12.decision.isolate,피드를 격리했다,Isolated the feeds
+case.n6-r12.result.isolate,실제 카메라 방향을 확인하고 오염된 피드를 끊었다. 화면이 돌아왔다.,Checked where the cameras really point and cut the bad feeds. The screens came back.
+case.n6-r12.decision.power_off,CCTV 전원 차단,Cut power to the CCTV
+case.n6-r12.result.power_off,CCTV를 모두 껐다. 남은 근무는 화면 없이 간다.,Turned it all off. The rest of the shift goes without screens.
+case.n6-r12.decision.kept_watching,계속 지켜봤다,Kept watching
+case.n6-r12.result.kept_watching,끝까지 봤다. 화면 속 내가 나를 돌아봤다. 그 뒤에 작은 아이가 서 있었다.,Watched to the end. The me on screen turned to look at me. A small child was standing behind her.
+quest.prop.ev_n6r12_direction,CAM-01 실제 방향 확인,Check where CAM-01 really points
+evidence.ev_n6r12_direction.name,CAM-01의 실제 방향,Where CAM-01 points
+evidence.ev_n6r12_direction.desc,렌즈는 공동현관을 향해 있다. 관리실은 이 카메라에서 보이지 않는다.,The lens faces the entrance. The office cannot be seen from it.
+case.n6-r13.title,404 문 뒤의 두 목소리,Two voices behind 404
+case.n6-r13.summary,문 뒤에서 박동식의 마지막 무전과 아이 목소리가 서로 다른 방향에서 들린다.,"Behind the door, Park Dong-sik's last radio call and a child's voice come from two different directions."
+case.n6-r13.decision.radio_pattern,무전 패턴을 기준으로 삼았다,Went by the radio pattern
+case.n6-r13.result.radio_pattern,노크와 무전의 같은 박자를 따라갔다. 무전이 끝나는 곳을 표시했다.,Followed the beat the knocks and the radio share. Marked where the radio stops.
+case.n6-r13.decision.marked_both,두 방향을 모두 표시했다,Marked both directions
+case.n6-r13.result.marked_both,두 소리의 방향을 다 적었다. 무전 쪽을 먼저 간다.,Wrote down both. The radio first.
+case.n6-r13.decision.chased_child,아이 목소리를 따라갔다,Followed the child's voice
+case.n6-r13.result.chased_child,아이 목소리를 따라갔다. 목소리는 벽 안에서 끝났다. 기억 하나가 같이 왔다.,"Followed the child's voice. It ended inside the wall, and a memory came with it."
+case.n6-r13.decision.moved_on,둘 다 무시하고 지나갔다,Ignored both and moved on
+case.n6-r13.result.moved_on,어느 쪽에도 귀를 주지 않았다.,Did not listen to either.
+quest.prop.ev_n6r13_radio,무전 잡음이 나는 쪽 확인,Find where the radio static is
+evidence.ev_n6r13_radio.name,박동식의 마지막 무전,Park Dong-sik's last call
+evidence.ev_n6r13_radio.desc,"""아이 하나는 내보냈다. 안에 한 명 더 있다. 404 들어간다."" 노크와 같은 박자다.","""Got one of the kids out. There's one more inside. Going into 404."" The same beat as the knocking."
+quest.prop.ev_n6r13_child,아이 목소리가 나는 쪽 확인,Find where the child's voice is
+evidence.ev_n6r13_child.name,아이 목소리,A child's voice
+evidence.ev_n6r13_child.desc,"""언니, 나 여기 있어."" 소리는 벽 안쪽에서 난다.","""I'm here."" It comes from inside the wall."
+case.n6-r14.title,출구의 층수 오류,The exit shows the wrong floor
+case.n6-r14.summary,"탈출 직전, 출구 표시가 1F, 4F, 4F-SERVICE를 번갈아 보여준다.","With the way out in sight, the exit sign keeps flicking between 1F, 4F and 4F-SERVICE."
+case.n6-r14.decision.physical_exit,물리 표식으로 출구를 찾았다,Found the exit by what is physical
+case.n6-r14.result.physical_exit,바깥 공기와 계단참 표식을 따라 나왔다. 1층이다.,Followed the outside air and the landing marks out. Ground floor.
+case.n6-r14.decision.followed_number,표시된 숫자를 따라갔다,Followed the number on the sign
+case.n6-r14.result.followed_number,숫자를 따라갔다. 4층 서비스 통로로 다시 들어섰다.,Followed the sign. It led back into the 4F service passage.
+case.n6-r14.decision.lift_running,엘리베이터를 탔다,Took the lift
+case.n6-r14.result.lift_running,엘리베이터에 아직 전원이 있었다. 1층에서 문이 열렸다.,The lift still had power. The doors opened on the ground floor.
+case.n6-r14.decision.lift_dead,엘리베이터를 탔다,Took the lift
+case.n6-r14.result.lift_dead,전원을 내린 엘리베이터였다. 층 사이에 멈춰 문을 비틀어 열고 나왔다.,The lift had been taken off the grid. It stopped between floors and I had to force the doors.
+quest.prop.ev_n6r14_air,1층 계단참의 바깥 공기 확인,Feel for outside air on the ground-floor landing
+evidence.ev_n6r14_air.name,바깥 공기,Outside air
+evidence.ev_n6r14_air.desc,차갑고 비 냄새가 난다. 이 계단참만 바깥과 통한다.,"Cold, and it smells of rain. Only this landing opens to the outside."
+reason.followed_the_feed,영상을 따라감,Followed the feed
+reason.the_2009_caller,2009년의 전화,The call from 2009
+reason.saw_your_own_id,내 이름이 다른 곳에 있었다,My name was somewhere else
+reason.watched_yourself_ahead,앞서 움직이는 나를 봤다,Watched myself ahead of time
+reason.saw_the_card_upstairs,4층의 카드 기록,The card upstairs
+reason.the_404_line,404의 전화,The line from 404
+reason.knocking_box,상자 안의 노크,Knocking in the box
+reason.saw_yourself_logged_in,내가 이미 로그인해 있었다,Already logged in as me
+reason.scraped_the_wall,벽을 긁어냄,Scraped the wall
+reason.opened_box_404,404 칸을 열었다,Opened the 404 slot
+reason.watched_the_reflection,거울 속 아이들,The children in the mirror
+reason.opened_her_door,그 문 너머,Behind that door
+reason.her_door,도면에 없는 문,The unplanned door
+reason.followed_the_broadcast,미리 들린 방송을 따라감,Followed the early broadcast
+reason.quiet_again,다시 조용해졌다,Quiet again
+reason.two_voices,두 목소리,Two voices
+reason.stuck_in_the_lift,엘리베이터에 갇힘,Stuck in the lift
+quest.prop.ev_n4r11_scraped,벽 아래층 확인,Look under the paint
+quest.prop.ev_n4r12_paper,404 칸 안의 종이 확인,Look at the paper in the 404 slot

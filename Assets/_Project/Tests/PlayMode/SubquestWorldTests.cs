@@ -11,7 +11,7 @@ using NO404.Interaction;
 namespace NO404.Tests
 {
     /// <summary>
-    /// Nights 1/3/5 (v5.1 10, 12, 14) in the built world: every subquest prop is physically
+    /// All six nights' subquests (v5.1 10-15) in the built world: every subquest prop is physically
     /// reachable, silent outside its quest, and the flows with rules of their own - a live
     /// panel, a looping corridor, a broadcast that needs a second witness - play through.
     /// </summary>
@@ -22,7 +22,7 @@ namespace NO404.Tests
         static readonly string[] Streamed =
         {
             ZoneIds.Parking, ZoneIds.RecyclingYard, ZoneIds.Machinery, ZoneIds.PumpRoom, ZoneIds.Archive,
-            ZoneIds.Floor03, ZoneIds.Floor04, ZoneIds.ServicePassage, ZoneIds.Floor05, ZoneIds.Floor06
+            ZoneIds.Floor03, ZoneIds.Floor04, ZoneIds.ServicePassage, ZoneIds.Unit404, ZoneIds.Floor05, ZoneIds.Floor06
         };
 
         [UnitySetUp]
@@ -61,20 +61,45 @@ namespace NO404.Tests
 
         static int NightOf(string caseId) { return caseId[1] - '0'; }
 
+        static void SyncAll(SubquestInteractable[] props)
+        {
+            foreach (var prop in props) prop.Sync();
+            Physics.SyncTransforms();
+        }
+
         [UnityTest]
         public IEnumerator EveryPropIsReachableAndSilentOutsideItsQuest()
         {
             var props = Object.FindObjectsByType<SubquestInteractable>(FindObjectsSortMode.None);
-            Assert.GreaterOrEqual(props.Length, 73, "night 1/3/5 props are missing from the world");
+            Assert.GreaterOrEqual(props.Length, 146, "subquest props are missing from the world");
 
             var context = new PlayerContext();
             var problems = new List<string>();
+
+            // Outside its quest a prop is not in the room at all: nothing to see, nothing to hit.
+            SyncAll(props);
             foreach (var prop in props)
             {
                 string reason;
                 if (prop.CanInteract(context, out reason)) problems.Add(prop.name + " speaks with its quest closed");
+                if (prop.Shown) problems.Add(prop.name + " stands in the room with its quest closed");
+                foreach (var r in prop.GetComponentsInChildren<Renderer>(true))
+                    if (r.enabled) { problems.Add(prop.name + " is visible with its quest closed"); break; }
+                foreach (var c in prop.GetComponentsInChildren<Collider>(true))
+                    if (c.enabled) { problems.Add(prop.name + " can be hit with its quest closed"); break; }
+            }
+            CollectionAssert.IsEmpty(problems, string.Join("; ", problems.ToArray()));
 
-                // Seen from the side it faces, nothing else may stand in front of it.
+            foreach (var prop in props)
+            {
+                ServiceHub.ResetPlaythrough();
+                Open(NightOf(prop.CaseId), prop.CaseId);
+                if (!string.IsNullOrEmpty(prop.RequiredFlag)) ServiceHub.State.SetFlag(prop.RequiredFlag, true);
+                SyncAll(props);
+
+                if (!prop.Shown) { problems.Add(prop.name + " is missing during " + prop.CaseId); continue; }
+
+                // Seen from the side it faces, nothing else in the room may stand in front of it.
                 var collider = prop.GetComponent<Collider>();
                 if (collider == null) { problems.Add(prop.name + " has no collider"); continue; }
                 Vector3 front = prop.transform.rotation * Vector3.back;
@@ -84,14 +109,7 @@ namespace NO404.Tests
                     problems.Add(prop.name + " cannot be hit");
                 else if (hit.collider.gameObject != prop.gameObject)
                     problems.Add(prop.name + " is hidden behind " + hit.collider.name);
-            }
-            CollectionAssert.IsEmpty(problems, string.Join("; ", problems.ToArray()));
 
-            foreach (var prop in props)
-            {
-                ServiceHub.ResetPlaythrough();
-                Open(NightOf(prop.CaseId), prop.CaseId);
-                if (!string.IsNullOrEmpty(prop.RequiredFlag)) ServiceHub.State.SetFlag(prop.RequiredFlag, true);
                 if (prop.Action == "n3r08_marker" || prop.Action == "n5r10_marker" ||
                     prop.Action == "n3r08_follow_number" || prop.Action == "n3r08_run" || prop.Action == "n5r10_door")
                     continue;   // loop actions are driven in their own test
@@ -103,6 +121,33 @@ namespace NO404.Tests
                     problems.Add(prop.name + " gave nothing");
             }
             CollectionAssert.IsEmpty(problems, string.Join("; ", problems.ToArray()));
+
+            ServiceHub.ResetPlaythrough();
+            SyncAll(props);
+            yield return null;
+        }
+
+        /// <summary>A prop placed under a condition stays away until the condition holds.</summary>
+        [UnityTest]
+        public IEnumerator APropWithAConditionWaitsForIt()
+        {
+            ServiceHub.ResetPlaythrough();
+            Open(6, "N6-R03");
+            SubquestInteractable marker = null, seal = null;
+            foreach (var prop in Object.FindObjectsByType<SubquestInteractable>(FindObjectsSortMode.None))
+            {
+                if (prop.name == "PassageReferenceMarker") marker = prop;
+                if (prop.name == "PassageDoorSeal") seal = prop;
+            }
+            marker.Sync();
+            seal.Sync();
+
+            Assert.IsTrue(seal.Shown);
+            Assert.IsFalse(marker.Shown, "the night-3 marker is there although nobody put one down");
+
+            ServiceHub.State.SetFlag(SubquestRules.F4ReferenceMarker, true);
+            marker.Sync();
+            Assert.IsTrue(marker.Shown);
             yield return null;
         }
 

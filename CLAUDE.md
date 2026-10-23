@@ -18,6 +18,7 @@
     scenario v2.1 in its section 1.1 and that section wins where the two differ.
   - `Docs/NIGHTS_1_3_5_V51.md` and `Docs/MAIN_QUESTS_1_3_5.md` — what of v5.1 is built for
     nights 1/3/5.
+  - `Docs/NIGHTS_2_4_6_V51.md` — the night 2/4/6 subquest pools.
   - `Docs/V5_STATUS.md` — what of v5 is built and what is not.
   The older documents below were never brought into this repository; they are described
   here for the systems that were built against them. Where that description disagrees with
