@@ -77,7 +77,7 @@ namespace NO404.Interaction
             EventBus.Unsubscribe<SaveRestoredEvent>(HandleSaveRestored);
         }
 
-        void Start() { Sync(); }
+        protected override void Start() { base.Start(); Sync(); }
 
         // The events make it appear the moment the quest is handed out. The poll is what puts
         // it away again - there is no event for a report being filed - and what keeps a co-op

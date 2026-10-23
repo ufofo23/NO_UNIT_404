@@ -510,6 +510,8 @@ namespace NO404.Gameplay
             pickup.Setup(evidenceId, labelKey);
             pickup.Configure(labelKey, ReachFor(position.y + size.y * 0.5f), false);
             pickup.SetAvailability(requiredFlagId, fromNight);
+            // Something to take is only there once it can be taken.
+            pickup.HideWhenUnavailable();
             return go;
         }
 
@@ -528,6 +530,8 @@ namespace NO404.Gameplay
             pickup.Setup(evidenceId, labelKey, false);
             pickup.Configure(labelKey, ReachFor(position.y + size.y * 0.5f), false);
             pickup.SetAvailability(null, night, night);
+            // The clock is on the wall every night; it is only worth reading on this one.
+            pickup.QuietWhenUnavailable();
             return go;
         }
 
@@ -567,7 +571,7 @@ namespace NO404.Gameplay
 
             var half = HalfOf(ZoneIds.Office);          // 4.0 x 3.0
             float north = half.y - 0.15f;
-            float west = -half.x + 0.35f;
+            // Wall-mounted things are placed against the wall's inner face, half a wall in.
 
             Box(root, "Desk", new Vector3(0f, 0.4f, north - 0.6f), new Vector3(3f, 0.8f, 0.8f),
                 new Color(0.30f, 0.27f, 0.24f));
@@ -616,16 +620,12 @@ namespace NO404.Gameplay
             Box(root, "KeyCabinet", new Vector3(-half.x + BuildingSpec.WallThickness * 0.5f + 0.15f, 1.1f, 0.8f), new Vector3(0.3f, 1.6f, 1.6f),
                 new Color(0.26f, 0.26f, 0.27f));
 
-            Pickup(root, "HandoverMemo", new Vector3(-1.1f, 0.85f, north - 0.7f),
-                   new Vector3(0.3f, 0.02f, 0.42f), new Color(0.78f, 0.76f, 0.68f),
-                   "EV_HANDOVER", "ui.prompt.read_memo");
+            Box(root, "HandoverMemo", new Vector3(-1.1f, 0.85f, north - 0.7f), new Vector3(0.3f, 0.02f, 0.42f), new Color(0.78f, 0.76f, 0.68f));
 
             // 8cm nearer the front edge than its mirror on the left, to leave the back-right
             // of the desk clear for the cassette deck below. Still fully on the desk: the
             // sheet is 0.42 deep and the desk front edge is at north - 1.0.
-            Pickup(root, "Contract", new Vector3(1.1f, 0.85f, north - 0.78f),
-                   new Vector3(0.3f, 0.02f, 0.42f), new Color(0.80f, 0.78f, 0.72f),
-                   "EV_CONTRACT", "ui.prompt.read_contract");
+            Box(root, "Contract", new Vector3(1.1f, 0.85f, north - 0.78f), new Vector3(0.3f, 0.02f, 0.42f), new Color(0.80f, 0.78f, 0.72f));
 
             var radio = Box(root, "Radio", new Vector3(-half.x + BuildingSpec.WallThickness * 0.5f + 0.15f, 1.5f, -0.8f),
                             new Vector3(0.3f, 0.2f, 0.3f), new Color(0.22f, 0.24f, 0.22f));
@@ -639,14 +639,8 @@ namespace NO404.Gameplay
             // clears the contract sheet in the row in front, while staying inside the desk
             // and inside reach from the chair side. y 0.875 stands it on the 0.8 desktop
             // rather than a couple of centimetres above it.
-            Pickup(root, "CassettePlayer", new Vector3(1.0f, 0.875f, north - 0.38f),
-                   new Vector3(0.45f, 0.15f, 0.3f), new Color(0.24f, 0.23f, 0.22f),
-                   "E05_FIRE_CALL_TAPE_A", "ui.prompt.play_tape", FlagIds.KnowsPastFootage, 2);
+            Box(root, "CassettePlayer", new Vector3(1.0f, 0.875f, north - 0.38f), new Vector3(0.45f, 0.15f, 0.3f), new Color(0.24f, 0.23f, 0.22f));
 
-            // Night 4: the drawer springs open after the call from 404 (GDD 9.5).
-            Pickup(root, "DocumentDrawer", new Vector3(west, 1.2f, -1.8f),
-                   new Vector3(0.3f, 0.35f, 0.9f), new Color(0.29f, 0.28f, 0.26f),
-                   "E14_FIRE_DOOR_LOCK_LOG", "ui.prompt.open_drawer", FlagIds.Knows404, 4);
 
             // Night 6: the building address system (GDD 9.7 step 2).
             var pa = Box(root, "PublicAddress", new Vector3(half.x - BuildingSpec.WallThickness * 0.5f - 0.125f, 1.6f, 0f),
@@ -654,6 +648,7 @@ namespace NO404.Gameplay
             var paDialogue = pa.AddComponent<DialogueInteractable>();
             paDialogue.Setup("D_N6_EVACUATION", "ui.prompt.use_pa");
             paDialogue.SetAvailability(null, 6);
+            paDialogue.QuietWhenUnavailable();
         }
 
         void BuildLobbyInterior()
@@ -673,10 +668,6 @@ namespace NO404.Gameplay
                    new Vector3(0.12f, 0.05f, 0.22f), new Color(0.68f, 0.62f, 0.35f),
                    "EV_KEY404", "ui.prompt.take_key");
 
-            // Night 2: the carton of a drink discontinued in 2009.
-            Pickup(root, "OldDeliveryBox", new Vector3(half.x - 1.2f, 0.3f, -0.5f),
-                   new Vector3(0.5f, 0.5f, 0.5f), new Color(0.55f, 0.48f, 0.38f),
-                   "E04_OLD_DELIVERY_LABEL", "ui.prompt.inspect_box", null, 2);
 
             // Night 2, N2-M01 (GDD v5.1 11): the two invariants that are only in the room.
             // CAM-02 shows a man sorting boxes in here; these are what the room itself says.
@@ -1046,9 +1037,12 @@ namespace NO404.Gameplay
                                  new Vector3(0.2f, 1.1f, 0.8f), new Color(0.22f, 0.26f, 0.24f));
             breakerBox.AddComponent<Interaction.BreakerPanel>().Configure("ui.prompt.breaker", 1.8f, true);
 
-            // Night 6: the cutter that opens the 404 steel door (GDD 9.7 step 3).
-            Pickup(root, "Toolbox", new Vector3(-half.x + 1f, 0.4f, -half.y + 1f),
-                   new Vector3(0.9f, 0.8f, 0.5f), new Color(0.45f, 0.38f, 0.22f),
+            // The toolbox is the building's. Night 6 is when the cutter that opens the 404
+            // steel door is lying on it (GDD 9.7 step 3).
+            Box(root, "Toolbox", new Vector3(-half.x + 1f, 0.4f, -half.y + 1f),
+                new Vector3(0.9f, 0.8f, 0.5f), new Color(0.45f, 0.38f, 0.22f));
+            Pickup(root, "HydraulicCutter", new Vector3(-half.x + 1f, 0.86f, -half.y + 1f),
+                   new Vector3(0.55f, 0.12f, 0.2f), new Color(0.55f, 0.12f, 0.10f),
                    "E21_HYDRAULIC_CUTTER", "ui.prompt.take_cutter", null, 6);
         }
 
@@ -1061,9 +1055,7 @@ namespace NO404.Gameplay
 
             PlaceBlocks(root, BasementLayout.ArchiveBlocks(half));
 
-            Pickup(root, "MaintenanceBill2009", new Vector3(-2.2f, 1.15f, half.y - 0.7f),
-                   new Vector3(0.3f, 0.02f, 0.4f), new Color(0.76f, 0.74f, 0.66f),
-                   "E20_2009_MAINTENANCE_BILL", "ui.prompt.read_bill", null, 4);
+            Box(root, "MaintenanceBill2009", new Vector3(-2.2f, 1.15f, half.y - 0.7f), new Vector3(0.3f, 0.02f, 0.4f), new Color(0.76f, 0.74f, 0.66f));
 
             // Night 4, N4-M01 (v5.1 13): what is left of the paper resident ledger. It is
             // read, not taken - it is the building's copy, and it has to still be here for a
@@ -1073,12 +1065,8 @@ namespace NO404.Gameplay
                         "EV_PAPER_LEDGER", "ui.prompt.read_ledger", 4)
                 .GetComponent<EvidencePickup>().SetAvailability(null, 4);
 
-            Pickup(root, "ChairmanLog", new Vector3(half.x - 0.8f, 1.15f, -1f),
-                   new Vector3(0.3f, 0.02f, 0.4f), new Color(0.74f, 0.72f, 0.64f),
-                   "E16_CHAIRMAN_ACCESS_LOG", "ui.prompt.read_access_log", null, 5);
+            Box(root, "ChairmanLog", new Vector3(half.x - 0.8f, 1.15f, -1f), new Vector3(0.3f, 0.02f, 0.4f), new Color(0.74f, 0.72f, 0.64f));
 
-            Pickup(root, "SmokeDevice", new Vector3(0f, 0.25f, -1.5f), new Vector3(0.3f, 0.3f, 0.3f),
-                   new Color(0.30f, 0.30f, 0.32f), "E15_SMOKE_DEVICE", "ui.prompt.inspect_device", null, 5);
 
             AddHidingSpot(root, "HidingCabinetB", new Vector3(-half.x + 0.4f, 0.8f, -half.y + 0.5f),
                           new Vector3(0.6f, 1.6f, 0.5f));
@@ -1313,16 +1301,11 @@ namespace NO404.Gameplay
                                 new Vector3(0.5f, 0.5f, 0.08f), new Color(0.33f, 0.29f, 0.27f),
                                 "EV_304_SOUND", "ui.prompt.record_sound");
             listen.GetComponent<EvidencePickup>().Configure("ui.prompt.record_sound", 2.0f, false);
+            listen.GetComponent<EvidencePickup>().SetAvailability(null, 1, 1);
+            listen.GetComponent<EvidencePickup>().QuietWhenUnavailable();
 
-            // Night 4: Seon-ja invites the player into 303 if she is well (GDD 9.5). Spec 0.11
-            // put her next door to the vacant unit so the night-1 walk and the night-4 visit
-            // are the same short trip.
-            var sunjaDoor = Box(root, "Door303_Talk",
-                                new Vector3(BuildingSpec.StandardDoorX[2] - 0.55f, 1.1f, half - 0.12f),
-                                new Vector3(0.2f, 0.2f, 0.06f), new Color(0.33f, 0.31f, 0.27f));
-            var sunjaDialogue = sunjaDoor.AddComponent<DialogueInteractable>();
-            sunjaDialogue.Setup("D_N4_SUNJA_TESTIMONY", "ui.prompt.talk_sunja");
-            sunjaDialogue.SetAvailability(FlagIds.SunjaHealthy, 4);
+            // v5.0's night-4 testimony at this door is N4-R10's now (v5.1 13): the knock
+            // that starts it is that quest's prop, so the door carries nothing of its own.
         }
 
         /// <summary>
@@ -1344,7 +1327,8 @@ namespace NO404.Gameplay
                                 new Vector3(0.2f, 0.2f, 0.06f), new Color(0.33f, 0.31f, 0.27f));
             var jiwooDialogue = jiwooDoor.AddComponent<DialogueInteractable>();
             jiwooDialogue.Setup("D_N3_JIWOO_ELEVATOR", "ui.prompt.talk_jiwoo");
-            jiwooDialogue.SetAvailability(null, 3);
+            jiwooDialogue.SetAvailability(null, 3, 3);
+            jiwooDialogue.QuietWhenUnavailable();
         }
 
         void BuildServicePassageInterior()
@@ -1361,14 +1345,12 @@ namespace NO404.Gameplay
 
             // v5.1: pencil marks say 언니 123 / 동생 117; no personal names.
             Pickup(root, "ChildHeightMarks", new Vector3(-2f, 1.2f, wall), new Vector3(0.5f, 0.5f, 0.03f),
-                   new Color(0.42f, 0.40f, 0.36f), "EV_HEIGHT_MARKS", "ui.prompt.inspect_marks", null, 3);
+                   new Color(0.42f, 0.40f, 0.36f), "EV_HEIGHT_MARKS", "ui.prompt.inspect_marks", null, 3)
+                .GetComponent<EvidencePickup>().QuietWhenUnavailable();
 
-            Pickup(root, "OldExtinguisher", new Vector3(2f, 0.45f, wall), new Vector3(0.18f, 0.55f, 0.18f),
-                   new Color(0.46f, 0.20f, 0.18f), "E09_OLD_FIRE_EXTINGUISHER_SERIAL",
-                   "ui.prompt.inspect_extinguisher");
+            Box(root, "OldExtinguisher", new Vector3(2f, 0.45f, wall), new Vector3(0.18f, 0.55f, 0.18f), new Color(0.46f, 0.20f, 0.18f));
 
-            Pickup(root, "MaintenanceFloorLog", new Vector3(-4.5f, 1.1f, wall), new Vector3(0.3f, 0.4f, 0.03f),
-                   new Color(0.72f, 0.70f, 0.62f), "E07_HIDDEN_MAINTENANCE_FLOOR_LOG", "ui.prompt.read_floor_log");
+            Box(root, "MaintenanceFloorLog", new Vector3(-4.5f, 1.1f, wall), new Vector3(0.3f, 0.4f, 0.03f), new Color(0.72f, 0.70f, 0.62f));
 
             // Night 3: Taeho is standing in the passage and does not want the player past him
             // (GDD 9.4 / case C06). Case C06 fires on entering this zone and its only objective
@@ -1379,13 +1361,10 @@ namespace NO404.Gameplay
                             new Vector3(0.45f, 1.75f, 0.35f), new Color(0.29f, 0.31f, 0.30f));
             var taehoDialogue = taeho.AddComponent<DialogueInteractable>();
             taehoDialogue.Setup("D_N3_TAEHO_PASSAGE", "ui.prompt.talk_taeho");
-            taehoDialogue.SetAvailability(null, 3);
+            taehoDialogue.SetAvailability(null, 3, 3);
+            taehoDialogue.HideWhenUnavailable();
 
-            Pickup(root, "RadioSignal", new Vector3(half.x - 0.6f, 1f, 0f), new Vector3(0.25f, 0.25f, 0.25f),
-                   new Color(0.30f, 0.34f, 0.30f), "E10_DONGSIK_RADIO_SIGNAL", "ui.prompt.listen_radio");
 
-            Pickup(root, "DongsikLocation", new Vector3(half.x - 0.6f, 1.5f, 0f), new Vector3(0.25f, 0.25f, 0.25f),
-                   new Color(0.34f, 0.38f, 0.34f), "E18_DONGSIK_LOCATION", "ui.prompt.trace_signal", null, 5);
         }
 
         void BuildUnit404Interior()
@@ -1414,7 +1393,8 @@ namespace NO404.Gameplay
             // v5.1 15: where the 2009 rescue plays back. Looked at, not taken; it is the room.
             Observation(root, "LastRescueEcho", new Vector3(0f, 1.2f, 0.2f),
                         new Vector3(0.6f, 0.6f, 0.6f), new Color(0.22f, 0.22f, 0.24f),
-                        "EV_N6_LAST_RESCUE", "ui.prompt.watch_echo", 6);
+                        "EV_N6_LAST_RESCUE", "ui.prompt.watch_echo", 6)
+                .GetComponent<EvidencePickup>().HideWhenUnavailable();
 
             // Where the ECHO ends. What is left of Park Dong-sik - his remains, his name tag,
             // his radio - and nothing that moves or speaks (v5.1 0.13, 30.4). It is there to
@@ -1431,6 +1411,7 @@ namespace NO404.Gameplay
             var confront = chairman.AddComponent<DialogueInteractable>();
             confront.Setup("D_N6_CHAIRMAN_CONFRONT", "ui.prompt.confront_chairman");
             confront.SetAvailability(null, 6);
+            confront.HideWhenUnavailable();
         }
 
         // ---- connections ---------------------------------------------------

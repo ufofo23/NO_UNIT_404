@@ -23,20 +23,97 @@ namespace NO404.Interaction
 
         protected bool _used;
 
+        /// <summary>What an object does while its gate is shut.</summary>
+        protected enum WhenUnavailable
+        {
+            /// <summary>Stays, and says "nothing here yet" when looked at. The old default.</summary>
+            Prompt = 0,
+            /// <summary>Not in the room at all: no renderer, no collider. Things that arrive.</summary>
+            Hidden = 1,
+            /// <summary>Stays in the room but cannot be aimed at: a wall clock, a doormat.</summary>
+            Quiet = 2
+        }
+
+        [SerializeField] protected WhenUnavailable _whenUnavailable = WhenUnavailable.Prompt;
+
         public float Range { get { return _range; } }
+
+        /// <summary>
+        /// For a thing the story says arrives - a slipper at the door, a body in a burnt room.
+        /// Until its gate opens it is not there, rather than standing about inert.
+        /// </summary>
+        public void HideWhenUnavailable() { _whenUnavailable = WhenUnavailable.Hidden; SyncVisibility(); }
+
+        /// <summary>
+        /// For a fixture that belongs to the building all week but only means something on its
+        /// night: it stays where it is and simply cannot be aimed at, so it never says
+        /// "nothing here yet".
+        /// </summary>
+        public void QuietWhenUnavailable() { _whenUnavailable = WhenUnavailable.Quiet; SyncVisibility(); }
+
+        /// <summary>Whether it is drawn and solid. Gate shut and Hidden: no.</summary>
+        protected virtual bool ShouldBeVisible()
+        {
+            return _whenUnavailable != WhenUnavailable.Hidden || IsAvailable();
+        }
+
+        /// <summary>Whether the interaction ray can land on it. Gate shut and Quiet: no.</summary>
+        protected virtual bool ShouldBeTargetable()
+        {
+            return ShouldBeVisible() && (_whenUnavailable != WhenUnavailable.Quiet || IsAvailable());
+        }
+
+        /// <summary>Puts renderers and colliders in step with the gate. Public for tests.</summary>
+        public void SyncVisibility()
+        {
+            if (_whenUnavailable == WhenUnavailable.Prompt && !ManagesOwnVisibility) return;
+            if (!ServiceHub.Ready) return;
+
+            bool visible = ShouldBeVisible();
+            bool targetable = visible && ShouldBeTargetable();
+            foreach (var r in GetComponentsInChildren<Renderer>(true)) if (r != null) r.enabled = visible;
+            foreach (var c in GetComponentsInChildren<Collider>(true)) if (c != null) c.enabled = targetable;
+        }
+
+        /// <summary>Set by a subclass that hides itself for reasons beyond the gate.</summary>
+        protected virtual bool ManagesOwnVisibility { get { return false; } }
 
         /// <summary>
         /// Office/lobby objects outlive a single playthrough (GDD 20.5: those zones are always
         /// resident), so a new playthrough has to clear their one-shot state explicitly instead
         /// of relying on the object being re-created.
         /// </summary>
-        protected virtual void OnEnable() { EventBus.Subscribe<PlaythroughResetEvent>(HandlePlaythroughReset); }
-        protected virtual void OnDisable() { EventBus.Unsubscribe<PlaythroughResetEvent>(HandlePlaythroughReset); }
+        protected virtual void OnEnable()
+        {
+            EventBus.Subscribe<PlaythroughResetEvent>(HandlePlaythroughReset);
+            EventBus.Subscribe<NightStartedEvent>(HandleNightStartedForVisibility);
+            EventBus.Subscribe<FlagChangedEvent>(HandleFlagChangedForVisibility);
+            EventBus.Subscribe<SaveRestoredEvent>(HandleSaveRestoredForVisibility);
+            EventBus.Subscribe<EvidenceAcquiredEvent>(HandleEvidenceForVisibility);
+        }
+
+        protected virtual void OnDisable()
+        {
+            EventBus.Unsubscribe<PlaythroughResetEvent>(HandlePlaythroughReset);
+            EventBus.Unsubscribe<NightStartedEvent>(HandleNightStartedForVisibility);
+            EventBus.Unsubscribe<FlagChangedEvent>(HandleFlagChangedForVisibility);
+            EventBus.Unsubscribe<SaveRestoredEvent>(HandleSaveRestoredForVisibility);
+            EventBus.Unsubscribe<EvidenceAcquiredEvent>(HandleEvidenceForVisibility);
+        }
+
+        // Everything a gate can open or close on is one of these, so nothing polls.
+        void HandleNightStartedForVisibility(NightStartedEvent evt) { SyncVisibility(); }
+        void HandleFlagChangedForVisibility(FlagChangedEvent evt) { SyncVisibility(); }
+        void HandleSaveRestoredForVisibility(SaveRestoredEvent evt) { SyncVisibility(); }
+        void HandleEvidenceForVisibility(EvidenceAcquiredEvent evt) { SyncVisibility(); }
+
+        protected virtual void Start() { SyncVisibility(); }
 
         void HandlePlaythroughReset(PlaythroughResetEvent evt)
         {
             _used = false;
             OnPlaythroughReset();
+            SyncVisibility();
         }
 
         /// <summary>Override to undo any extra one-shot effect (e.g. a hidden renderer).</summary>
@@ -51,13 +128,14 @@ namespace NO404.Interaction
         /// Something else happening first takes this away: the fire reaching the room, the
         /// chance having been spent on the other thing.
         /// </summary>
-        public void BlockWhen(string flagId) { _blockingFlagId = flagId; }
+        public void BlockWhen(string flagId) { _blockingFlagId = flagId; SyncVisibility(); }
 
         public void SetAvailability(string requiredFlagId, int fromNight, int untilNight = -1)
         {
             _requiredFlagId = requiredFlagId;
             _fromNight = fromNight;
             _untilNight = untilNight;
+            SyncVisibility();
         }
 
         protected bool IsAvailable()
@@ -127,13 +205,22 @@ namespace NO404.Interaction
 
         /// <summary>
         /// For props that the story says appear rather than unlock: the red slipper is not in
-        /// the office until the child has been at the door (GDD 9.1). Gated objects otherwise
-        /// follow the greybox rule of staying put and merely going inert.
+        /// the office until the child has been at the door (GDD 9.1).
         /// </summary>
         public void HideUntilAvailable()
         {
             _hiddenUntilAvailable = true;
-            SyncRenderer();
+            HideWhenUnavailable();
+        }
+
+        protected override bool ManagesOwnVisibility { get { return _hideOnPickup; } }
+
+        protected override bool ShouldBeVisible()
+        {
+            if (_hiddenUntilAvailable && !IsAvailable()) return false;
+            if (!base.ShouldBeVisible()) return false;
+            // Taken is gone. Read-not-taken (a clock, a ledger) stays on the wall.
+            return !_hideOnPickup || ServiceHub.Evidence == null || !ServiceHub.Evidence.Has(_evidenceId);
         }
 
         public override bool CanInteract(in PlayerContext context, out string reasonKey)
@@ -156,55 +243,7 @@ namespace NO404.Interaction
             // everybody's tray - including this one, which is why nothing is added locally.
             Net.NetShift.Request(Net.NetShift.ShiftAct.AcquireEvidence, _evidenceId, null,
                                  (int)Evidence.EvidenceSource.WorldPickup);
-            SyncRenderer();
-        }
-
-        /// <summary>A new playthrough puts every pickup back on its desk (GDD 20.5).</summary>
-        protected override void OnPlaythroughReset() { SyncRenderer(); }
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            EventBus.Subscribe<SaveRestoredEvent>(HandleSaveRestored);
-            EventBus.Subscribe<FlagChangedEvent>(HandleFlagChanged);
-            EventBus.Subscribe<NightStartedEvent>(HandleNightStarted);
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            EventBus.Unsubscribe<SaveRestoredEvent>(HandleSaveRestored);
-            EventBus.Unsubscribe<FlagChangedEvent>(HandleFlagChanged);
-            EventBus.Unsubscribe<NightStartedEvent>(HandleNightStarted);
-        }
-
-        /// <summary>Both gates a pickup can open on are events, so neither needs polling.</summary>
-        void HandleFlagChanged(FlagChangedEvent evt)
-        {
-            if (_hiddenUntilAvailable && evt.FlagId == _requiredFlagId) SyncRenderer();
-        }
-
-        void HandleNightStarted(NightStartedEvent evt)
-        {
-            if (_hiddenUntilAvailable) SyncRenderer();
-        }
-
-        /// <summary>
-        /// A loaded save may already own this evidence even though PlaythroughResetEvent (fired
-        /// earlier in the same restore, before evidence is loaded) just made the pickup visible
-        /// again - this puts it back in whatever state the save actually says.
-        /// </summary>
-        void HandleSaveRestored(SaveRestoredEvent evt) { SyncRenderer(); }
-
-        void SyncRenderer()
-        {
-            var renderer = GetComponent<Renderer>();
-            if (renderer == null) return;
-
-            if (_hiddenUntilAvailable && !IsAvailable()) { renderer.enabled = false; return; }
-            if (!_hideOnPickup) { renderer.enabled = true; return; }
-
-            renderer.enabled = !ServiceHub.Evidence.Has(_evidenceId);
+            SyncVisibility();
         }
     }
 

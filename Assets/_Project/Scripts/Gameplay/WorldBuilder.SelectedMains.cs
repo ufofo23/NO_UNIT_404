@@ -27,8 +27,15 @@ namespace NO404.Gameplay
                 go.AddComponent<BoxCollider>().size = size;
                 BuildKit(go.transform, kit);
             }
-            go.AddComponent<MainQuestInteractable>().Setup(quest, evidence, action, label);
+            // What belongs to the building all week - seals, gauges, panels, a hatch, a sign
+            // on a door - stays; papers and objects arrive with their main.
+            bool fixture = kit != Kit.Paper && kit != Kit.Plate || Fixtures.Contains(name);
+            go.AddComponent<MainQuestInteractable>().Setup(quest, evidence, action, label, fixture);
         }
+
+        /// <summary>Plates that are part of the wall rather than something left there.</summary>
+        static readonly System.Collections.Generic.HashSet<string> Fixtures =
+            new System.Collections.Generic.HashSet<string> { "ComparePersonalHeight", "MisleadingServiceDoor" };
 
         void BuildSelectedMainProps()
         {
